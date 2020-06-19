@@ -2,6 +2,7 @@ package com.zc.phonoplayer
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -26,7 +27,6 @@ import com.zc.phonoplayer.util.loadUri
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
 
-
 const val READ_PERMISSION_GRANT = 100
 
 class MainActivity : AppCompatActivity(), OnSongClickedListener {
@@ -42,23 +42,22 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
         initializePlayer()
     }
 
-    private val connectionCallback: MediaBrowserCompat.ConnectionCallback =
-        object : MediaBrowserCompat.ConnectionCallback() {
-            override fun onConnected() {
-                super.onConnected()
-                mMediaBrowserCompat.sessionToken.also { token ->
-                    val mediaController = MediaControllerCompat(this@MainActivity, token)
-                    MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
-                }
-                setupController()
-                Log.d("onConnected", "Controller Connected")
+    private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            super.onConnected()
+            mMediaBrowserCompat.sessionToken.also { token ->
+                val mediaController = MediaControllerCompat(this@MainActivity, token)
+                MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
             }
-
-            override fun onConnectionFailed() {
-                super.onConnectionFailed()
-                Log.d("onConnected", "Connection Failed")
-            }
+            setupController()
+            Log.d("onConnected", "Controller Connected")
         }
+
+        override fun onConnectionFailed() {
+            super.onConnectionFailed()
+            Log.d("onConnected", "Connection Failed")
+        }
+    }
 
     private val mControllerCallback = object : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
@@ -73,8 +72,8 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
 
     private fun populateUi() {
         val tabAdapter = TabAdapter(supportFragmentManager)
-        tabAdapter.addFragment(SongFragment(), "Tracks")
-        tabAdapter.addFragment(AlbumFragment(), "Albums")
+        tabAdapter.addFragment(SongFragment(), getString(R.string.tracks))
+        tabAdapter.addFragment(AlbumFragment(), getString(R.string.albums))
         view_pager.adapter = tabAdapter
         navigation_bar.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -100,6 +99,12 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
 
             override fun onPageScrollStateChanged(i: Int) {}
         })
+
+        controller_layout_view.setOnClickListener {
+            val intent = Intent(this, SongActivity::class.java)
+            intent.putExtra(SELECTED_SONG, selectedSong)
+            startActivity(intent)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -166,6 +171,11 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
     override fun onStart() {
         super.onStart()
         mMediaBrowserCompat.connect()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //TODO CHECK STATE
     }
 
     override fun onStop() {

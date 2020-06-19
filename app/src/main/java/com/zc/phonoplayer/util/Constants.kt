@@ -21,4 +21,3 @@ const val SELECTED_INDEX = "selected_index"
 const val SONG_LIST = "song_list"
 const val PLAYLIST = "playlist"
 
-const val BROADCAST_PAUSE_PLAY = "broadcast_pause_play"
