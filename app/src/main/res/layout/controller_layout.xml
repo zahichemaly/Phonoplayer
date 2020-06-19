@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/controller_layout"
+    android:background="@color/background_color_dark"
+    android:clickable="true"
+    android:focusable="true">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/controller_album_art"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        app:civ_border_color="@color/item_circle_border_inactive"
+        app:civ_border_width="1dp"
+        android:layout_margin="@dimen/spacing_small"
+        android:padding="@dimen/spacing_small"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/ic_default_music" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:padding="@dimen/spacing_small"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/controller_track"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:text="@string/song_title"
+            android:textColor="@color/white"
+            android:textSize="@dimen/title_medium"
+            android:textStyle="bold"
+            android:singleLine="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/controller_previous_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/background_color_dark"
+                android:src="@drawable/exo_controls_previous"
+                android:contentDescription="@string/exo_controls_previous_description">
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/controller_play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:background="@color/background_color_dark"
+                android:src="@drawable/exo_controls_play"
+                android:contentDescription="@string/exo_controls_play_description">
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/controller_next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/background_color_dark"
+                android:src="@drawable/exo_controls_next"
+                android:contentDescription="@string/exo_controls_next_description">
+            </ImageButton>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/item_divider_color"/>
+
+</RelativeLayout>
