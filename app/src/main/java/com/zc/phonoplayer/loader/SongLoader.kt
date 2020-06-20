@@ -6,8 +6,9 @@ import android.provider.MediaStore
 import com.zc.phonoplayer.model.Song
 import java.util.*
 
-class SongLoader {
+object SongLoader {
     private val URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    private const val BASE_SELECTION = MediaStore.Audio.AudioColumns.IS_MUSIC + "=1"
 
     @SuppressLint("InlinedApi")
     private val PROJECTION = arrayOf(
@@ -21,15 +22,8 @@ class SongLoader {
         MediaStore.Audio.AudioColumns.TRACK //7
     )
 
-    companion object {
-        @JvmStatic
-        fun newInstance(): SongLoader = SongLoader()
-
-        private const val BASE_SELECTION = MediaStore.Audio.AudioColumns.IS_MUSIC + "=1"
-    }
-
     fun getSongs(contentResolver: ContentResolver): ArrayList<Song> {
-        val songList: ArrayList<Song> = ArrayList()
+        val songList = arrayListOf<Song>()
         val sortOrder = MediaStore.Audio.Media.TITLE + " ASC"
         val cursor = contentResolver.query(URI, PROJECTION, BASE_SELECTION, null, sortOrder)
         if (cursor != null && cursor.count > 0) {
@@ -40,8 +34,8 @@ class SongLoader {
                 val album = cursor.getString(3)
                 val artist = cursor.getString(4)
                 val albumId = cursor.getLong(5)
-                val duration = cursor.getInt(6)
-                val track = cursor.getInt(7)
+                val duration = cursor.getLong(6)
+                val track = cursor.getLong(7)
                 songList.add(Song(id, data, title, album, artist, albumId, duration, track))
             }
             cursor.close()
@@ -50,7 +44,7 @@ class SongLoader {
     }
 
     fun getSongsFromAlbum(contentResolver: ContentResolver, albumID: String): ArrayList<Song> {
-        val songList: ArrayList<Song> = ArrayList()
+        val songList = arrayListOf<Song>()
         val selection = BASE_SELECTION + " AND " + MediaStore.Audio.AudioColumns.ALBUM_ID + "=" + albumID
         val sortOrder = MediaStore.Audio.Media.TRACK + " ASC"
         val cursor = contentResolver.query(URI, PROJECTION, selection, null, sortOrder)
@@ -62,8 +56,8 @@ class SongLoader {
                 val album = cursor.getString(3)
                 val artist = cursor.getString(4)
                 val albumId = cursor.getLong(5)
-                val duration = cursor.getInt(6)
-                val track = cursor.getInt(7)
+                val duration = cursor.getLong(6)
+                val track = cursor.getLong(7)
                 songList.add(Song(id, data, title, album, artist, albumId, duration, track))
             }
             cursor.close()
@@ -72,7 +66,7 @@ class SongLoader {
     }
 
     fun getSongsFromGenre(contentResolver: ContentResolver, genreId: Int): ArrayList<Song> {
-        val songList: ArrayList<Song> = ArrayList()
+        val songList = arrayListOf<Song>()
         val uri = MediaStore.Audio.Genres.Members.getContentUri("external", genreId.toLong())
         val sortOrder = MediaStore.Audio.Media.TRACK + " ASC"
         val cursor = contentResolver.query(uri, PROJECTION, BASE_SELECTION, null, sortOrder)
@@ -84,8 +78,8 @@ class SongLoader {
                 val album = cursor.getString(3)
                 val artist = cursor.getString(4)
                 val albumId = cursor.getLong(5)
-                val duration = cursor.getInt(6)
-                val track = cursor.getInt(7)
+                val duration = cursor.getLong(6)
+                val track = cursor.getLong(7)
                 songList.add(Song(id, data, title, album, artist, albumId, duration, track))
             }
             cursor.close()

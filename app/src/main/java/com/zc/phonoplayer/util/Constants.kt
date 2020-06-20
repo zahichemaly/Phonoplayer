@@ -20,4 +20,3 @@ const val SELECTED_SONG = "selected_song"
 const val SELECTED_INDEX = "selected_index"
 const val SONG_LIST = "song_list"
 const val PLAYLIST = "playlist"
-

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.MenuItem
@@ -21,9 +22,7 @@ import com.zc.phonoplayer.fragment.OnSongClickedListener
 import com.zc.phonoplayer.fragment.SongFragment
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
-import com.zc.phonoplayer.util.SELECTED_SONG
-import com.zc.phonoplayer.util.SONG_LIST
-import com.zc.phonoplayer.util.loadUri
+import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
 
@@ -32,7 +31,8 @@ const val READ_PERMISSION_GRANT = 100
 class MainActivity : AppCompatActivity(), OnSongClickedListener {
     private var prevMenuItem: MenuItem? = null
     private lateinit var mMediaBrowserCompat: MediaBrowserCompat
-    private var selectedSong: Song? = null
+    private var mediaController: MediaControllerCompat? = null
+    private var song: Song? = null
     private var songList: ArrayList<Song>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
         override fun onConnected() {
             super.onConnected()
             mMediaBrowserCompat.sessionToken.also { token ->
-                val mediaController = MediaControllerCompat(this@MainActivity, token)
+                mediaController = MediaControllerCompat(this@MainActivity, token)
                 MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
             }
             setupController()
@@ -61,12 +61,12 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
 
     private val mControllerCallback = object : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-            if (state.state == PlaybackStateCompat.STATE_PLAYING) {
-                controller_play_button.setImageDrawable(ContextCompat.getDrawable(this@MainActivity, R.drawable.exo_controls_pause))
-            }
-            if (state.state == PlaybackStateCompat.STATE_PAUSED) {
-                controller_play_button.setImageDrawable(ContextCompat.getDrawable(this@MainActivity, R.drawable.exo_controls_play))
-            }
+            updateControllerState(state)
+        }
+
+        override fun onMetadataChanged(metadata: MediaMetadataCompat) {
+            song = SongHelper.getSongFromMetadata(metadata)
+            updateSongController()
         }
     }
 
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
 
         controller_layout_view.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
-            intent.putExtra(SELECTED_SONG, selectedSong)
+            intent.putExtra(SELECTED_SONG, song)
             startActivity(intent)
         }
     }
@@ -135,37 +135,46 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
         mMediaBrowserCompat = MediaBrowserCompat(this, componentName, connectionCallback, null)
     }
 
+    private fun updateControllerState(state: PlaybackStateCompat) {
+        if (state.state == PlaybackStateCompat.STATE_PLAYING) {
+            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_pause))
+        }
+        if (state.state == PlaybackStateCompat.STATE_PAUSED) {
+            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+        }
+    }
+
     private fun setupController() {
-        val mediaController = MediaControllerCompat.getMediaController(this)
         controller_play_button.setOnClickListener {
-            when (mediaController.playbackState.state) {
-                PlaybackStateCompat.STATE_PAUSED,
-                PlaybackStateCompat.STATE_STOPPED,
-                PlaybackStateCompat.STATE_NONE -> {
+            when (mediaController?.playbackState?.state) {
+                PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.STATE_NONE -> {
                     playSelectedSong()
                 }
-                PlaybackStateCompat.STATE_PLAYING,
-                PlaybackStateCompat.STATE_BUFFERING,
-                PlaybackStateCompat.STATE_CONNECTING -> {
-                    mediaController.transportControls.pause()
-                    controller_play_button.setImageDrawable(
-                        ContextCompat.getDrawable(this, R.drawable.exo_controls_play)
-                    )
+                PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING, PlaybackStateCompat.STATE_CONNECTING -> {
+                    mediaController?.transportControls?.pause()
+                    controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
                 }
             }
         }
-        mediaController.registerCallback(mControllerCallback)
+        mediaController?.registerCallback(mControllerCallback)
     }
 
     private fun playSelectedSong() {
-        val mediaController = MediaControllerCompat.getMediaController(this)
-        selectedSong?.run {
+        song?.run {
             val extras = Bundle()
-            extras.putParcelable(SELECTED_SONG, selectedSong)
+            extras.putParcelable(SELECTED_SONG, song)
             extras.putParcelableArrayList(SONG_LIST, songList)
-            mediaController.transportControls.playFromUri(getUri(), extras)
+            mediaController?.transportControls?.playFromUri(getUri(), extras)
         }
-        controller_play_button.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.exo_controls_pause))
+    }
+
+    private fun updateSongController() {
+        controller_song_title.text = song!!.title
+        controller_song_artist.text = song!!.artist
+        loadUri(song?.albumArtUri, controller_song_art)
+        mediaController?.playbackState?.let {
+            updateControllerState(it)
+        }
     }
 
     override fun onStart() {
@@ -173,16 +182,18 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
         mMediaBrowserCompat.connect()
     }
 
-    override fun onResume() {
-        super.onResume()
-        //TODO CHECK STATE
-    }
-
     override fun onStop() {
         super.onStop()
-        val controllerCompat = MediaControllerCompat.getMediaController(this)
-        controllerCompat?.unregisterCallback(mControllerCallback)
+        mediaController?.unregisterCallback(mControllerCallback)
         mMediaBrowserCompat.disconnect()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mediaController?.run {
+            song = SongHelper.getSongFromMetadata(metadata)
+            updateSongController()
+        }
     }
 
     override fun onAttachFragment(fragment: Fragment) {
@@ -192,10 +203,9 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
     }
 
     override fun onSongClicked(song: Song) {
-        Log.i("Clicked", "song clicked is: " + song.songTitle)
-        selectedSong = song
-        controller_track.text = selectedSong!!.songTitle
-        loadUri(selectedSong!!.getAlbumArtUri().toString(), controller_album_art)
+        Log.i("Clicked", "song clicked is: " + song.title)
+        this.song = song
+        updateSongController()
         playSelectedSong()
     }
 

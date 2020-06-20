@@ -1,10 +1,10 @@
 package com.zc.phonoplayer.util
 
-import android.app.Activity
 import android.content.Context
-import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.MediaSessionCompat
+import android.graphics.drawable.Drawable
 import android.view.View
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.gson.Gson
@@ -26,8 +26,12 @@ fun Context.loadUri(drawable: String?, imageView: CircleImageView) {
         .into(imageView)
 }
 
-fun Context.color(colorInt: Int): Int {
-    return ContextCompat.getColor(this, colorInt)
+fun Context.color(@ColorRes colorRes: Int): Int {
+    return ContextCompat.getColor(this, colorRes)
 }
 
-inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object : TypeToken<T>() {}.type)
+fun Context.drawable(@DrawableRes drawableRes: Int): Drawable? {
+    return ContextCompat.getDrawable(this, drawableRes)
+}
+
+inline fun <reified T> Gson.fromJson(json: String): T = fromJson<T>(json, object : TypeToken<T>() {}.type)

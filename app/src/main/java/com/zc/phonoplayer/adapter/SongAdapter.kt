@@ -26,9 +26,9 @@ class SongAdapter(private var songList: List<Song>, private var onSongClicked: (
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val song = songList[position]
-        holder.songText.text = song.songTitle
-        holder.albumText.text = song.songAlbum
-        holder.artistText.text = song.songArtist
+        holder.songText.text = song.title
+        holder.albumText.text = song.album
+        holder.artistText.text = song.artist
         view.loadUri(song.getAlbumArtUri().toString(), holder.albumArt)
         holder.rootLayout.setOnClickListener {
             onSongClicked(song)

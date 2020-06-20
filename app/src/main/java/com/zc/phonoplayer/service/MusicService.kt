@@ -121,6 +121,7 @@ class MusicService : MediaBrowserServiceCompat() {
             mAttrs?.let { initializeAttributes() }
             // In 2.9.X you don't need to manually handle audio focus :D
             setAudioAttributes(mAttrs, true)
+            updateMetadata()
             prepare(mediaSource)
             play()
         }
@@ -129,7 +130,7 @@ class MusicService : MediaBrowserServiceCompat() {
     private fun play() {
         mExoPlayer?.apply {
             mExoPlayer?.playWhenReady = true
-            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, currentPosition)
             buildNotification(PlaybackStatus.PLAYING)
             mMediaSession?.isActive = true
         }
@@ -139,7 +140,7 @@ class MusicService : MediaBrowserServiceCompat() {
         mExoPlayer?.apply {
             playWhenReady = false
             if (playbackState == PlaybackStateCompat.STATE_PLAYING) {
-                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, currentPosition)
                 buildNotification(PlaybackStatus.PAUSED)
             }
         }
@@ -149,7 +150,7 @@ class MusicService : MediaBrowserServiceCompat() {
         mExoPlayer?.playWhenReady = false
         mExoPlayer?.release()
         mExoPlayer = null
-        updatePlaybackState(PlaybackStateCompat.STATE_NONE)
+        updatePlaybackState(PlaybackStateCompat.STATE_NONE, 0L)
         removeNotification()
         mMediaSession?.isActive = false
         mMediaSession?.release()
@@ -177,10 +178,8 @@ class MusicService : MediaBrowserServiceCompat() {
         }
     }
 
-    private fun updatePlaybackState(state: Int) {
-        mMediaSession?.setPlaybackState(
-            PlaybackStateCompat.Builder().setState(state, 0L, 1.0f).build()
-        )
+    private fun updatePlaybackState(state: Int, position: Long) {
+        mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, 1.0f).build())
     }
 
     private fun initializeAttributes() {
@@ -214,8 +213,8 @@ class MusicService : MediaBrowserServiceCompat() {
                 pendingIntent = getPendingIntentFromAction(NotificationAction.PLAY.value)
             }
         }
-        val songTitle = currentSong?.songTitle ?: getString(R.string.na)
-        val songArtist = currentSong?.songArtist ?: getString(R.string.na)
+        val songTitle = currentSong?.title ?: getString(R.string.na)
+        val songArtist = currentSong?.artist ?: getString(R.string.na)
         val albumtArtBitmap = SongHelper.getBitmapFromUri(currentSong?.getAlbumArtUri(), contentResolver)
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -288,14 +287,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     private fun updateMetadata() {
-        mMediaSession?.setMetadata(
-            MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, currentSong?.songArtist)
-                .putString(MediaMetadataCompat.METADATA_KEY_ART_URI, currentSong?.getAlbumArtUri().toString())
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, currentSong?.songAlbum)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, currentSong?.songTitle)
-                .build()
-        )
+        mMediaSession?.setMetadata(SongHelper.getMetadataFromSong(currentSong!!))
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {

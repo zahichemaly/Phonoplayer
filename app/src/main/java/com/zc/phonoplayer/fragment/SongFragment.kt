@@ -23,7 +23,7 @@ class SongFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        songList = SongLoader.newInstance().getSongs(requireActivity().applicationContext.contentResolver)
+        songList = SongLoader.getSongs(requireActivity().applicationContext.contentResolver)
         callback.onSongListReady(songList)
     }
 
