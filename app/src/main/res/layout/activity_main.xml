@@ -38,6 +38,8 @@
         android:id="@+id/controller_layout_view"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        tools:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_pager"

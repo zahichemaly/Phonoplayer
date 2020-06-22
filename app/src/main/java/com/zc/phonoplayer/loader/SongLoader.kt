@@ -8,7 +8,7 @@ import java.util.*
 
 object SongLoader {
     private val URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-    private const val BASE_SELECTION = MediaStore.Audio.AudioColumns.IS_MUSIC + "=1"
+    private const val SELECTION = MediaStore.Audio.AudioColumns.IS_MUSIC + "=1"
 
     @SuppressLint("InlinedApi")
     private val PROJECTION = arrayOf(
@@ -25,7 +25,7 @@ object SongLoader {
     fun getSongs(contentResolver: ContentResolver): ArrayList<Song> {
         val songList = arrayListOf<Song>()
         val sortOrder = MediaStore.Audio.Media.TITLE + " ASC"
-        val cursor = contentResolver.query(URI, PROJECTION, BASE_SELECTION, null, sortOrder)
+        val cursor = contentResolver.query(URI, PROJECTION, SELECTION, null, sortOrder)
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(0)
@@ -45,7 +45,7 @@ object SongLoader {
 
     fun getSongsFromAlbum(contentResolver: ContentResolver, albumID: String): ArrayList<Song> {
         val songList = arrayListOf<Song>()
-        val selection = BASE_SELECTION + " AND " + MediaStore.Audio.AudioColumns.ALBUM_ID + "=" + albumID
+        val selection = SELECTION + " AND " + MediaStore.Audio.AudioColumns.ALBUM_ID + "=" + albumID
         val sortOrder = MediaStore.Audio.Media.TRACK + " ASC"
         val cursor = contentResolver.query(URI, PROJECTION, selection, null, sortOrder)
         if (cursor != null && cursor.count > 0) {
@@ -69,7 +69,7 @@ object SongLoader {
         val songList = arrayListOf<Song>()
         val uri = MediaStore.Audio.Genres.Members.getContentUri("external", genreId.toLong())
         val sortOrder = MediaStore.Audio.Media.TRACK + " ASC"
-        val cursor = contentResolver.query(uri, PROJECTION, BASE_SELECTION, null, sortOrder)
+        val cursor = contentResolver.query(uri, PROJECTION, SELECTION, null, sortOrder)
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(0)

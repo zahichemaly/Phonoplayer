@@ -5,8 +5,8 @@ import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 import com.zc.phonoplayer.util.ALBUM_PATH
-import com.zc.phonoplayer.util.SongHelper
 import com.zc.phonoplayer.util.TimeFormatter
+import kotlin.math.max
 
 data class Song(
     var id: Long = 0L,
@@ -79,8 +79,8 @@ data class Song(
     }
 
     fun getTrackNo(): String {
-        val track = trackNo.toString()
-        return if (trackNo < 10) return "0$trackNo."
-        else "$trackNo."
+        val trackNoWithDiscNo = trackNo.toString()
+        val trackNo = trackNoWithDiscNo.substring(max(trackNoWithDiscNo.length - 2, 0))
+        return "$trackNo."
     }
 }

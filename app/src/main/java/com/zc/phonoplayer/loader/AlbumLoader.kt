@@ -7,8 +7,8 @@ import com.zc.phonoplayer.model.Album
 import java.util.*
 
 object AlbumLoader {
-    private val BASE_URI = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
-    private val BASE_PROJECTION = arrayOf(
+    private val URI = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
+    private val PROJECTION = arrayOf(
         MediaStore.Audio.Albums._ID,  //0
         MediaStore.Audio.Albums.ALBUM,  //1
         MediaStore.Audio.Albums.ARTIST,  //2
@@ -28,7 +28,7 @@ object AlbumLoader {
     fun getAlbums(contentResolver: ContentResolver): ArrayList<Album> {
         val albumList = arrayListOf<Album>()
         val sortOrder = MediaStore.Audio.Albums.ALBUM + " ASC"
-        val cursor = contentResolver.query(BASE_URI, BASE_PROJECTION, null, null, sortOrder)
+        val cursor = contentResolver.query(URI, PROJECTION, null, null, sortOrder)
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 albumList.add(getAlbumFromCursor(cursor))
@@ -41,7 +41,7 @@ object AlbumLoader {
     fun getAlbumsByGenre(contentResolver: ContentResolver, genreId: Int): ArrayList<Album> {
         val albumList = arrayListOf<Album>()
         val sortOrder = MediaStore.Audio.Albums.ALBUM + " ASC"
-        val cursor = contentResolver.query(BASE_URI, BASE_PROJECTION, null, null, sortOrder)
+        val cursor = contentResolver.query(URI, PROJECTION, null, null, sortOrder)
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 albumList.add(getAlbumFromCursor(cursor))

@@ -3,23 +3,20 @@ package com.zc.phonoplayer.model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Playlist(
+data class Genre(
     var id: Long,
-    var nbOfSongs: Int,
-    var data: String? = null,
+    var count: Int,
     var name: String? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readInt(),
-        parcel.readString(),
         parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
-        parcel.writeInt(nbOfSongs)
-        parcel.writeString(data)
+        parcel.writeInt(count)
         parcel.writeString(name)
     }
 
@@ -27,12 +24,12 @@ data class Playlist(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Playlist> {
-        override fun createFromParcel(parcel: Parcel): Playlist {
-            return Playlist(parcel)
+    companion object CREATOR : Parcelable.Creator<Genre> {
+        override fun createFromParcel(parcel: Parcel): Genre {
+            return Genre(parcel)
         }
 
-        override fun newArray(size: Int): Array<Playlist?> {
+        override fun newArray(size: Int): Array<Genre?> {
             return arrayOfNulls(size)
         }
     }

@@ -12,8 +12,8 @@ import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.util.loadUri
 import de.hdodenhof.circleimageview.CircleImageView
 
-class AlbumAdapter(private var albumList: List<Album>, private var onAlbumClicked: (Album) -> Unit) :
-    RecyclerView.Adapter<AlbumAdapter.ViewHolder>() {
+class AlbumAdapter(private var albumList: ArrayList<Album>, private var onAlbumClicked: (Album) -> Unit) :
+    IndexAdapter<AlbumAdapter.ViewHolder>(albumList.mapNotNull { a -> a.title }) {
     private lateinit var view: View
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,6 +33,13 @@ class AlbumAdapter(private var albumList: List<Album>, private var onAlbumClicke
         holder.rootLayout.setOnClickListener {
             Log.i("AlbumAdapter", "Album Clicked: ${album.title}")
             onAlbumClicked(album)
+        }
+        holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            val deleteMenu = menu.add(0, v.id, 0, "Delete")
+            deleteMenu.setOnMenuItemClickListener {
+                //callback.onRowDeleted(mPart)
+                true
+            }
         }
     }
 

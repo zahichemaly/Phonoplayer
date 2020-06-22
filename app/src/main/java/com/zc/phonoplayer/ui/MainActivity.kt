@@ -10,6 +10,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,6 +21,7 @@ import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.TabAdapter
 import com.zc.phonoplayer.listeners.OnAlbumClickedListener
 import com.zc.phonoplayer.listeners.OnSongClickedListener
+import com.zc.phonoplayer.loader.PlaylistLoader
 import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
@@ -37,12 +39,19 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
     private var mediaController: MediaControllerCompat? = null
     private var song: Song? = null
     private var songList: ArrayList<Song>? = null
+    private lateinit var storageUtil: StorageUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        storageUtil = StorageUtil(this)
         checkPermissions()
         initializePlayer()
+        //Testing
+        val playlists = PlaylistLoader.getPlaylists(contentResolver)
+        playlists.forEach {
+            Log.i("Playlist", it.toString())
+        }
     }
 
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
@@ -103,6 +112,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
             override fun onPageScrollStateChanged(i: Int) {}
         })
 
+        controller_layout_view.visibility = View.GONE
         controller_layout_view.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
             intent.putExtra(SELECTED_SONG, song)
@@ -163,6 +173,12 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
             }
         }
         mediaController?.registerCallback(mControllerCallback)
+        val cachedSong = storageUtil.getStoredSong()
+        if (cachedSong != null) {
+            song = cachedSong
+            updateSongController()
+            mediaController?.transportControls?.seekTo(storageUtil.getStoredPosition())
+        }
     }
 
     private fun playSelectedSong() {
@@ -175,6 +191,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
     }
 
     private fun updateSongController() {
+        if (controller_layout_view.visibility == View.GONE) controller_layout_view.visibility = View.VISIBLE
         controller_song_title.text = song!!.title
         controller_song_artist.text = song!!.artist
         loadUri(song?.albumArtUri, controller_song_art)
@@ -199,9 +216,13 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        song?.let {
+            storageUtil.storeSong(it)
+        }
+        storageUtil.storePosition(mediaController?.playbackState?.position ?: 0L)
         mediaController?.unregisterCallback(mControllerCallback)
         mediaBrowser.disconnect()
+        super.onDestroy()
     }
 
     override fun onAttachFragment(fragment: Fragment) {

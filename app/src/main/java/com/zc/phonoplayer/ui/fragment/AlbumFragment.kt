@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.ui.fragment
 
+import `in`.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.AlbumAdapter
 import com.zc.phonoplayer.listeners.OnAlbumClickedListener
@@ -17,7 +17,7 @@ import com.zc.phonoplayer.model.Album
 class AlbumFragment : Fragment() {
     private lateinit var callback: OnAlbumClickedListener
     private var albumList: ArrayList<Album> = ArrayList()
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: IndexFastScrollRecyclerView
     private lateinit var recyclerAdapter: AlbumAdapter
     private lateinit var emptyText: TextView
 
@@ -42,6 +42,7 @@ class AlbumFragment : Fragment() {
             recyclerAdapter = AlbumAdapter(albumList) { album -> callback.onAlbumClicked(album) }
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
+            recyclerView.setIndexbarMargin(0f)
         }
         return view
     }
@@ -49,5 +50,4 @@ class AlbumFragment : Fragment() {
     fun setOnAlbumClickedListener(callback: OnAlbumClickedListener) {
         this.callback = callback
     }
-
 }

@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -24,7 +23,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.model.Playlist
+import com.zc.phonoplayer.model.BasicPlaylist
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.util.*
 
@@ -37,7 +36,7 @@ class MusicService : MediaBrowserServiceCompat() {
     private lateinit var notificationManager: NotificationManager
     private var oldUri: Uri? = null
     private var mAttrs: AudioAttributes? = null
-    private var defaultPlaylist: Playlist? = null
+    private var defaultBasicPlaylist: BasicPlaylist? = null
     private var currentSong: Song? = null
     private var mMediaSourceList: ConcatenatingMediaSource? = null
     private lateinit var mMediaSource: MediaSource
@@ -52,7 +51,7 @@ class MusicService : MediaBrowserServiceCompat() {
             super.onPlayFromUri(uri, extras)
             currentSong = extras?.getParcelable(SELECTED_SONG) as Song?
             val songList = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf<Song>()
-            defaultPlaylist = Playlist(songList)
+            defaultBasicPlaylist = BasicPlaylist(songList)
             uri?.let {
                 mMediaSource = extractMediaSourceFromUri(uri)
                 if (uri != oldUri) play(mMediaSource)
@@ -164,7 +163,7 @@ class MusicService : MediaBrowserServiceCompat() {
     private fun previous() {
         mExoPlayer?.apply {
             mExoPlayer?.playWhenReady = false
-            currentSong = defaultPlaylist?.previous()
+            currentSong = defaultBasicPlaylist?.previous()
             currentSong?.let {
                 val source = extractMediaSourceFromUri(it.getUri())
                 play(source)
@@ -175,7 +174,7 @@ class MusicService : MediaBrowserServiceCompat() {
     private fun next() {
         mExoPlayer?.apply {
             mExoPlayer?.playWhenReady = false
-            currentSong = defaultPlaylist?.next()
+            currentSong = defaultBasicPlaylist?.next()
             currentSong?.let {
                 val source = extractMediaSourceFromUri(it.getUri())
                 play(source)
