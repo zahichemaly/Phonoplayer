@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color_dark"
+    tools:context=".ui.AlbumActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/album_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".ui.activities.AlbumActivity">
+
+        <ImageView
+            android:id="@+id/album_header"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:contentDescription="@string/header"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/album_art"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_default_music"
+            app:civ_border_color="@color/dark_grey"
+            app:civ_border_width="1dp"
+            app:layout_constraintBottom_toBottomOf="@+id/album_header"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/album_header" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_marginBottom="@dimen/spacing_small"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/recycler_view"
+            app:layout_constraintStart_toEndOf="@+id/album_art"
+            app:layout_constraintTop_toBottomOf="@+id/album_header">
+
+            <TextView
+                android:id="@+id/album_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/album_title"
+                android:textColor="@color/white"
+                android:textSize="@dimen/title_medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/album_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@string/album_artist"
+                android:textColor="@color/white"
+                android:textSize="@dimen/title_small" />
+
+            <TextView
+                android:id="@+id/album_nb_of_tracks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="@string/tracks"
+                android:textColor="@color/white"
+                android:textSize="@dimen/title_small" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/album_art" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

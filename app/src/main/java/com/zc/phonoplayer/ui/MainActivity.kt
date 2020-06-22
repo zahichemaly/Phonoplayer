@@ -1,4 +1,4 @@
-package com.zc.phonoplayer
+package com.zc.phonoplayer.ui
 
 import android.Manifest
 import android.content.ComponentName
@@ -16,21 +16,24 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.android.exoplayer2.util.Log
+import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.TabAdapter
-import com.zc.phonoplayer.fragment.AlbumFragment
-import com.zc.phonoplayer.fragment.OnSongClickedListener
-import com.zc.phonoplayer.fragment.SongFragment
+import com.zc.phonoplayer.listeners.OnAlbumClickedListener
+import com.zc.phonoplayer.listeners.OnSongClickedListener
+import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
+import com.zc.phonoplayer.ui.fragment.AlbumFragment
+import com.zc.phonoplayer.ui.fragment.SongFragment
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
 
 const val READ_PERMISSION_GRANT = 100
 
-class MainActivity : AppCompatActivity(), OnSongClickedListener {
+class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedListener {
     private var prevMenuItem: MenuItem? = null
-    private lateinit var mMediaBrowserCompat: MediaBrowserCompat
+    private lateinit var mediaBrowser: MediaBrowserCompat
     private var mediaController: MediaControllerCompat? = null
     private var song: Song? = null
     private var songList: ArrayList<Song>? = null
@@ -45,7 +48,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
-            mMediaBrowserCompat.sessionToken.also { token ->
+            mediaBrowser.sessionToken.also { token ->
                 mediaController = MediaControllerCompat(this@MainActivity, token)
                 MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
             }
@@ -124,7 +127,10 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
     private fun checkPermissions() {
         Log.i("Permission", "Checking permissions")
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), READ_PERMISSION_GRANT)
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                READ_PERMISSION_GRANT
+            )
         } else {
             populateUi()
         }
@@ -132,7 +138,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
 
     private fun initializePlayer() {
         val componentName = ComponentName(this, MusicService::class.java)
-        mMediaBrowserCompat = MediaBrowserCompat(this, componentName, connectionCallback, null)
+        mediaBrowser = MediaBrowserCompat(this, componentName, connectionCallback, null)
     }
 
     private fun updateControllerState(state: PlaybackStateCompat) {
@@ -179,31 +185,35 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
 
     override fun onStart() {
         super.onStart()
-        mMediaBrowserCompat.connect()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mediaController?.unregisterCallback(mControllerCallback)
-        mMediaBrowserCompat.disconnect()
+        if (!mediaBrowser.isConnected) mediaBrowser.connect()
     }
 
     override fun onResume() {
         super.onResume()
         mediaController?.run {
-            song = SongHelper.getSongFromMetadata(metadata)
-            updateSongController()
+            if (metadata != null) {
+                song = SongHelper.getSongFromMetadata(metadata)
+                updateSongController()
+            }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaController?.unregisterCallback(mControllerCallback)
+        mediaBrowser.disconnect()
     }
 
     override fun onAttachFragment(fragment: Fragment) {
         if (fragment is SongFragment) {
             fragment.setOnSongClickedListener(this)
         }
+        if (fragment is AlbumFragment) {
+            fragment.setOnAlbumClickedListener(this)
+        }
     }
 
     override fun onSongClicked(song: Song) {
-        Log.i("Clicked", "song clicked is: " + song.title)
         this.song = song
         updateSongController()
         playSelectedSong()
@@ -212,5 +222,11 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener {
     override fun onSongListReady(songList: ArrayList<Song>) {
         //TODO cache
         this.songList = songList
+    }
+
+    override fun onAlbumClicked(album: Album) {
+        val intent = Intent(this, AlbumActivity::class.java)
+        intent.putExtra(SELECTED_ALBUM, album)
+        startActivity(intent)
     }
 }

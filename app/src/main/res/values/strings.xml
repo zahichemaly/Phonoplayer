@@ -7,9 +7,13 @@
     <string name="playlists">Playlists</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="song_title">Song Title</string>
     <string name="album">Album</string>
+    <string name="song_title">Song Title</string>
+    <string name="song_track_no">01.</string>
+    <string name="song_duration">01:30</string>
     <string name="song_artist">Song Artist</string>
+    <string name="album_title">Album Title</string>
+    <string name="album_artist">Album Artist</string>
 
     <string name="na">N/A</string>
 
@@ -20,4 +24,6 @@
     <string name="action_next">Next</string>
     <string name="action_play_pause">Play/Pause</string>
     <string name="now_playing">Now Playing</string>
+    <string name="no_songs_in_your_library_yet">No songs in your library... yet!</string>
+    <string name="header">header</string>
 </resources>

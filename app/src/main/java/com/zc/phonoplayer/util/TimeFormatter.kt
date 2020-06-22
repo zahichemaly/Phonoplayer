@@ -6,7 +6,7 @@ object TimeFormatter {
     private const val HRS_MIN_SEC_FORMAT = "%d:%02d:%02d"
     private const val MIN_SEC_FORMAT = "%02d:%02d"
 
-    fun stringForTime(timeMs: Int): String? {
+    fun getSongDuration(timeMs: Int): String? {
         val formatter = Formatter(StringBuilder(), Locale.US)
         val totalSeconds = timeMs / 1000
         val seconds = totalSeconds % 60

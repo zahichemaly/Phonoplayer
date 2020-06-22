@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.fragment
+package com.zc.phonoplayer.ui.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,45 +9,45 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.adapter.SongAdapter
-import com.zc.phonoplayer.fragment.OnSongClickedListener
-import com.zc.phonoplayer.loader.SongLoader
-import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.adapter.AlbumAdapter
+import com.zc.phonoplayer.listeners.OnAlbumClickedListener
+import com.zc.phonoplayer.loader.AlbumLoader
+import com.zc.phonoplayer.model.Album
 
-class SongFragment : Fragment() {
-    private lateinit var callback: OnSongClickedListener
-    private var songList: ArrayList<Song> = ArrayList()
+class AlbumFragment : Fragment() {
+    private lateinit var callback: OnAlbumClickedListener
+    private var albumList: ArrayList<Album> = ArrayList()
     private lateinit var recyclerView: RecyclerView
-    private lateinit var recyclerAdapter: SongAdapter
+    private lateinit var recyclerAdapter: AlbumAdapter
     private lateinit var emptyText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        songList = SongLoader.getSongs(requireActivity().applicationContext.contentResolver)
-        callback.onSongListReady(songList)
+        albumList = AlbumLoader.getAlbums(requireActivity().applicationContext.contentResolver)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_song, container, false)
+        val view = inflater.inflate(R.layout.fragment_album, container, false)
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.isVerticalScrollBarEnabled = true
 
         emptyText = view.findViewById(R.id.empty_songs_text)
-        if (songList.isEmpty()) {
+        if (albumList.isEmpty()) {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
             recyclerView.isNestedScrollingEnabled = true
-            recyclerAdapter = SongAdapter(songList) { song -> callback.onSongClicked(song) }
+            recyclerAdapter = AlbumAdapter(albumList) { album -> callback.onAlbumClicked(album) }
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
         return view
     }
 
-    fun setOnSongClickedListener(callback: OnSongClickedListener) {
+    fun setOnAlbumClickedListener(callback: OnAlbumClickedListener) {
         this.callback = callback
     }
+
 }

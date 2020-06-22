@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,7 @@ class SongAdapter(private var songList: List<Song>, private var onSongClicked: (
         holder.artistText.text = song.artist
         view.loadUri(song.getAlbumArtUri().toString(), holder.albumArt)
         holder.rootLayout.setOnClickListener {
+            Log.i("SongAdapter", "Song clicked: " + song.title)
             onSongClicked(song)
         }
     }

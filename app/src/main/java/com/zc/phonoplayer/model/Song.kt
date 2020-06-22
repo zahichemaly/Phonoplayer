@@ -4,10 +4,11 @@ import android.content.ContentUris
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import com.zc.phonoplayer.util.ALBUM_PATH
+import com.zc.phonoplayer.util.SongHelper
+import com.zc.phonoplayer.util.TimeFormatter
 
-const val ALBUM_PATH: String = "content://media/external/audio/albumart"
-
-class Song(
+data class Song(
     var id: Long = 0L,
     var data: String? = null,
     var title: String? = null,
@@ -15,7 +16,7 @@ class Song(
     var artist: String? = null,
     var albumId: Long = 0L,
     var duration: Long = 0L,
-    var track: Long = 0L,
+    var trackNo: Long = 0L,
     var albumArtUri: String? = null
 ) : Parcelable {
 
@@ -39,14 +40,6 @@ class Song(
         }
     }
 
-    fun getUri(): Uri {
-        return Uri.parse(this.data)
-    }
-
-    fun getAlbumArtUri(): Uri {
-        return ContentUris.withAppendedId(Uri.parse(ALBUM_PATH), albumId)
-    }
-
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
         parcel.writeString(data)
@@ -55,7 +48,7 @@ class Song(
         parcel.writeString(artist)
         parcel.writeLong(albumId)
         parcel.writeLong(duration)
-        parcel.writeLong(track)
+        parcel.writeLong(trackNo)
         parcel.writeString(albumArtUri)
     }
 
@@ -71,5 +64,23 @@ class Song(
         override fun newArray(size: Int): Array<Song?> {
             return arrayOfNulls(size)
         }
+    }
+
+    fun getUri(): Uri {
+        return Uri.parse(this.data)
+    }
+
+    fun getAlbumArtUri(): Uri {
+        return ContentUris.withAppendedId(Uri.parse(ALBUM_PATH), albumId)
+    }
+
+    fun getFormattedDuration(): String? {
+        return TimeFormatter.getSongDuration(duration.toInt())
+    }
+
+    fun getTrackNo(): String {
+        val track = trackNo.toString()
+        return if (trackNo < 10) return "0$trackNo."
+        else "$trackNo."
     }
 }

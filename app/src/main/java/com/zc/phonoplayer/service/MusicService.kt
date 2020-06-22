@@ -85,6 +85,11 @@ class MusicService : MediaBrowserServiceCompat() {
             super.onSkipToPrevious()
             next()
         }
+
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
+            mExoPlayer?.seekTo(pos)
+        }
     }
 
     override fun onCreate() {

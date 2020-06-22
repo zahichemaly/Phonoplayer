@@ -1,4 +1,4 @@
-package com.zc.phonoplayer
+package com.zc.phonoplayer.ui
 
 import android.content.ComponentName
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.util.*
@@ -18,6 +19,7 @@ class SongActivity : AppCompatActivity() {
     private lateinit var mediaBrowser: MediaBrowserCompat
     private lateinit var seekBarThread: Thread
     private var song: Song? = null
+    private var isAlbumSong = false
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
@@ -26,6 +28,7 @@ class SongActivity : AppCompatActivity() {
                 MediaControllerCompat.setMediaController(this@SongActivity, mediaController)
             }
             mediaController.registerCallback(controllerCallback)
+            if (isAlbumSong) playSelectedSong()
             initializeSeekBar()
             setupController()
         }
@@ -52,7 +55,9 @@ class SongActivity : AppCompatActivity() {
         val componentName = ComponentName(this, MusicService::class.java)
         mediaBrowser = MediaBrowserCompat(this, componentName, connectionCallback, null)
         song = intent.getParcelableExtra(SELECTED_SONG)
-        populateUi()
+        isAlbumSong = intent.getBooleanExtra(IS_ALBUM_SONG, false)
+        updateSong()
+        setupSeekBar()
     }
 
     override fun onStart() {
@@ -66,15 +71,30 @@ class SongActivity : AppCompatActivity() {
         mediaBrowser.disconnect()
     }
 
-    private fun populateUi() {
-        updateSong()
+    private fun playSelectedSong() {
+        song?.run {
+            val extras = Bundle()
+            extras.putParcelable(SELECTED_SONG, song)
+            mediaController.transportControls?.playFromUri(getUri(), extras)
+        }
+    }
+
+    private fun setupSeekBar() {
         seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                song_elapsed_time.text = TimeFormatter.stringForTime(progress)
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                song_elapsed_time.text = TimeFormatter.getSongDuration(progress)
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                mediaController.transportControls.pause()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                val position = seekBar.progress
+                mediaController.transportControls.seekTo(position.toLong())
+                mediaController.transportControls.play()
+                seekBar.progress = position
+            }
         })
     }
 
@@ -82,7 +102,7 @@ class SongActivity : AppCompatActivity() {
         song?.let {
             song_title.text = it.title
             song_artist.text = it.artist
-            song_duration.text = TimeFormatter.stringForTime(it.duration.toInt())
+            song_duration.text = TimeFormatter.getSongDuration(it.duration.toInt())
             loadUri(it.albumArtUri, song_art)
             seek_bar.max = it.duration.toInt()
         }

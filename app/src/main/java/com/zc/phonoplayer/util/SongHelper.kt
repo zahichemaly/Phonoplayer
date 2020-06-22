@@ -43,7 +43,7 @@ object SongHelper {
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.getAlbumArtUri().toString())
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration)
-            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.track)
+            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.trackNo)
             .build()
     }
 }

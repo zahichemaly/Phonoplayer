@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_album_song_card"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@color/background_color_dark"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/item_divider_color" />
+
+    <TextView
+        android:id="@+id/item_album_song_track_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="25dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/song_track_no"
+        android:textColor="@color/white"
+        android:textSize="@dimen/title_small" />
+
+    <TextView
+        android:id="@+id/item_album_song_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="25dp"
+        android:layout_toStartOf="@id/item_album_song_duration"
+        android:layout_toEndOf="@id/item_album_song_track_no"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/song_title"
+        android:textColor="@color/white"
+        android:textSize="@dimen/title_small" />
+
+    <TextView
+        android:id="@+id/item_album_song_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="25dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="@string/song_duration"
+        android:textColor="@color/white"
+        android:textSize="@dimen/title_small" />
+
+</RelativeLayout>

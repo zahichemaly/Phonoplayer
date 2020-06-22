@@ -10,6 +10,8 @@ const val ACTION_PREVIOUS = "${pkg}_ACTION_PREVIOUS"
 const val ACTION_NEXT = "${pkg}_ACTION_NEXT"
 const val ACTION_STOP = "${pkg}_ACTION_STOP"
 
+const val ALBUM_PATH: String = "content://media/external/audio/albumart"
+
 // Storage
 const val STORAGE_LOCATION = "${pkg}.cache"
 const val SAVED_SONG = "saved_song"
@@ -18,5 +20,7 @@ const val SAVED_PLAYLIST = "saved_playlist"
 // Intent const
 const val SELECTED_SONG = "selected_song"
 const val SELECTED_INDEX = "selected_index"
+const val SELECTED_ALBUM = "selected_album"
+const val IS_ALBUM_SONG = "is_album_song"
 const val SONG_LIST = "song_list"
 const val PLAYLIST = "playlist"
