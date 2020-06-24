@@ -37,4 +37,14 @@ data class Artist(
             return arrayOfNulls(size)
         }
     }
+
+    fun getNbOfTracks(): String {
+        return if (nbOfTracks.toInt() != 1) "$nbOfTracks tracks"
+        else "$nbOfTracks track"
+    }
+
+    fun getNbOfAlbums(): String {
+        return if (nbOfAlbums.toInt() != 1) "$nbOfAlbums albums"
+        else "$nbOfAlbums album"
+    }
 }

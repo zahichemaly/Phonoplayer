@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.ui
+package com.zc.phonoplayer.activity
 
 import android.Manifest
 import android.content.ComponentName
@@ -18,22 +18,18 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.android.exoplayer2.util.Log
 import com.zc.phonoplayer.R
+import com.zc.phonoplayer.adapter.SongAdapter
 import com.zc.phonoplayer.adapter.TabAdapter
-import com.zc.phonoplayer.listeners.OnAlbumClickedListener
-import com.zc.phonoplayer.listeners.OnSongClickedListener
-import com.zc.phonoplayer.loader.PlaylistLoader
-import com.zc.phonoplayer.model.Album
+import com.zc.phonoplayer.fragment.*
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
-import com.zc.phonoplayer.ui.fragment.AlbumFragment
-import com.zc.phonoplayer.ui.fragment.SongFragment
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
 
 const val READ_PERMISSION_GRANT = 100
 
-class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedListener {
+class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
     private var prevMenuItem: MenuItem? = null
     private lateinit var mediaBrowser: MediaBrowserCompat
     private var mediaController: MediaControllerCompat? = null
@@ -47,11 +43,6 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
         storageUtil = StorageUtil(this)
         checkPermissions()
         initializePlayer()
-        //Testing
-        val playlists = PlaylistLoader.getPlaylists(contentResolver)
-        playlists.forEach {
-            Log.i("Playlist", it.toString())
-        }
     }
 
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
@@ -86,6 +77,9 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
         val tabAdapter = TabAdapter(supportFragmentManager)
         tabAdapter.addFragment(SongFragment(), getString(R.string.tracks))
         tabAdapter.addFragment(AlbumFragment(), getString(R.string.albums))
+        tabAdapter.addFragment(ArtistFragment(), getString(R.string.artists))
+        tabAdapter.addFragment(GenreFragment(), getString(R.string.genres))
+        tabAdapter.addFragment(PlaylistFragment(), getString(R.string.playlists))
         view_pager.adapter = tabAdapter
         navigation_bar.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -93,8 +87,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
                 R.id.item_albums -> view_pager.currentItem = 1
                 R.id.item_artists -> view_pager.currentItem = 2
                 R.id.item_genres -> view_pager.currentItem = 3
-                R.id.item_playlists -> {
-                }
+                R.id.item_playlists -> view_pager.currentItem = 4
             }
             true
         }
@@ -229,9 +222,6 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
         if (fragment is SongFragment) {
             fragment.setOnSongClickedListener(this)
         }
-        if (fragment is AlbumFragment) {
-            fragment.setOnAlbumClickedListener(this)
-        }
     }
 
     override fun onSongClicked(song: Song) {
@@ -245,9 +235,7 @@ class MainActivity : AppCompatActivity(), OnSongClickedListener, OnAlbumClickedL
         this.songList = songList
     }
 
-    override fun onAlbumClicked(album: Album) {
-        val intent = Intent(this, AlbumActivity::class.java)
-        intent.putExtra(SELECTED_ALBUM, album)
-        startActivity(intent)
+    override fun onSongDeleted(song: Song) {
+        SongHelper.deleteSong(contentResolver, song.id)
     }
 }

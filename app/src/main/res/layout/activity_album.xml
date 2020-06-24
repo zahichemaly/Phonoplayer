@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color_dark"
-    tools:context=".ui.AlbumActivity">
+    tools:context=".activity.AlbumActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/album_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".ui.activities.AlbumActivity">
+        tools:context=".activity.activities.AlbumActivity">
 
         <ImageView
             android:id="@+id/album_header"

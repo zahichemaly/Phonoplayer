@@ -1,6 +1,8 @@
 package com.zc.phonoplayer.util
 
+import android.R.id
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -8,6 +10,7 @@ import android.os.Build
 import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
 import com.zc.phonoplayer.model.Song
+
 
 object SongHelper {
     fun getBitmapFromUri(uri: Uri?, contentResolver: ContentResolver): Bitmap {
@@ -45,5 +48,10 @@ object SongHelper {
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration)
             .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.trackNo)
             .build()
+    }
+
+    fun deleteSong(contentResolver: ContentResolver, id: Long) {
+        val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
+        contentResolver.delete(uri, null, null)
     }
 }

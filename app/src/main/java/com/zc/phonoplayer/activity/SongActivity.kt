@@ -1,6 +1,8 @@
-package com.zc.phonoplayer.ui
+package com.zc.phonoplayer.activity
 
 import android.content.ComponentName
+import android.content.Context
+import android.media.AudioManager
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -58,6 +60,7 @@ class SongActivity : AppCompatActivity() {
         isAlbumSong = intent.getBooleanExtra(IS_ALBUM_SONG, false)
         updateSong()
         setupSeekBar()
+        setupListeners()
     }
 
     override fun onStart() {
@@ -145,6 +148,21 @@ class SongActivity : AppCompatActivity() {
                     play_pause_button.background = drawable(R.drawable.exo_controls_play)
                 }
             }
+        }
+    }
+
+    private fun setupListeners() {
+        back_button.setOnClickListener {
+            finish()
+        }
+        volume_button.setOnClickListener {
+            val audioManager = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
+        }
+        menu_button.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            menu.add(0, v.id, 0, getString(R.string.details))
+            menu.add(1, v.id, 1, getString(R.string.album))
+            menu.add(1, v.id, 2, getString(R.string.artist))
         }
     }
 }

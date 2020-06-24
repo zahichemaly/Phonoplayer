@@ -21,7 +21,7 @@
         android:visibility="visible"
         tools:visibility="visible"
         android:textColor="@color/white"
-        android:text="@string/no_songs_in_your_library_yet">
+        android:text="@string/empty_songs">
     </TextView>
 
 

@@ -19,8 +19,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="q">
-        <activity android:name=".ui.AlbumActivity"></activity>
-
         <service
             android:name=".service.MusicService"
             android:exported="false">
@@ -30,15 +28,16 @@
         </service>
 
         <activity
-            android:name=".ui.MainActivity"
-            android:windowSoftInputMode="adjustPan">
+            android:name=".activity.MainActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan|adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.SongActivity" />
+        <activity android:name=".activity.SongActivity" android:theme="@style/SongActivityTheme"/>
+        <activity android:name=".activity.AlbumActivity" />
     </application>
 
 </manifest>

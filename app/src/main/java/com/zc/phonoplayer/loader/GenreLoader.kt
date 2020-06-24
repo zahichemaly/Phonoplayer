@@ -9,7 +9,6 @@ object GenreLoader {
     private val URI = MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI
     private val PROJECTION = arrayOf(
         MediaStore.Audio.Genres._ID,
-        MediaStore.Audio.Genres._COUNT,
         MediaStore.Audio.Genres.NAME
     )
 
@@ -20,9 +19,8 @@ object GenreLoader {
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 val id = cursor.getInt(0)
-                val count = cursor.getInt(1)
-                val name = cursor.getString(2)
-                genreList.add(Genre(id.toLong(), count, name))
+                val name = cursor.getString(1)
+                genreList.add(Genre(id.toLong(), 0, name))
             }
             cursor.close()
         }

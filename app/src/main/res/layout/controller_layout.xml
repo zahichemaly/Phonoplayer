@@ -39,7 +39,7 @@
             android:id="@+id/controller_song_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/song_title"
+            android:text="@string/title_dummy"
             android:textColor="@color/white"
             android:textSize="@dimen/title_medium"
             android:textStyle="bold"

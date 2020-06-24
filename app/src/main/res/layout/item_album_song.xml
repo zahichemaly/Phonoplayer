@@ -37,7 +37,7 @@
         android:layout_toEndOf="@id/item_album_song_track_no"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="@string/song_title"
+        android:text="@string/title_dummy"
         android:textColor="@color/white"
         android:textSize="@dimen/title_small" />
 

@@ -4,7 +4,7 @@
     android:id="@+id/root_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context=".ui.MainActivity">
+    tools:context=".activity.MainActivity">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bar"

@@ -6,24 +6,46 @@
     <string name="genres">Genres</string>
     <string name="playlists">Playlists</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="album">Album</string>
-    <string name="song_title">Song Title</string>
+    <!-- Placeholders -->
+    <string name="title_dummy">A really long and almost infinite song name</string>
     <string name="song_track_no">01.</string>
     <string name="song_duration">01:30</string>
     <string name="song_artist">Song Artist</string>
     <string name="album_title">Album Title</string>
     <string name="album_artist">Album Artist</string>
-
     <string name="na">N/A</string>
 
-    <!-- ACTIONS -->
+    <!-- Actions -->
     <string name="action_play">Play</string>
     <string name="action_pause">Pause</string>
     <string name="action_previous">Previous</string>
     <string name="action_next">Next</string>
     <string name="action_play_pause">Play/Pause</string>
     <string name="now_playing">Now Playing</string>
-    <string name="no_songs_in_your_library_yet">No songs in your library... yet!</string>
+    <string name="empty_songs">No songs in your library… yet!</string>
+    <string name="empty_playlists">No playlists in your library… yet!</string>
     <string name="header">header</string>
+
+    <!-- Menu -->
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="details">Details</string>
+    <string name="artist">Artist</string>
+    <string name="album">Album</string>
+
+    <!-- Dialogs -->
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="delete_album">Delete Album</string>
+    <string name="confirm_delete_album">Are you sure you want to delete this album?</string>
+    <string name="year">Year</string>
+    <string name="genre">Genre</string>
+    <string name="album_artist_name">Album Artist Name</string>
+    <string name="artist_name">Artist Name</string>
+    <string name="album_name">Album Name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="_00_00">00:00</string>
 </resources>

@@ -219,7 +219,7 @@ class MusicService : MediaBrowserServiceCompat() {
         }
         val songTitle = currentSong?.title ?: getString(R.string.na)
         val songArtist = currentSong?.artist ?: getString(R.string.na)
-        val albumtArtBitmap = SongHelper.getBitmapFromUri(currentSong?.getAlbumArtUri(), contentResolver)
+        val albumArtBitmap = SongHelper.getBitmapFromUri(currentSong?.getAlbumArtUri(), contentResolver)
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setShowWhen(false)
@@ -235,7 +235,7 @@ class MusicService : MediaBrowserServiceCompat() {
             .setSmallIcon(android.R.drawable.stat_sys_headset)
             .setContentText(songArtist)
             .setContentTitle(songTitle)
-            .setLargeIcon(albumtArtBitmap)
+            .setLargeIcon(albumArtBitmap)
             .addAction(
                 R.drawable.exo_notification_previous,
                 getString(R.string.action_previous),

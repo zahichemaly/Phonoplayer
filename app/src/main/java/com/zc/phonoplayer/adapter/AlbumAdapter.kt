@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.adapter
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +13,14 @@ import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.util.loadUri
 import de.hdodenhof.circleimageview.CircleImageView
 
-class AlbumAdapter(private var albumList: ArrayList<Album>, private var onAlbumClicked: (Album) -> Unit) :
+class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback: AlbumCallback) :
     IndexAdapter<AlbumAdapter.ViewHolder>(albumList.mapNotNull { a -> a.title }) {
+    private lateinit var context: Context
     private lateinit var view: View
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        view = LayoutInflater.from(parent.context).inflate(R.layout.item_album, parent, false)
+        context = parent.context
+        view = LayoutInflater.from(context).inflate(R.layout.item_album, parent, false)
         return ViewHolder(view)
     }
 
@@ -32,12 +35,17 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var onAlbumC
         view.loadUri(album.getAlbumArtUri().toString(), holder.albumArt)
         holder.rootLayout.setOnClickListener {
             Log.i("AlbumAdapter", "Album Clicked: ${album.title}")
-            onAlbumClicked(album)
+            callback.onAlbumClicked(album)
         }
         holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
-            val deleteMenu = menu.add(0, v.id, 0, "Delete")
+            val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
+            val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
             deleteMenu.setOnMenuItemClickListener {
-                //callback.onRowDeleted(mPart)
+                callback.onAlbumDelete(album)
+                true
+            }
+            editMenu.setOnMenuItemClickListener {
+                callback.onAlbumEdit(album)
                 true
             }
         }
@@ -48,5 +56,11 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var onAlbumC
         var albumTitleText: TextView = itemView.findViewById(R.id.item_album_title)
         var albumArtistText: TextView = itemView.findViewById(R.id.item_album_artist)
         var albumArt: CircleImageView = itemView.findViewById(R.id.item_album_art)
+    }
+
+    interface AlbumCallback {
+        fun onAlbumClicked(album: Album)
+        fun onAlbumDelete(album: Album)
+        fun onAlbumEdit(album: Album)
     }
 }

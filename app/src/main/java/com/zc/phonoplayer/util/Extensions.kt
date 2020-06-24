@@ -1,13 +1,14 @@
 package com.zc.phonoplayer.util
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.view.View
-import android.widget.ImageView
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.zc.phonoplayer.R
@@ -33,6 +34,16 @@ fun Context.color(@ColorRes colorRes: Int): Int {
 
 fun Context.drawable(@DrawableRes drawableRes: Int): Drawable? {
     return ContextCompat.getDrawable(this, drawableRes)
+}
+
+fun Context.showConfirmDialog(title: String, message: String, listener: DialogInterface.OnClickListener) {
+    MaterialAlertDialogBuilder(this)
+        .setTitle(title)
+        .setMessage(message)
+        .setNegativeButton(this.getString(R.string.no)) { _, _ -> }
+        .setPositiveButton(this.getString(R.string.yes), listener)
+        .setCancelable(false)
+        .show()
 }
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson<T>(json, object : TypeToken<T>() {}.type)

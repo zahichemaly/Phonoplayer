@@ -13,6 +13,8 @@
     <dimen name="radius_medium">16dp</dimen>
     <dimen name="radius_large">20dp</dimen>
 
+    <dimen name="margin_edit_text">18dp</dimen>
+
     <!-- cards dimen -->
     <dimen name="card_height">80dp</dimen>
     <dimen name="card_image_view_wh">70dp</dimen>
