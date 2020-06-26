@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.fragment
+package com.zc.phonoplayer.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,32 +9,32 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.adapter.PlaylistAdapter
-import com.zc.phonoplayer.loader.PlaylistLoader
-import com.zc.phonoplayer.model.Playlist
+import com.zc.phonoplayer.adapter.GenreAdapter
+import com.zc.phonoplayer.loader.GenreLoader
+import com.zc.phonoplayer.model.Genre
 
-class PlaylistFragment : Fragment() {
+class GenreFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
-    private lateinit var recyclerAdapter: PlaylistAdapter
-    private lateinit var playlists: List<Playlist>
+    private lateinit var recyclerAdapter: GenreAdapter
+    private lateinit var genreList: List<Genre>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        playlists = PlaylistLoader.getPlaylists(requireActivity().applicationContext.contentResolver)
+        genreList = GenreLoader.getGenreList(requireActivity().applicationContext.contentResolver)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_playlist, container, false)
+        val view = inflater.inflate(R.layout.fragment_genre, container, false)
         recyclerView = view.findViewById(R.id.recycler_view)
-        val emptyText: TextView = view.findViewById(R.id.empty_playlist_text)
-        if (playlists.isEmpty()) {
+        val emptyText: TextView = view.findViewById(R.id.empty_songs_text)
+        if (genreList.isEmpty()) {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
             recyclerView.isNestedScrollingEnabled = true
-            recyclerAdapter = PlaylistAdapter(playlists)
+            recyclerAdapter = GenreAdapter(genreList)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#243E53</color>
-    <color name="colorPrimaryDark">#243E53</color>
+    <color name="colorPrimary">@color/dark_grey</color>
+    <color name="colorPrimaryDark">@color/dark_grey</color>
     <color name="colorPrimaryLight">#427BA6</color>
 
     <!-- basic colors -->
@@ -13,6 +13,8 @@
     <color name="light_grey">#6f6867</color>
     <color name="transparent">#80000000</color>
     <color name="sky_blue">#1294FB</color>
+    <color name="light_blue">#427BA6</color>
+    <color name="dark_blue">#243E53</color>
 
     <!-- recycler view item colors -->
     <color name="item_background_color">@color/black</color>

@@ -19,7 +19,8 @@ object SongLoader {
         MediaStore.Audio.AudioColumns.ARTIST,  //4
         MediaStore.Audio.AudioColumns.ALBUM_ID,  //5
         MediaStore.Audio.AudioColumns.DURATION,  //6
-        MediaStore.Audio.AudioColumns.TRACK //7
+        MediaStore.Audio.AudioColumns.TRACK, //7
+        MediaStore.Audio.AudioColumns.YEAR //8
     )
 
     fun getSongs(contentResolver: ContentResolver): ArrayList<Song> {
@@ -36,7 +37,8 @@ object SongLoader {
                 val albumId = cursor.getLong(5)
                 val duration = cursor.getLong(6)
                 val track = cursor.getLong(7)
-                songList.add(Song(id, data, title, album, artist, albumId, duration, track))
+                val year = cursor.getInt(8)
+                songList.add(Song(id, data, title, album, artist, albumId, duration, track, year))
             }
             cursor.close()
         }
@@ -58,7 +60,8 @@ object SongLoader {
                 val albumId = cursor.getLong(5)
                 val duration = cursor.getLong(6)
                 val track = cursor.getLong(7)
-                songList.add(Song(id, data, title, album, artist, albumId, duration, track))
+                val year = cursor.getInt(8)
+                songList.add(Song(id, data, title, album, artist, albumId, duration, track, year))
             }
             cursor.close()
         }
@@ -80,7 +83,8 @@ object SongLoader {
                 val albumId = cursor.getLong(5)
                 val duration = cursor.getLong(6)
                 val track = cursor.getLong(7)
-                songList.add(Song(id, data, title, album, artist, albumId, duration, track))
+                val year = cursor.getInt(8)
+                songList.add(Song(id, data, title, album, artist, albumId, duration, track, year))
             }
             cursor.close()
         }

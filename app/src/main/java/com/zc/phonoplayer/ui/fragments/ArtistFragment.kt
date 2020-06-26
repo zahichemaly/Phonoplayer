@@ -1,5 +1,6 @@
-package com.zc.phonoplayer.fragment
+package com.zc.phonoplayer.ui.fragments
 
+import `in`.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import com.zc.phonoplayer.loader.ArtistLoader
 import com.zc.phonoplayer.model.Artist
 
 class ArtistFragment : Fragment() {
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: IndexFastScrollRecyclerView
     private lateinit var recyclerAdapter: ArtistAdapter
     private lateinit var artistList: List<Artist>
 
@@ -37,6 +38,8 @@ class ArtistFragment : Fragment() {
             recyclerAdapter = ArtistAdapter(artistList)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
+            recyclerView.setIndexBarCornerRadius(25)
+            recyclerView.setIndexbarMargin(0f)
         }
         return view
     }

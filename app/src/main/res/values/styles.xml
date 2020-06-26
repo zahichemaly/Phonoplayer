@@ -1,7 +1,6 @@
 <resources>
 
     <!-- Base application theme. -->
-    <!-- Theme.AppCompat.Light.NoActionBar -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -11,8 +10,15 @@
         <item name="android:navigationBarColor">@color/background_color_dark</item>
     </style>
 
-    <style name="SongActivityTheme" parent="AppTheme">
+    <style name="SongActivityTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:statusBarColor">@color/background_color_dark</item>
+        <item name="android:navigationBarColor">@color/background_color_dark</item>
+    </style>
+
+    <style name="AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar" >
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="TextInputEditTextStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">

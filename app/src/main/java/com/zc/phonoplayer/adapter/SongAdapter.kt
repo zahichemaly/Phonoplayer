@@ -12,11 +12,13 @@ import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.util.loadUri
 import de.hdodenhof.circleimageview.CircleImageView
+import java.util.*
 
 class SongAdapter(private var songList: List<Song>, private var callback: SongCallback) :
-    RecyclerView.Adapter<SongAdapter.ViewHolder>() {
+    IndexAdapter<SongAdapter.ViewHolder>(songList.mapNotNull { it.title }) {
     private lateinit var view: View
     private lateinit var context: Context
+    private var filterdSongList = songList.toMutableList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
@@ -25,26 +27,60 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     }
 
     override fun getItemCount(): Int {
-        return songList.size
+        return filterdSongList.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val song = songList[position]
-        holder.songText.text = song.title
-        holder.albumText.text = song.album
-        holder.artistText.text = song.artist
-        view.loadUri(song.getAlbumArtUri().toString(), holder.albumArt)
-        holder.rootLayout.setOnClickListener {
-            Log.i("SongAdapter", "Song clicked: " + song.title)
-            callback.onSongClicked(song)
-        }
-        holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
-            val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
-            deleteMenu.setOnMenuItemClickListener {
-                callback.onSongDeleted(song)
-                true
+        val song = filterdSongList.getOrNull(position)
+        song?.let { s ->
+            holder.songText.text = s.title
+            holder.albumText.text = s.album
+            holder.artistText.text = s.artist
+            view.loadUri(s.getAlbumArtUri().toString(), holder.albumArt)
+            holder.rootLayout.setOnClickListener {
+                Log.i("SongAdapter", "Song clicked: " + s.title)
+                callback.onSongClicked(song)
+            }
+            holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
+                val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
+                deleteMenu.setOnMenuItemClickListener {
+                    deleteData(song)
+                    true
+                }
             }
         }
+    }
+
+    fun filterData(query: String) {
+        filterdSongList = songList.filter { song ->
+            song.title?.startsWith(query, ignoreCase = true) ?: false ||
+                    song.artist?.startsWith(query, ignoreCase = true) ?: false ||
+                    song.album?.startsWith(query, ignoreCase = true) ?: false
+        }.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    fun sortBy(sortOrder: SortOrder) {
+        when (sortOrder) {
+            SortOrder.ASCENDING -> filterdSongList.sortBy { it.title?.toLowerCase(Locale.US) }
+            SortOrder.DESCENDING -> filterdSongList.sortByDescending { it.title?.toLowerCase(Locale.US) }
+            SortOrder.ARTIST -> filterdSongList.sortBy { it.artist?.toLowerCase(Locale.US) }
+            SortOrder.ALBUM -> filterdSongList.sortBy { it.album?.toLowerCase(Locale.US) }
+            SortOrder.YEAR -> filterdSongList.sortBy { it.year }
+            else -> filterdSongList
+        }
+        notifyDataSetChanged()
+    }
+
+    fun setInitialData() {
+        this.filterdSongList = songList.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    private fun deleteData(song: Song) {
+        val position = filterdSongList.indexOf(song)
+        filterdSongList.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -58,7 +94,5 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     interface SongCallback {
         fun onSongClicked(song: Song)
         fun onSongListReady(songList: ArrayList<Song>)
-        fun onSongDeleted(song: Song)
     }
-
 }

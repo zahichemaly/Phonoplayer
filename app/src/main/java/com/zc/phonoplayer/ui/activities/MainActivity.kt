@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.activity
+package com.zc.phonoplayer.ui.activities
 
 import android.Manifest
 import android.content.ComponentName
@@ -9,9 +9,12 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -20,9 +23,9 @@ import com.google.android.exoplayer2.util.Log
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.SongAdapter
 import com.zc.phonoplayer.adapter.TabAdapter
-import com.zc.phonoplayer.fragment.*
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
+import com.zc.phonoplayer.ui.fragments.*
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
@@ -36,10 +39,13 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
     private var song: Song? = null
     private var songList: ArrayList<Song>? = null
     private lateinit var storageUtil: StorageUtil
+    private lateinit var searchView: SearchView
+    private lateinit var tabAdapter: TabAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
         storageUtil = StorageUtil(this)
         checkPermissions()
         initializePlayer()
@@ -74,7 +80,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
     }
 
     private fun populateUi() {
-        val tabAdapter = TabAdapter(supportFragmentManager)
+        tabAdapter = TabAdapter(supportFragmentManager)
         tabAdapter.addFragment(SongFragment(), getString(R.string.tracks))
         tabAdapter.addFragment(AlbumFragment(), getString(R.string.albums))
         tabAdapter.addFragment(ArtistFragment(), getString(R.string.artists))
@@ -235,7 +241,45 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
         this.songList = songList
     }
 
-    override fun onSongDeleted(song: Song) {
-        SongHelper.deleteSong(contentResolver, song.id)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.app_bar_menu, menu)
+        val searchItem: MenuItem = menu.findItem(R.id.action_search)
+        searchView = searchItem.actionView as SearchView
+
+        val searchPlate: EditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
+        searchPlate.hint = getString(R.string.search_hint)
+        searchPlate.setHintTextColor(color(R.color.light_grey))
+        searchPlate.setTextColor(color(R.color.white))
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                val currentFragment = tabAdapter.getCurrentFragment()
+                if (currentFragment is SongFragment) {
+                    currentFragment.filterData(newText)
+                }
+                return true
+            }
+        })
+        searchView.setOnCloseListener {
+            val currentFragment = tabAdapter.getCurrentFragment()
+            if (currentFragment is SongFragment) {
+                currentFragment.setInitialData()
+            }
+            searchView.onActionViewCollapsed()
+            true
+        }
+        return true
+    }
+
+    override fun onBackPressed() {
+        if (!searchView.isIconified) {
+            searchView.onActionViewCollapsed()
+        } else {
+            super.onBackPressed()
+        }
     }
 }

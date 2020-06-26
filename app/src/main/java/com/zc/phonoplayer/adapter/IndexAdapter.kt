@@ -5,16 +5,18 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
-abstract class IndexAdapter<T>(private var mDataArray: List<String>) :
+abstract class IndexAdapter<T>(protected var mDataList: List<String>) :
     RecyclerView.Adapter<T>(), SectionIndexer where T : RecyclerView.ViewHolder {
     private lateinit var mSectionPositions: ArrayList<Int>
 
     override fun getSections(): Array<String> {
+        mSectionPositions = ArrayList(26)
         val sections: ArrayList<String> = ArrayList(26)
         mSectionPositions = ArrayList(26)
-        mDataArray.forEachIndexed { index, data ->
-            val section = data[0].toString().toUpperCase(Locale.US)
-            if (!sections.contains(section)) {
+        mDataList.forEachIndexed { index, data ->
+            val firstCharacter = data.first()
+            val section = firstCharacter.toString().toUpperCase(Locale.US)
+            if (!sections.contains(section) && firstCharacter.isAlphabet()) {
                 sections.add(section)
                 mSectionPositions.add(index)
             }
@@ -28,5 +30,9 @@ abstract class IndexAdapter<T>(private var mDataArray: List<String>) :
 
     override fun getPositionForSection(sectionIndex: Int): Int {
         return mSectionPositions[sectionIndex]
+    }
+
+    private fun Char.isAlphabet(): Boolean {
+        return (this in 'a'..'z') || (this in 'A'..'Z')
     }
 }

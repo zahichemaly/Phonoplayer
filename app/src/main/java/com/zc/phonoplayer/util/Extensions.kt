@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.widget.PopupMenu
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.MenuRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,6 +46,13 @@ fun Context.showConfirmDialog(title: String, message: String, listener: DialogIn
         .setPositiveButton(this.getString(R.string.yes), listener)
         .setCancelable(false)
         .show()
+}
+
+fun Context.showMenuPopup(view: View, @MenuRes menuRes: Int, listener: PopupMenu.OnMenuItemClickListener) {
+    val popup = PopupMenu(this, view)
+    popup.menuInflater.inflate(menuRes, popup.menu)
+    popup.setOnMenuItemClickListener(listener)
+    popup.show()
 }
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson<T>(json, object : TypeToken<T>() {}.type)

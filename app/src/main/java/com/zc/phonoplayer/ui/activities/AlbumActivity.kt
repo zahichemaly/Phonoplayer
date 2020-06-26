@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.activity
+package com.zc.phonoplayer.ui.activities
 
 import android.content.Intent
 import android.os.Bundle

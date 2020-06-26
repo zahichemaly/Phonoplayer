@@ -2,17 +2,31 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container_songs"
+    android:background="@color/background_color_dark"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <ImageButton
+        android:id="@+id/sort_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_sort"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_medium"
+        android:layout_marginStart="@dimen/spacing_xlarge"
+        android:layout_alignParentTop="true"
+        android:background="@null"
+        android:contentDescription="@string/sort">
+    </ImageButton>
+
+    <in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/sort_button"
         android:visibility="gone"
         tools:visibility="visible">
-
-    </androidx.recyclerview.widget.RecyclerView>
+    </in.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView>
 
     <TextView
         android:id="@+id/empty_songs_text"

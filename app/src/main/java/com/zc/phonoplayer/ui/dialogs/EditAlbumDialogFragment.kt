@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.dialog
+package com.zc.phonoplayer.ui.dialogs
 
 import android.app.Activity
 import android.app.Dialog

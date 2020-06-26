@@ -16,12 +16,8 @@ import androidx.core.app.NotificationCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.BasicPlaylist
 import com.zc.phonoplayer.model.Song
@@ -31,14 +27,13 @@ class MusicService : MediaBrowserServiceCompat() {
     private var mExoPlayer: SimpleExoPlayer? = null
     private var mMediaSession: MediaSessionCompat? = null
     private var mTransportControls: MediaControllerCompat.TransportControls? = null
-    private lateinit var mExtractorFactory: ProgressiveMediaSource.Factory
     private lateinit var mStateBuilder: PlaybackStateCompat.Builder
     private lateinit var notificationManager: NotificationManager
     private var oldUri: Uri? = null
     private var mAttrs: AudioAttributes? = null
     private var defaultBasicPlaylist: BasicPlaylist? = null
     private var currentSong: Song? = null
-    private var mMediaSourceList: ConcatenatingMediaSource? = null
+    private lateinit var mediaSourceUtil: MediaSourceUtil
     private lateinit var mMediaSource: MediaSource
 
     companion object {
@@ -53,7 +48,7 @@ class MusicService : MediaBrowserServiceCompat() {
             val songList = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf<Song>()
             defaultBasicPlaylist = BasicPlaylist(songList)
             uri?.let {
-                mMediaSource = extractMediaSourceFromUri(uri)
+                mMediaSource = mediaSourceUtil.extractMediaSource(uri)
                 if (uri != oldUri) play(mMediaSource)
                 else play() // this song was paused so we don't need to reload it
                 oldUri = uri
@@ -165,7 +160,7 @@ class MusicService : MediaBrowserServiceCompat() {
             mExoPlayer?.playWhenReady = false
             currentSong = defaultBasicPlaylist?.previous()
             currentSong?.let {
-                val source = extractMediaSourceFromUri(it.getUri())
+                val source = mediaSourceUtil.extractMediaSource(it.getUri())
                 play(source)
             }
         }
@@ -176,7 +171,7 @@ class MusicService : MediaBrowserServiceCompat() {
             mExoPlayer?.playWhenReady = false
             currentSong = defaultBasicPlaylist?.next()
             currentSong?.let {
-                val source = extractMediaSourceFromUri(it.getUri())
+                val source = mediaSourceUtil.extractMediaSource(it.getUri())
                 play(source)
             }
         }
@@ -193,14 +188,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     private fun initializeExtractor() {
-        val userAgent = Util.getUserAgent(baseContext, application.packageName)
-        mExtractorFactory = ProgressiveMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
-        //ExtractorMediaSource.Factory(DefaultDataSourceFactory(this, userAgent))
-        //.setExtractorsFactory(DefaultExtractorsFactory())
-    }
-
-    private fun extractMediaSourceFromUri(uri: Uri): MediaSource {
-        return mExtractorFactory.createMediaSource(uri)
+        mediaSourceUtil = MediaSourceUtil(this)
     }
 
     private fun buildNotification(status: PlaybackStatus) {

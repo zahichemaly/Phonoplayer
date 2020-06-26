@@ -28,16 +28,17 @@
         </service>
 
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.zc.phonoplayer.ui.activities.MainActivity"
             android:windowSoftInputMode="stateHidden|adjustPan|adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.SongActivity" android:theme="@style/SongActivityTheme"/>
-        <activity android:name=".activity.AlbumActivity" />
+        <activity
+            android:name="com.zc.phonoplayer.ui.activities.SongActivity"
+            android:theme="@style/SongActivityTheme" />
+        <activity android:name="com.zc.phonoplayer.ui.activities.AlbumActivity" />
     </application>
 
 </manifest>

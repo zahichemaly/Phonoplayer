@@ -17,6 +17,7 @@ data class Song(
     var albumId: Long = 0L,
     var duration: Long = 0L,
     var trackNo: Long = 0L,
+    var year: Int,
     var albumArtUri: String? = null
 ) : Parcelable {
 
@@ -29,6 +30,7 @@ data class Song(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readLong(),
+        parcel.readInt(),
         parcel.readString()
     )
 
@@ -49,6 +51,7 @@ data class Song(
         parcel.writeLong(albumId)
         parcel.writeLong(duration)
         parcel.writeLong(trackNo)
+        parcel.writeInt(year)
         parcel.writeString(albumArtUri)
     }
 

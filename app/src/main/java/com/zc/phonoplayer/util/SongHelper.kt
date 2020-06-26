@@ -1,6 +1,5 @@
 package com.zc.phonoplayer.util
 
-import android.R.id
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.graphics.Bitmap
@@ -33,6 +32,7 @@ object SongHelper {
             album = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM),
             artist = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST),
             duration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION),
+            year = metadata.getLong(MediaMetadataCompat.METADATA_KEY_YEAR).toInt(),
             albumArtUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
         )
     }
@@ -47,6 +47,7 @@ object SongHelper {
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.getAlbumArtUri().toString())
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration)
             .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.trackNo)
+            .putLong(MediaMetadataCompat.METADATA_KEY_YEAR, song.year.toLong())
             .build()
     }
 
