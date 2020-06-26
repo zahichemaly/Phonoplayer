@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_sort_title_ascending"
+        android:title="@string/ascending"
+        app:showAsAction="withText" />
+    <item
+        android:id="@+id/action_sort_title_descending"
+        android:title="@string/descending" />
+    <item
+        android:id="@+id/action_sort_by_nb_of_tracks"
+        android:title="@string/by_number_of_tracks" />
+    <item
+        android:id="@+id/action_sort_by_nb_of_albums"
+        android:title="@string/by_number_of_albums" />
+</menu>

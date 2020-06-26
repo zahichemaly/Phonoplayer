@@ -61,5 +61,6 @@
     <string name="list">List</string>
     <string name="grid_2x2">Grid 2×2</string>
     <string name="grid_3x3">Grid 3×3</string>
+    <string name="by_number_of_albums">By Number of Albums</string>
 
 </resources>

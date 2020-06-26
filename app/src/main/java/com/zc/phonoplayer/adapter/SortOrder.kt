@@ -6,5 +6,6 @@ enum class SortOrder(var value: Int) {
     ARTIST(2),
     ALBUM(3),
     YEAR(4),
-    NB_OF_TRACKS(5);
+    NB_OF_TRACKS(5),
+    NB_OF_ALBUMS(6);
 }

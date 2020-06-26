@@ -1,6 +1,5 @@
 package com.zc.phonoplayer.ui.fragments
 
-import `in`.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,12 +14,13 @@ import com.zc.phonoplayer.adapter.SongAdapter
 import com.zc.phonoplayer.adapter.SortOrder
 import com.zc.phonoplayer.loader.SongLoader
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.ui.components.IndexedRecyclerView
 import com.zc.phonoplayer.util.showMenuPopup
 
 class SongFragment : Fragment() {
     private lateinit var callback: SongAdapter.SongCallback
     private var songList: ArrayList<Song> = ArrayList()
-    private lateinit var recyclerView: IndexFastScrollRecyclerView
+    private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: SongAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
@@ -35,7 +35,6 @@ class SongFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_song, container, false)
         recyclerView = view.findViewById(R.id.recycler_view)
         sortButton = view.findViewById(R.id.sort_button)
-        recyclerView.isVerticalScrollBarEnabled = true
         emptyText = view.findViewById(R.id.empty_songs_text)
 
         if (songList.isEmpty()) {
@@ -44,12 +43,9 @@ class SongFragment : Fragment() {
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
-            recyclerView.isNestedScrollingEnabled = true
             recyclerAdapter = SongAdapter(songList, callback)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
-            recyclerView.setIndexBarCornerRadius(25)
-            recyclerView.setIndexbarMargin(0f)
         }
         sortButton.setOnClickListener {
             requireContext().showMenuPopup(sortButton, R.menu.sort_song_menu, PopupMenu.OnMenuItemClickListener {
@@ -73,7 +69,7 @@ class SongFragment : Fragment() {
 
     fun setInitialData() {
         recyclerView.setIndexBarVisibility(true)
-        recyclerAdapter.setInitialData()
+        recyclerAdapter.resetData()
         recyclerView.smoothScrollToPosition(0)
     }
 

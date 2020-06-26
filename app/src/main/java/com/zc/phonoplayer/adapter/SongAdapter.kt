@@ -18,7 +18,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     IndexAdapter<SongAdapter.ViewHolder>(songList.mapNotNull { it.title }) {
     private lateinit var view: View
     private lateinit var context: Context
-    private var filterdSongList = songList.toMutableList()
+    private var filteredSongList = songList.toMutableList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
@@ -27,11 +27,11 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     }
 
     override fun getItemCount(): Int {
-        return filterdSongList.size
+        return filteredSongList.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val song = filterdSongList.getOrNull(position)
+        val song = filteredSongList.getOrNull(position)
         song?.let { s ->
             holder.songText.text = s.title
             holder.albumText.text = s.album
@@ -52,7 +52,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     }
 
     fun filterData(query: String) {
-        filterdSongList = songList.filter { song ->
+        filteredSongList = songList.filter { song ->
             song.title?.startsWith(query, ignoreCase = true) ?: false ||
                     song.artist?.startsWith(query, ignoreCase = true) ?: false ||
                     song.album?.startsWith(query, ignoreCase = true) ?: false
@@ -62,24 +62,24 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
 
     fun sortBy(sortOrder: SortOrder) {
         when (sortOrder) {
-            SortOrder.ASCENDING -> filterdSongList.sortBy { it.title?.toLowerCase(Locale.US) }
-            SortOrder.DESCENDING -> filterdSongList.sortByDescending { it.title?.toLowerCase(Locale.US) }
-            SortOrder.ARTIST -> filterdSongList.sortBy { it.artist?.toLowerCase(Locale.US) }
-            SortOrder.ALBUM -> filterdSongList.sortBy { it.album?.toLowerCase(Locale.US) }
-            SortOrder.YEAR -> filterdSongList.sortBy { it.year }
-            else -> filterdSongList
+            SortOrder.ASCENDING -> filteredSongList.sortBy { it.title?.toLowerCase(Locale.US) }
+            SortOrder.DESCENDING -> filteredSongList.sortByDescending { it.title?.toLowerCase(Locale.US) }
+            SortOrder.ARTIST -> filteredSongList.sortBy { it.artist?.toLowerCase(Locale.US) }
+            SortOrder.ALBUM -> filteredSongList.sortBy { it.album?.toLowerCase(Locale.US) }
+            SortOrder.YEAR -> filteredSongList.sortBy { it.year }
+            else -> filteredSongList
         }
         notifyDataSetChanged()
     }
 
-    fun setInitialData() {
-        this.filterdSongList = songList.toMutableList()
+    fun resetData() {
+        this.filteredSongList = songList.toMutableList()
         notifyDataSetChanged()
     }
 
     private fun deleteData(song: Song) {
-        val position = filterdSongList.indexOf(song)
-        filterdSongList.removeAt(position)
+        val position = filteredSongList.indexOf(song)
+        filteredSongList.removeAt(position)
         notifyItemRemoved(position)
     }
 

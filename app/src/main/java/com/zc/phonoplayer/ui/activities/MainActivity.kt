@@ -261,12 +261,18 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
                 if (currentFragment is SongFragment) {
                     currentFragment.filterData(newText)
                 }
+                if (currentFragment is AlbumFragment) {
+                    currentFragment.filterData(newText)
+                }
                 return true
             }
         })
         searchView.setOnCloseListener {
             val currentFragment = tabAdapter.getCurrentFragment()
             if (currentFragment is SongFragment) {
+                currentFragment.setInitialData()
+            }
+            if (currentFragment is AlbumFragment) {
                 currentFragment.setInitialData()
             }
             searchView.onActionViewCollapsed()
@@ -277,7 +283,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
 
     override fun onBackPressed() {
         if (!searchView.isIconified) {
-            searchView.onActionViewCollapsed()
+            searchView.isIconified = true
         } else {
             super.onBackPressed()
         }

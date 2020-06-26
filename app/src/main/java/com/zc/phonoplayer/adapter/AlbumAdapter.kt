@@ -58,14 +58,27 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
         }
     }
 
+    fun filterData(query: String) {
+        filteredAlbumList = albumList.filter { album ->
+            album.title?.startsWith(query, ignoreCase = true) ?: false ||
+                    album.artist?.startsWith(query, ignoreCase = true) ?: false
+        }.toMutableList()
+        notifyDataSetChanged()
+    }
+
     fun sortBy(sortOrder: SortOrder) {
         when (sortOrder) {
             SortOrder.ASCENDING -> filteredAlbumList.sortBy { it.title?.toLowerCase(Locale.US) }
             SortOrder.DESCENDING -> filteredAlbumList.sortByDescending { it.title?.toLowerCase(Locale.US) }
             SortOrder.ARTIST -> filteredAlbumList.sortBy { it.artist?.toLowerCase(Locale.US) }
-            SortOrder.NB_OF_TRACKS -> filteredAlbumList.sortBy { it.nbOfTracks }
+            SortOrder.NB_OF_TRACKS -> filteredAlbumList.sortByDescending { it.nbOfTracks }
             else -> filteredAlbumList
         }
+        notifyDataSetChanged()
+    }
+
+    fun resetData() {
+        this.filteredAlbumList = filteredAlbumList.toMutableList()
         notifyDataSetChanged()
     }
 

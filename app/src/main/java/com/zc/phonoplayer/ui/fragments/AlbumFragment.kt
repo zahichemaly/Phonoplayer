@@ -1,6 +1,5 @@
 package com.zc.phonoplayer.ui.fragments
 
-import `in`.myinnos.alphabetsindexfastscrollrecycler.IndexFastScrollRecyclerView
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -19,6 +18,7 @@ import com.zc.phonoplayer.adapter.SortOrder
 import com.zc.phonoplayer.loader.AlbumLoader
 import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.ui.activities.AlbumActivity
+import com.zc.phonoplayer.ui.components.IndexedRecyclerView
 import com.zc.phonoplayer.ui.dialogs.EditAlbumDialogFragment
 import com.zc.phonoplayer.util.SELECTED_ALBUM
 import com.zc.phonoplayer.util.showConfirmDialog
@@ -26,7 +26,7 @@ import com.zc.phonoplayer.util.showMenuPopup
 
 class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
     private var albumList: ArrayList<Album> = ArrayList()
-    private lateinit var recyclerView: IndexFastScrollRecyclerView
+    private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: AlbumAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
@@ -39,27 +39,18 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_album, container, false)
+        emptyText = view.findViewById(R.id.empty_songs_text)
         recyclerView = view.findViewById(R.id.recycler_view)
-        recyclerView.isVerticalScrollBarEnabled = true
         sortButton = view.findViewById(R.id.sort_button)
         gridButton = view.findViewById(R.id.grid_button)
-
-        emptyText = view.findViewById(R.id.empty_songs_text)
         if (albumList.isEmpty()) {
             recyclerView.visibility = View.GONE
             emptyText.visibility = View.VISIBLE
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
-            recyclerView.isNestedScrollingEnabled = true
-            recyclerAdapter = AlbumAdapter(albumList, this)
-            recyclerView.layoutManager = LinearLayoutManager(activity)
-            //recyclerView.layoutManager = GridLayoutManager(activity, 3)
-            recyclerView.adapter = recyclerAdapter
-            recyclerView.setIndexBarCornerRadius(25)
-            recyclerView.setIndexbarMargin(0f)
+            setupAdapter(LayoutType.LIST)
         }
-
         sortButton.setOnClickListener {
             requireContext().showMenuPopup(sortButton, R.menu.sort_album_menu, PopupMenu.OnMenuItemClickListener {
                 when (it.itemId) {
@@ -71,24 +62,36 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
                 true
             })
         }
-
         gridButton.setOnClickListener {
             requireContext().showMenuPopup(gridButton, R.menu.grid_menu, PopupMenu.OnMenuItemClickListener {
-                when(it.itemId) {
-                    R.id.action_list -> {
-
-                    }
-                    R.id.action_grid_2x2 -> {
-
-                    }
-                    R.id.action_grid_3x3 -> {
-
-                    }
+                when (it.itemId) {
+                    R.id.action_list -> setupAdapter(LayoutType.LIST)
+                    R.id.action_grid_2x2 -> setupAdapter(LayoutType.GRID_2_BY_2)
+                    R.id.action_grid_3x3 -> setupAdapter(LayoutType.GRID_3_BY_3)
                 }
                 true
             })
         }
         return view
+    }
+
+    private fun setupAdapter(layoutType: LayoutType) {
+        when (layoutType) {
+            LayoutType.LIST -> {
+                recyclerAdapter = AlbumAdapter(albumList, this)
+                recyclerView.layoutManager = LinearLayoutManager(activity)
+                recyclerView.adapter = recyclerAdapter
+            }
+            LayoutType.GRID_2_BY_2 -> {
+                recyclerAdapter = AlbumAdapter(albumList, this, true)
+                recyclerView.layoutManager = GridLayoutManager(activity, 2)
+                recyclerView.adapter = recyclerAdapter
+            }
+            LayoutType.GRID_3_BY_3 -> {
+                recyclerAdapter = AlbumAdapter(albumList, this, true)
+                recyclerView.layoutManager = GridLayoutManager(activity, 3)
+            }
+        }
     }
 
     override fun onAlbumClicked(album: Album) {
@@ -109,5 +112,22 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
     override fun onAlbumEdit(album: Album) {
         val dialog = EditAlbumDialogFragment.newInstance(album)
         dialog.show(parentFragmentManager, "edit dialog")
+    }
+
+    fun filterData(query: String) {
+        recyclerView.setIndexBarVisibility(false)
+        recyclerAdapter.filterData(query)
+    }
+
+    fun setInitialData() {
+        recyclerView.setIndexBarVisibility(true)
+        recyclerAdapter.resetData()
+        recyclerView.smoothScrollToPosition(0)
+    }
+
+    enum class LayoutType {
+        LIST,
+        GRID_2_BY_2,
+        GRID_3_BY_3,
     }
 }

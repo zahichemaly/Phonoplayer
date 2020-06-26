@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
-abstract class IndexAdapter<T>(protected var mDataList: List<String>) :
+abstract class IndexAdapter<T>(private var mDataList: List<String>) :
     RecyclerView.Adapter<T>(), SectionIndexer where T : RecyclerView.ViewHolder {
     private lateinit var mSectionPositions: ArrayList<Int>
 
