@@ -19,32 +19,43 @@
         app:layout_constraintTop_toTopOf="parent">
     </androidx.appcompat.widget.Toolbar>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/navigation_bar"
+    <FrameLayout
+        android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/colorPrimaryDark"
-        app:elevation="0dp"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
-        app:labelVisibilityMode="selected"
+        android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@id/view_pager"
-        app:menu="@menu/navigation_menu">
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:background="@color/background_color_dark"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/navigation_bar"
         app:layout_constraintBottom_toTopOf="@id/controller_layout_view">
-    </androidx.viewpager.widget.ViewPager>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/navigation_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/colorPrimaryDark"
+                app:elevation="0dp"
+                app:itemIconTint="@color/white"
+                app:itemTextColor="@color/white"
+                app:labelVisibilityMode="selected"
+                android:layout_alignParentTop="true"
+                app:menu="@menu/navigation_menu">
+            </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/view_pager"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/navigation_bar"
+                android:layout_alignParentBottom="true"
+                android:background="@color/background_color_dark">
+            </androidx.viewpager.widget.ViewPager>
+
+        </RelativeLayout>
+    </FrameLayout>
 
     <include
         layout="@layout/controller_layout"
@@ -55,7 +66,6 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_pager"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

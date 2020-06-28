@@ -12,20 +12,31 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.ArtistAdapter
 import com.zc.phonoplayer.adapter.SortOrder
-import com.zc.phonoplayer.loader.ArtistLoader
 import com.zc.phonoplayer.model.Artist
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
+import com.zc.phonoplayer.util.ARTIST_LIST
 import com.zc.phonoplayer.util.showMenuPopup
 
 class ArtistFragment : Fragment() {
+    private lateinit var callback: ArtistAdapter.ArtistCallback
     private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: ArtistAdapter
     private lateinit var artistList: List<Artist>
     private lateinit var sortButton: ImageButton
 
+    companion object {
+        fun newInstance(artistList: ArrayList<Artist>): ArtistFragment {
+            val frag = ArtistFragment()
+            val args = Bundle()
+            args.putParcelableArrayList(ARTIST_LIST, artistList)
+            frag.arguments = args
+            return frag
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        artistList = ArtistLoader.getArtistList(requireActivity().applicationContext.contentResolver)
+        artistList = arguments?.getParcelableArrayList(ARTIST_LIST) ?: ArrayList()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -39,7 +50,7 @@ class ArtistFragment : Fragment() {
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
-            recyclerAdapter = ArtistAdapter(artistList)
+            recyclerAdapter = ArtistAdapter(artistList, callback)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
@@ -56,5 +67,20 @@ class ArtistFragment : Fragment() {
                 })
         }
         return view
+    }
+
+    fun filterData(query: String) {
+        recyclerView.setIndexBarVisibility(false)
+        recyclerAdapter.filterData(query)
+    }
+
+    fun setInitialData() {
+        recyclerView.setIndexBarVisibility(true)
+        recyclerAdapter.resetData()
+        recyclerView.smoothScrollToPosition(0)
+    }
+
+    fun setArtistCallback(callback: ArtistAdapter.ArtistCallback) {
+        this.callback = callback
     }
 }

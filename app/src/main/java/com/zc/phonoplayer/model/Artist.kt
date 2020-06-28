@@ -8,14 +8,13 @@ data class Artist(
     var title: String? = null,
     var nbOfTracks: Long,
     var nbOfAlbums: Long
-): Parcelable {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readString(),
         parcel.readLong(),
         parcel.readLong()
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)

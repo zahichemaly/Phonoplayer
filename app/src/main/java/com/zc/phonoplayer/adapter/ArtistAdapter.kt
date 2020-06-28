@@ -3,13 +3,14 @@ package com.zc.phonoplayer.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Artist
 import java.util.*
 
-class ArtistAdapter(artistList: List<Artist>) :
+class ArtistAdapter(var artistList: List<Artist>, private var callback: ArtistCallback) :
     IndexAdapter<ArtistAdapter.ViewHolder>(artistList.mapNotNull { it.title }) {
     private var filteredArtistList = artistList.toMutableList()
 
@@ -27,6 +28,13 @@ class ArtistAdapter(artistList: List<Artist>) :
         holder.populateViewHolder(artist)
     }
 
+    fun filterData(query: String) {
+        filteredArtistList = artistList.filter { artist ->
+            artist.title?.startsWith(query, ignoreCase = true) ?: false
+        }.toMutableList()
+        notifyDataSetChanged()
+    }
+
     fun sortBy(sortOrder: SortOrder) {
         when (sortOrder) {
             SortOrder.ASCENDING -> filteredArtistList.sortBy { it.title?.toLowerCase(Locale.US) }
@@ -38,17 +46,30 @@ class ArtistAdapter(artistList: List<Artist>) :
         notifyDataSetChanged()
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    fun resetData() {
+        this.filteredArtistList = artistList.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val rootLayout: RelativeLayout = itemView.findViewById(R.id.item_artist_card)
         private val titleTv: TextView = itemView.findViewById(R.id.item_artist_name)
         private val nbOfTracksTv: TextView = itemView.findViewById(R.id.item_nb_of_tracks)
         private val nbOfAlbumsTv: TextView = itemView.findViewById(R.id.item_nb_of_albums)
 
         fun populateViewHolder(artist: Artist?) {
-            artist?.let {
-                titleTv.text = artist.title
-                nbOfTracksTv.text = artist.getNbOfTracks()
-                nbOfAlbumsTv.text = artist.getNbOfAlbums()
+            artist?.run {
+                titleTv.text = title
+                nbOfTracksTv.text = getNbOfTracks()
+                nbOfAlbumsTv.text = getNbOfAlbums()
+                rootLayout.setOnClickListener {
+                    callback.onArtistClicked(this)
+                }
             }
         }
+    }
+
+    interface ArtistCallback {
+        fun onArtistClicked(artist: Artist)
     }
 }

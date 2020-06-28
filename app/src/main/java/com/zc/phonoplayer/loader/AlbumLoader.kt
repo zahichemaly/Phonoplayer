@@ -1,10 +1,10 @@
 package com.zc.phonoplayer.loader
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.database.Cursor
 import android.provider.MediaStore
 import com.zc.phonoplayer.model.Album
-import java.util.*
 
 object AlbumLoader {
     private val URI = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI
@@ -38,16 +38,17 @@ object AlbumLoader {
         return albumList
     }
 
-    fun getAlbumsByGenre(contentResolver: ContentResolver, genreId: Int): ArrayList<Album> {
-        val albumList = arrayListOf<Album>()
+    fun getAlbumById(contentResolver: ContentResolver, albumId: Long): Album? {
+        var album: Album? = null
         val sortOrder = MediaStore.Audio.Albums.ALBUM + " ASC"
-        val cursor = contentResolver.query(URI, PROJECTION, null, null, sortOrder)
-        if (cursor != null && cursor.count > 0) {
-            while (cursor.moveToNext()) {
-                albumList.add(getAlbumFromCursor(cursor))
+        val uri = ContentUris.withAppendedId(URI, albumId)
+        contentResolver.query(uri, PROJECTION, null, null, sortOrder)?.apply {
+            while (moveToNext()) {
+                album = getAlbumFromCursor(this)
+                break
             }
-            cursor.close()
+            close()
         }
-        return albumList
+        return album
     }
 }

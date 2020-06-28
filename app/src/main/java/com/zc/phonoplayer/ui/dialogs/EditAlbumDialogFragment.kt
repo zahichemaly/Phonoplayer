@@ -57,7 +57,7 @@ class EditAlbumDialogFragment : DialogFragment() {
             headerAlbumTv.text = it.title
             headerArtistTv.text = it.artist
             headerNbOfSongsTv.text = it.getNbOfTracks()
-            view.loadUri(it.getAlbumArtUri().toString(), albumArt)
+            requireContext().loadUri(it.getAlbumArtUri().toString(), albumArt)
 
             albumEt.setText(it.title)
             artistEt.setText(it.artist)

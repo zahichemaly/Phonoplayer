@@ -2,15 +2,19 @@ package com.zc.phonoplayer.ui.activities
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.ArrayAdapter
+import android.widget.PopupMenu
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.zc.phonoplayer.R
+import com.zc.phonoplayer.loader.AlbumLoader
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.util.*
@@ -22,6 +26,7 @@ class SongActivity : AppCompatActivity() {
     private lateinit var seekBarThread: Thread
     private var song: Song? = null
     private var isAlbumSong = false
+    private lateinit var mediaSourceUtil: MediaSourceUtil
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
@@ -58,6 +63,7 @@ class SongActivity : AppCompatActivity() {
         mediaBrowser = MediaBrowserCompat(this, componentName, connectionCallback, null)
         song = intent.getParcelableExtra(SELECTED_SONG)
         isAlbumSong = intent.getBooleanExtra(IS_ALBUM_SONG, false)
+        mediaSourceUtil = MediaSourceUtil(this)
         updateSong()
         setupSeekBar()
         setupListeners()
@@ -159,10 +165,23 @@ class SongActivity : AppCompatActivity() {
             val audioManager = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
         }
-        menu_button.setOnCreateContextMenuListener { menu, v, menuInfo ->
-            menu.add(0, v.id, 0, getString(R.string.details))
-            menu.add(1, v.id, 1, getString(R.string.album))
-            menu.add(1, v.id, 2, getString(R.string.artist))
+        menu_button.setOnClickListener {
+            showMenuPopup(menu_button, R.menu.song_playing_menu,
+                PopupMenu.OnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.action_album -> openAlbum()
+                    }
+                    true
+                })
+        }
+    }
+
+    private fun openAlbum() {
+        song?.let {
+            val album = AlbumLoader.getAlbumById(contentResolver, song!!.albumId)
+            val intent = Intent(this, AlbumActivity::class.java)
+            intent.putExtra(SELECTED_ALBUM, album)
+            startActivity(intent)
         }
     }
 }

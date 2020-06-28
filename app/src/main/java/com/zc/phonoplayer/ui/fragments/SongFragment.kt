@@ -12,23 +12,32 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.SongAdapter
 import com.zc.phonoplayer.adapter.SortOrder
-import com.zc.phonoplayer.loader.SongLoader
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
+import com.zc.phonoplayer.util.SONG_LIST
 import com.zc.phonoplayer.util.showMenuPopup
 
 class SongFragment : Fragment() {
+    private lateinit var songList: ArrayList<Song>
     private lateinit var callback: SongAdapter.SongCallback
-    private var songList: ArrayList<Song> = ArrayList()
     private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: SongAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
 
+    companion object {
+        fun newInstance(songList: ArrayList<Song>): SongFragment {
+            val frag = SongFragment()
+            val args = Bundle()
+            args.putParcelableArrayList(SONG_LIST, songList)
+            frag.arguments = args
+            return frag
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        songList = SongLoader.getSongs(requireActivity().applicationContext.contentResolver)
-        callback.onSongListReady(songList)
+        songList = arguments?.getParcelableArrayList(SONG_LIST) ?: ArrayList()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -73,7 +82,7 @@ class SongFragment : Fragment() {
         recyclerView.smoothScrollToPosition(0)
     }
 
-    fun setOnSongClickedListener(callback: SongAdapter.SongCallback) {
+    fun setSongCallback(callback: SongAdapter.SongCallback) {
         this.callback = callback
     }
 }

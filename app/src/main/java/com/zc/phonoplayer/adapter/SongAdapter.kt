@@ -1,6 +1,7 @@
 package com.zc.phonoplayer.adapter
 
 import android.content.Context
+import android.content.DialogInterface
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.util.loadUri
+import com.zc.phonoplayer.util.showConfirmDialog
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
-class SongAdapter(private var songList: List<Song>, private var callback: SongCallback) :
+class SongAdapter(private var songList: List<Song>, private var callback: SongCallback?) :
     IndexAdapter<SongAdapter.ViewHolder>(songList.mapNotNull { it.title }) {
     private lateinit var view: View
     private lateinit var context: Context
@@ -36,10 +38,10 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
             holder.songText.text = s.title
             holder.albumText.text = s.album
             holder.artistText.text = s.artist
-            view.loadUri(s.getAlbumArtUri().toString(), holder.albumArt)
+            context.loadUri(s.getAlbumArtUri().toString(), holder.albumArt)
             holder.rootLayout.setOnClickListener {
                 Log.i("SongAdapter", "Song clicked: " + s.title)
-                callback.onSongClicked(song)
+                callback?.onSongClicked(song)
             }
             holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
                 val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
@@ -78,9 +80,14 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     }
 
     private fun deleteData(song: Song) {
-        val position = filteredSongList.indexOf(song)
-        filteredSongList.removeAt(position)
-        notifyItemRemoved(position)
+        context.showConfirmDialog(
+            title = context.getString(R.string.delete_album),
+            message = context.getString(R.string.confirm_delete_song),
+            listener = DialogInterface.OnClickListener { dialog, which ->
+                val position = filteredSongList.indexOf(song)
+                filteredSongList.removeAt(position)
+                notifyItemRemoved(position)
+            })
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -93,6 +100,5 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
 
     interface SongCallback {
         fun onSongClicked(song: Song)
-        fun onSongListReady(songList: ArrayList<Song>)
     }
 }

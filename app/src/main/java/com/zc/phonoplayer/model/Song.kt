@@ -13,8 +13,9 @@ data class Song(
     var data: String? = null,
     var title: String? = null,
     var album: String? = null,
-    var artist: String? = null,
     var albumId: Long = 0L,
+    var artist: String? = null,
+    var artistId: Long = 0L,
     var duration: Long = 0L,
     var trackNo: Long = 0L,
     var year: Int,
@@ -26,6 +27,7 @@ data class Song(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
+        parcel.readLong(),
         parcel.readString(),
         parcel.readLong(),
         parcel.readLong(),
@@ -47,8 +49,9 @@ data class Song(
         parcel.writeString(data)
         parcel.writeString(title)
         parcel.writeString(album)
-        parcel.writeString(artist)
         parcel.writeLong(albumId)
+        parcel.writeString(artist)
+        parcel.writeLong(artistId)
         parcel.writeLong(duration)
         parcel.writeLong(trackNo)
         parcel.writeInt(year)

@@ -15,26 +15,36 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.AlbumAdapter
 import com.zc.phonoplayer.adapter.SortOrder
-import com.zc.phonoplayer.loader.AlbumLoader
 import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.ui.activities.AlbumActivity
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
 import com.zc.phonoplayer.ui.dialogs.EditAlbumDialogFragment
+import com.zc.phonoplayer.util.ALBUM_LIST
 import com.zc.phonoplayer.util.SELECTED_ALBUM
 import com.zc.phonoplayer.util.showConfirmDialog
 import com.zc.phonoplayer.util.showMenuPopup
 
 class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
-    private var albumList: ArrayList<Album> = ArrayList()
+    private lateinit var albumList: ArrayList<Album>
     private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: AlbumAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
     private lateinit var gridButton: ImageButton
 
+    companion object {
+        fun newInstance(albumList: ArrayList<Album>): AlbumFragment {
+            val frag = AlbumFragment()
+            val args = Bundle()
+            args.putParcelableArrayList(ALBUM_LIST, albumList)
+            frag.arguments = args
+            return frag
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        albumList = AlbumLoader.getAlbums(requireActivity().applicationContext.contentResolver)
+        albumList = arguments?.getParcelableArrayList(ALBUM_LIST) ?: ArrayList()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

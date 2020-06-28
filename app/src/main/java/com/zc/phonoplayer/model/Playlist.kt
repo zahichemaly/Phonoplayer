@@ -5,22 +5,22 @@ import android.os.Parcelable
 
 data class Playlist(
     var id: Long,
-    var nbOfSongs: Int,
     var data: String? = null,
-    var name: String? = null
+    var name: String? = null,
+    var songs: ArrayList<Song>? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
-        parcel.readInt(),
         parcel.readString(),
-        parcel.readString()
+        parcel.readString(),
+        parcel.createTypedArrayList(Song.CREATOR)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(id)
-        parcel.writeInt(nbOfSongs)
         parcel.writeString(data)
         parcel.writeString(name)
+        parcel.writeTypedList(songs)
     }
 
     override fun describeContents(): Int {
@@ -35,5 +35,15 @@ data class Playlist(
         override fun newArray(size: Int): Array<Playlist?> {
             return arrayOfNulls(size)
         }
+    }
+
+    fun getNbOfTracks(): Int {
+        return songs?.size ?: 0
+    }
+
+    fun getDisplayedNbOfTracks(): String {
+        val nbOfTracks = getNbOfTracks()
+        return if (nbOfTracks != 1) "$nbOfTracks tracks"
+        else "$nbOfTracks track"
     }
 }

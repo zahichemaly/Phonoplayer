@@ -21,8 +21,11 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.android.exoplayer2.util.Log
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.adapter.SongAdapter
-import com.zc.phonoplayer.adapter.TabAdapter
+import com.zc.phonoplayer.adapter.*
+import com.zc.phonoplayer.loader.*
+import com.zc.phonoplayer.model.Artist
+import com.zc.phonoplayer.model.Genre
+import com.zc.phonoplayer.model.Playlist
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.ui.fragments.*
@@ -32,12 +35,13 @@ import kotlinx.android.synthetic.main.controller_layout.*
 
 const val READ_PERMISSION_GRANT = 100
 
-class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
+class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapter.ArtistCallback, GenreAdapter.GenreCallback,
+    PlaylistAdapter.PlaylistCallback {
     private var prevMenuItem: MenuItem? = null
     private lateinit var mediaBrowser: MediaBrowserCompat
     private var mediaController: MediaControllerCompat? = null
     private var song: Song? = null
-    private var songList: ArrayList<Song>? = null
+    private lateinit var songList: ArrayList<Song>
     private lateinit var storageUtil: StorageUtil
     private lateinit var searchView: SearchView
     private lateinit var tabAdapter: TabAdapter
@@ -80,12 +84,19 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
     }
 
     private fun populateUi() {
+        songList = SongLoader.getSongs(contentResolver)
+        val albums = AlbumLoader.getAlbums(contentResolver)
+        val genres = GenreLoader.getGenreList(contentResolver)
+        val artists = ArtistLoader.getArtistList(contentResolver)
+        val playlists = PlaylistLoader.getPlaylists(contentResolver)
+
         tabAdapter = TabAdapter(supportFragmentManager)
-        tabAdapter.addFragment(SongFragment(), getString(R.string.tracks))
-        tabAdapter.addFragment(AlbumFragment(), getString(R.string.albums))
-        tabAdapter.addFragment(ArtistFragment(), getString(R.string.artists))
-        tabAdapter.addFragment(GenreFragment(), getString(R.string.genres))
-        tabAdapter.addFragment(PlaylistFragment(), getString(R.string.playlists))
+        tabAdapter.addFragment(SongFragment.newInstance(songList), getString(R.string.tracks))
+        tabAdapter.addFragment(AlbumFragment.newInstance(albums), getString(R.string.albums))
+        tabAdapter.addFragment(ArtistFragment.newInstance(artists), getString(R.string.artists))
+        tabAdapter.addFragment(GenreFragment.newInstance(genres), getString(R.string.genres))
+        tabAdapter.addFragment(PlaylistFragment.newInstance(playlists), getString(R.string.playlists))
+
         view_pager.adapter = tabAdapter
         navigation_bar.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -176,7 +187,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
         if (cachedSong != null) {
             song = cachedSong
             updateSongController()
-            mediaController?.transportControls?.seekTo(storageUtil.getStoredPosition())
+            //mediaController?.transportControls?.seekTo(storageUtil.getStoredPosition())
         }
     }
 
@@ -214,19 +225,27 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
         }
     }
 
-    override fun onDestroy() {
+    override fun onPause() {
         song?.let {
             storageUtil.storeSong(it)
         }
         storageUtil.storePosition(mediaController?.playbackState?.position ?: 0L)
+        super.onPause()
+    }
+
+    override fun onDestroy() {
         mediaController?.unregisterCallback(mControllerCallback)
         mediaBrowser.disconnect()
         super.onDestroy()
     }
 
     override fun onAttachFragment(fragment: Fragment) {
-        if (fragment is SongFragment) {
-            fragment.setOnSongClickedListener(this)
+        when (fragment) {
+            is SongFragment -> fragment.setSongCallback(this)
+            is ArtistFragment -> fragment.setArtistCallback(this)
+            is ArtistDetailsFragment -> fragment.setSongCallback(this)
+            is GenreFragment -> fragment.setGenreCallback(this)
+            is PlaylistFragment -> fragment.setPlaylistCallback(this)
         }
     }
 
@@ -236,9 +255,22 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
         playSelectedSong()
     }
 
-    override fun onSongListReady(songList: ArrayList<Song>) {
-        //TODO cache
-        this.songList = songList
+    override fun onArtistClicked(artist: Artist) {
+        setupActionBar(artist.title, true)
+        val artistSongs = SongLoader.getArtistSongs(songList, artist.id)
+        addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(artist, artistSongs))
+    }
+
+    override fun onGenreClicked(genre: Genre) {
+        setupActionBar(genre.name, true)
+        val genreSongs = SongLoader.getSongsFromGenre(contentResolver, genre.id)
+        addFragment(R.id.frame_layout, SongFragment.newInstance(genreSongs))
+    }
+
+    override fun onPlaylistClicked(playlist: Playlist) {
+        setupActionBar(playlist.name, true)
+        val playlistSongs = playlist.songs ?: ArrayList()
+        addFragment(R.id.frame_layout, SongFragment.newInstance(playlistSongs))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -257,23 +289,19 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                val currentFragment = tabAdapter.getCurrentFragment()
-                if (currentFragment is SongFragment) {
-                    currentFragment.filterData(newText)
-                }
-                if (currentFragment is AlbumFragment) {
-                    currentFragment.filterData(newText)
+                when (val currentFragment = tabAdapter.getCurrentFragment()) {
+                    is SongFragment -> currentFragment.filterData(newText)
+                    is AlbumFragment -> currentFragment.filterData(newText)
+                    is ArtistFragment -> currentFragment.filterData(newText)
                 }
                 return true
             }
         })
         searchView.setOnCloseListener {
-            val currentFragment = tabAdapter.getCurrentFragment()
-            if (currentFragment is SongFragment) {
-                currentFragment.setInitialData()
-            }
-            if (currentFragment is AlbumFragment) {
-                currentFragment.setInitialData()
+            when (val currentFragment = tabAdapter.getCurrentFragment()) {
+                is SongFragment -> currentFragment.setInitialData()
+                is AlbumFragment -> currentFragment.setInitialData()
+                is ArtistFragment -> currentFragment.setInitialData()
             }
             searchView.onActionViewCollapsed()
             true
@@ -281,11 +309,24 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback {
         return true
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+            }
+        }
+        return true
+    }
+
     override fun onBackPressed() {
-        if (!searchView.isIconified) {
-            searchView.isIconified = true
+        if (!removeFragment(R.id.frame_layout)) {
+            if (!searchView.isIconified) {
+                searchView.isIconified = true
+            } else {
+                super.onBackPressed()
+            }
         } else {
-            super.onBackPressed()
+            setupActionBar(getString(R.string.app_name), false)
         }
     }
 }

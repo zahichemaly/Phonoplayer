@@ -38,7 +38,7 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
         album?.let { a ->
             holder.albumTitleText.text = a.title
             holder.albumArtistText.text = a.artist
-            view.loadUri(album.getAlbumArtUri().toString(), holder.albumArt)
+            context.loadUri(album.getAlbumArtUri().toString(), holder.albumArt)
             holder.rootLayout.setOnClickListener {
                 Log.i("AlbumAdapter", "Album Clicked: ${a.title}")
                 callback.onAlbumClicked(a)
@@ -78,7 +78,7 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
     }
 
     fun resetData() {
-        this.filteredAlbumList = filteredAlbumList.toMutableList()
+        this.filteredAlbumList = albumList.toMutableList()
         notifyDataSetChanged()
     }
 

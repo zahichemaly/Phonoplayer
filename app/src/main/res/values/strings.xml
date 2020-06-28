@@ -5,6 +5,8 @@
     <string name="artists">Artists</string>
     <string name="genres">Genres</string>
     <string name="playlists">Playlists</string>
+    <string name="tracks_">Tracks (%d)</string>
+    <string name="albums_">Albums (%d)</string>
 
     <!-- Placeholders -->
     <string name="title_dummy">A really long and almost infinite song name</string>
@@ -41,6 +43,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="delete_album">Delete Album</string>
+    <string name="confirm_delete_song">Are you sure you want to delete this song?</string>
     <string name="confirm_delete_album">Are you sure you want to delete this album? This will delete %s.</string>
     <string name="year">Year</string>
     <string name="genre">Genre</string>
@@ -62,5 +65,7 @@
     <string name="grid_2x2">Grid 2×2</string>
     <string name="grid_3x3">Grid 3×3</string>
     <string name="by_number_of_albums">By Number of Albums</string>
+    <string name="create_playlist">Create Playlist</string>
+    <string name="refresh">Refresh</string>
 
 </resources>

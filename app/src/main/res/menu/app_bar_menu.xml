@@ -7,8 +7,9 @@
         app:showAsAction="ifRoom"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item android:id="@+id/action_settings"
-        android:title="@string/settings"
-        app:showAsAction="withText" />
+        android:title="@string/settings" />
+    <item android:id="@+id/action_refresh"
+        android:title="@string/refresh" />
     <item android:id="@+id/action_about"
         android:title="@string/about" />
 </menu>
