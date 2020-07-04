@@ -1,7 +1,9 @@
 package com.zc.phonoplayer.ui.activities
 
 import android.Manifest
+import android.app.Activity
 import android.content.ComponentName
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -13,30 +15,29 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.android.exoplayer2.util.Log
+import com.google.android.material.snackbar.Snackbar
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.adapter.*
+import com.zc.phonoplayer.adapter.TabAdapter
 import com.zc.phonoplayer.loader.*
-import com.zc.phonoplayer.model.Artist
-import com.zc.phonoplayer.model.Genre
-import com.zc.phonoplayer.model.Playlist
-import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.model.*
 import com.zc.phonoplayer.service.MusicService
+import com.zc.phonoplayer.ui.dialogs.EditAlbumDialogFragment
+import com.zc.phonoplayer.ui.dialogs.EditSongDialogFragment
 import com.zc.phonoplayer.ui.fragments.*
+import com.zc.phonoplayer.ui.viewModels.MainViewModel
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
 
-const val READ_PERMISSION_GRANT = 100
-
-class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapter.ArtistCallback, GenreAdapter.GenreCallback,
-    PlaylistAdapter.PlaylistCallback {
+class MainActivity : BaseActivity() {
     private var prevMenuItem: MenuItem? = null
     private lateinit var mediaBrowser: MediaBrowserCompat
     private var mediaController: MediaControllerCompat? = null
@@ -45,6 +46,15 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
     private lateinit var storageUtil: StorageUtil
     private lateinit var searchView: SearchView
     private lateinit var tabAdapter: TabAdapter
+    private lateinit var searchMenuItem: MenuItem
+    private lateinit var mainViewModel: MainViewModel
+
+    companion object {
+        const val REQUEST_READ_PERMISSION = 1000
+        const val REQUEST_SONG_DELETE_PERMISSION = 10001
+        const val REQUEST_SONG_MODIFY_PERMISSION = 10002
+        const val REQUEST_CODE_SONG = 10003
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +62,35 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
         setSupportActionBar(toolbar)
         storageUtil = StorageUtil(this)
         checkPermissions()
+        initializeViewModel()
         initializePlayer()
+    }
+
+    private fun initializeViewModel() {
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        mainViewModel.permissionNeededForDelete().observe(this, Observer { intentSender ->
+            intentSender?.let {
+                // On Android 10+, if the app doesn't have permission to modify
+                // or delete an item, it returns an `IntentSender` that we can
+                // use here to prompt the user to grant permission to delete (or modify)
+                // the image.
+                startIntentSenderForResult(intentSender, REQUEST_SONG_DELETE_PERMISSION, null, 0, 0, 0, null)
+            }
+        })
+        mainViewModel.nbOfDeletedSongs().observe(this, Observer { nbOfDeletedSongs ->
+            if (nbOfDeletedSongs > 0) {
+                Snackbar.make(root_layout, getString(R.string.num_of_deleted_tracks, nbOfDeletedSongs), Snackbar.LENGTH_LONG)
+                    .show()
+                tabAdapter.getCurrentFragment()?.run {
+                    if (this is SongFragment) {
+                        mainViewModel.pendingDeleteSong?.let {
+                            deleteSong(it)
+                        }
+                        mainViewModel.pendingDeleteSong = null
+                    }
+                }
+            }
+        })
     }
 
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
@@ -126,13 +164,13 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
         controller_layout_view.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
             intent.putExtra(SELECTED_SONG, song)
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CODE_SONG)
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
-            READ_PERMISSION_GRANT -> {
+            REQUEST_READ_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     populateUi()
                 } else {
@@ -149,7 +187,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                READ_PERMISSION_GRANT
+                REQUEST_READ_PERMISSION
             )
         } else {
             populateUi()
@@ -243,7 +281,8 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
         when (fragment) {
             is SongFragment -> fragment.setSongCallback(this)
             is ArtistFragment -> fragment.setArtistCallback(this)
-            is ArtistDetailsFragment -> fragment.setSongCallback(this)
+            is AlbumFragment -> fragment.setAlbumCallback(this)
+            is ArtistDetailsFragment -> fragment.setCallback(this, this)
             is GenreFragment -> fragment.setGenreCallback(this)
             is PlaylistFragment -> fragment.setPlaylistCallback(this)
         }
@@ -255,28 +294,54 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
         playSelectedSong()
     }
 
+    override fun onSongEdit(song: Song) {
+        val dialog = EditSongDialogFragment.newInstance(song)
+        dialog.show(supportFragmentManager, "edit dialog")
+    }
+
+    override fun onSongDeleted(song: Song) {
+        mainViewModel.deleteSong(song)
+    }
+
+    override fun onAlbumClicked(album: Album) {
+        searchMenuItem.isVisible = false
+        addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(album), album.title)
+    }
+
+    override fun onAlbumDelete(album: Album) {
+        showConfirmDialog(
+            title = getString(R.string.delete_album),
+            message = getString(R.string.confirm_delete_album, album.getNbOfTracks()),
+            listener = DialogInterface.OnClickListener { dialog, which ->
+                //TODO delete album
+            })
+    }
+
+    override fun onAlbumEdit(album: Album) {
+        val dialog = EditAlbumDialogFragment.newInstance(album)
+        dialog.show(supportFragmentManager, "edit dialog")
+    }
+
     override fun onArtistClicked(artist: Artist) {
-        setupActionBar(artist.title, true)
         val artistSongs = SongLoader.getArtistSongs(songList, artist.id)
-        addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(artist, artistSongs))
+        addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(artist, artistSongs), artist.title)
     }
 
     override fun onGenreClicked(genre: Genre) {
-        setupActionBar(genre.name, true)
         val genreSongs = SongLoader.getSongsFromGenre(contentResolver, genre.id)
-        addFragment(R.id.frame_layout, SongFragment.newInstance(genreSongs))
+        addFragment(R.id.frame_layout, SongFragment.newInstance(genreSongs), genre.name)
     }
 
     override fun onPlaylistClicked(playlist: Playlist) {
-        setupActionBar(playlist.name, true)
         val playlistSongs = playlist.songs ?: ArrayList()
-        addFragment(R.id.frame_layout, SongFragment.newInstance(playlistSongs))
+        addFragment(R.id.frame_layout, SongFragment.newInstance(playlistSongs), playlist.name)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.app_bar_menu, menu)
-        val searchItem: MenuItem = menu.findItem(R.id.action_search)
-        searchView = searchItem.actionView as SearchView
+        searchMenuItem = menu.findItem(R.id.action_search)
+
+        searchView = searchMenuItem.actionView as SearchView
 
         val searchPlate: EditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text)
         searchPlate.hint = getString(R.string.search_hint)
@@ -318,6 +383,19 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
         return true
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE_SONG && resultCode == Activity.RESULT_OK) {
+            val albumId = data?.getLongExtra(ALBUM_ID, 0L) ?: 0L
+            val songAlbum = AlbumLoader.getAlbumById(contentResolver, albumId)
+            if (songAlbum != null) {
+                addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(songAlbum), songAlbum.title, withStateLoss = true)
+            }
+        }
+        if (requestCode == REQUEST_SONG_DELETE_PERMISSION && resultCode == Activity.RESULT_OK) {
+            mainViewModel.deletePendingSong()
+        } else super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onBackPressed() {
         if (!removeFragment(R.id.frame_layout)) {
             if (!searchView.isIconified) {
@@ -326,6 +404,7 @@ class MainActivity : AppCompatActivity(), SongAdapter.SongCallback, ArtistAdapte
                 super.onBackPressed()
             }
         } else {
+            searchMenuItem.isVisible = true
             setupActionBar(getString(R.string.app_name), false)
         }
     }

@@ -1,7 +1,5 @@
 package com.zc.phonoplayer.ui.fragments
 
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,15 +14,12 @@ import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.AlbumAdapter
 import com.zc.phonoplayer.adapter.SortOrder
 import com.zc.phonoplayer.model.Album
-import com.zc.phonoplayer.ui.activities.AlbumActivity
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
-import com.zc.phonoplayer.ui.dialogs.EditAlbumDialogFragment
 import com.zc.phonoplayer.util.ALBUM_LIST
-import com.zc.phonoplayer.util.SELECTED_ALBUM
-import com.zc.phonoplayer.util.showConfirmDialog
 import com.zc.phonoplayer.util.showMenuPopup
 
-class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
+class AlbumFragment : Fragment() {
+    private lateinit var callback: AlbumAdapter.AlbumCallback
     private lateinit var albumList: ArrayList<Album>
     private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: AlbumAdapter
@@ -88,40 +83,20 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
     private fun setupAdapter(layoutType: LayoutType) {
         when (layoutType) {
             LayoutType.LIST -> {
-                recyclerAdapter = AlbumAdapter(albumList, this)
+                recyclerAdapter = AlbumAdapter(albumList, callback)
                 recyclerView.layoutManager = LinearLayoutManager(activity)
                 recyclerView.adapter = recyclerAdapter
             }
             LayoutType.GRID_2_BY_2 -> {
-                recyclerAdapter = AlbumAdapter(albumList, this, true)
+                recyclerAdapter = AlbumAdapter(albumList, callback, true)
                 recyclerView.layoutManager = GridLayoutManager(activity, 2)
                 recyclerView.adapter = recyclerAdapter
             }
             LayoutType.GRID_3_BY_3 -> {
-                recyclerAdapter = AlbumAdapter(albumList, this, true)
+                recyclerAdapter = AlbumAdapter(albumList, callback, true)
                 recyclerView.layoutManager = GridLayoutManager(activity, 3)
             }
         }
-    }
-
-    override fun onAlbumClicked(album: Album) {
-        val intent = Intent(context, AlbumActivity::class.java)
-        intent.putExtra(SELECTED_ALBUM, album)
-        startActivity(intent)
-    }
-
-    override fun onAlbumDelete(album: Album) {
-        requireContext().showConfirmDialog(
-            title = getString(R.string.delete_album),
-            message = getString(R.string.confirm_delete_album, album.getNbOfTracks()),
-            listener = DialogInterface.OnClickListener { dialog, which ->
-                //TODO delete album
-            })
-    }
-
-    override fun onAlbumEdit(album: Album) {
-        val dialog = EditAlbumDialogFragment.newInstance(album)
-        dialog.show(parentFragmentManager, "edit dialog")
     }
 
     fun filterData(query: String) {
@@ -133,6 +108,10 @@ class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
         recyclerView.setIndexBarVisibility(true)
         recyclerAdapter.resetData()
         recyclerView.smoothScrollToPosition(0)
+    }
+
+    fun setAlbumCallback(callback: AlbumAdapter.AlbumCallback) {
+        this.callback = callback
     }
 
     enum class LayoutType {

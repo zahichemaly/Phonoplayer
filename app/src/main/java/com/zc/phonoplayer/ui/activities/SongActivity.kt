@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.ui.activities
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -9,12 +10,10 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.widget.ArrayAdapter
 import android.widget.PopupMenu
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.loader.AlbumLoader
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.util.*
@@ -178,10 +177,10 @@ class SongActivity : AppCompatActivity() {
 
     private fun openAlbum() {
         song?.let {
-            val album = AlbumLoader.getAlbumById(contentResolver, song!!.albumId)
-            val intent = Intent(this, AlbumActivity::class.java)
-            intent.putExtra(SELECTED_ALBUM, album)
-            startActivity(intent)
+            val intent = Intent()
+            intent.putExtra(ALBUM_ID, it.albumId)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
         }
     }
 }

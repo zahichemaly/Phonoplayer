@@ -82,6 +82,10 @@ class SongFragment : Fragment() {
         recyclerView.smoothScrollToPosition(0)
     }
 
+    fun deleteSong(song: Song) {
+        recyclerAdapter.deleteData(song)
+    }
+
     fun setSongCallback(callback: SongAdapter.SongCallback) {
         this.callback = callback
     }

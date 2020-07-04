@@ -7,11 +7,8 @@ import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -52,30 +49,5 @@ fun Context.showMenuPopup(view: View, @MenuRes menuRes: Int, listener: PopupMenu
 }
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson<T>(json, object : TypeToken<T>() {}.type)
-
-fun AppCompatActivity.addFragment(@IdRes idRes: Int, fragment: Fragment) {
-    supportFragmentManager.beginTransaction()
-        .add(idRes, fragment)
-        .commit()
-}
-
-fun AppCompatActivity.removeFragment(@IdRes idRes: Int): Boolean {
-    val fragment = supportFragmentManager.findFragmentById(idRes)
-    if (fragment != null) {
-        supportFragmentManager.beginTransaction()
-            .remove(fragment)
-            .commit()
-        return true
-    }
-    return false
-}
-
-fun AppCompatActivity.setupActionBar(actionBarTitle: String?, showBackButton: Boolean) {
-    supportActionBar?.run {
-        title = actionBarTitle
-        setDisplayHomeAsUpEnabled(showBackButton)
-        setDisplayShowHomeEnabled(showBackButton)
-    }
-}
 
 inline fun <reified T> List<T>.toArrayList(): ArrayList<T> = this as ArrayList<T>

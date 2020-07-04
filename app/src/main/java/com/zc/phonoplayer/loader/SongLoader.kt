@@ -51,9 +51,9 @@ object SongLoader {
         return songList
     }
 
-    fun getSongsFromAlbum(contentResolver: ContentResolver, albumID: String): ArrayList<Song> {
+    fun getSongsFromAlbum(contentResolver: ContentResolver, albumId: Long): ArrayList<Song> {
         val songList = arrayListOf<Song>()
-        val selection = SELECTION + " AND " + MediaStore.Audio.AudioColumns.ALBUM_ID + "=" + albumID
+        val selection = SELECTION + " AND " + MediaStore.Audio.AudioColumns.ALBUM_ID + "=" + albumId
         val sortOrder = MediaStore.Audio.Media.TRACK + " ASC"
         val cursor = contentResolver.query(URI, PROJECTION, selection, null, sortOrder)
         if (cursor != null && cursor.count > 0) {

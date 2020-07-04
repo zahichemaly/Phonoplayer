@@ -16,7 +16,7 @@ import com.zc.phonoplayer.util.showConfirmDialog
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
-class SongAdapter(private var songList: List<Song>, private var callback: SongCallback?) :
+class SongAdapter(private var songList: List<Song>, private var callback: SongCallback) :
     IndexAdapter<SongAdapter.ViewHolder>(songList.mapNotNull { it.title }) {
     private lateinit var view: View
     private lateinit var context: Context
@@ -41,12 +41,17 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
             context.loadUri(s.getAlbumArtUri().toString(), holder.albumArt)
             holder.rootLayout.setOnClickListener {
                 Log.i("SongAdapter", "Song clicked: " + s.title)
-                callback?.onSongClicked(song)
+                callback.onSongClicked(song)
             }
             holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
-                val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
+                val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
+                val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
                 deleteMenu.setOnMenuItemClickListener {
-                    deleteData(song)
+                    openDeleteDialog(s)
+                    true
+                }
+                editMenu.setOnMenuItemClickListener {
+                    callback.onSongEdit(s)
                     true
                 }
             }
@@ -79,14 +84,18 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
         notifyDataSetChanged()
     }
 
-    private fun deleteData(song: Song) {
+    fun deleteData(song: Song) {
+        val position = filteredSongList.indexOf(song)
+        filteredSongList.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    private fun openDeleteDialog(song: Song) {
         context.showConfirmDialog(
-            title = context.getString(R.string.delete_album),
+            title = context.getString(R.string.delete_track),
             message = context.getString(R.string.confirm_delete_song),
             listener = DialogInterface.OnClickListener { dialog, which ->
-                val position = filteredSongList.indexOf(song)
-                filteredSongList.removeAt(position)
-                notifyItemRemoved(position)
+                callback.onSongDeleted(song)
             })
     }
 
@@ -100,5 +109,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
 
     interface SongCallback {
         fun onSongClicked(song: Song)
+        fun onSongEdit(song: Song)
+        fun onSongDeleted(song: Song)
     }
 }

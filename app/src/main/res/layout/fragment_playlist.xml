@@ -7,13 +7,13 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/create_playlist_button"
+        android:id="@+id/save_album"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="@dimen/spacing_medium"
         android:layout_marginBottom="@dimen/spacing_medium"
-        android:layout_marginEnd="@dimen/spacing_xlarge"
+        android:layout_marginEnd="@dimen/spacing_medium"
         android:textColor="@color/white"
         android:textSize="12sp"
         android:background="@color/light_grey"
@@ -25,7 +25,7 @@
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/create_playlist_button"
+        android:layout_below="@id/save_album"
         android:visibility="gone"
         tools:visibility="visible">
     </androidx.recyclerview.widget.RecyclerView>
