@@ -86,6 +86,12 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
         this.filteredAlbumList = albumList
     }
 
+    fun deleteData(album: Album) {
+        val position = filteredAlbumList.indexOf(album)
+        filteredAlbumList.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var rootLayout: RelativeLayout = itemView.findViewById(R.id.item_album_card)
         var albumTitleText: TextView = itemView.findViewById(R.id.item_album_title)

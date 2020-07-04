@@ -47,7 +47,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
                 val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
                 deleteMenu.setOnMenuItemClickListener {
-                    openDeleteDialog(s)
+                    callback.onSongDeleted(song)
                     true
                 }
                 editMenu.setOnMenuItemClickListener {
@@ -84,19 +84,16 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
         notifyDataSetChanged()
     }
 
+    fun updateData(song: Song) {
+        val position = filteredSongList.indexOf(song)
+        filteredSongList[position] = song
+        notifyItemChanged(position)
+    }
+
     fun deleteData(song: Song) {
         val position = filteredSongList.indexOf(song)
         filteredSongList.removeAt(position)
         notifyItemRemoved(position)
-    }
-
-    private fun openDeleteDialog(song: Song) {
-        context.showConfirmDialog(
-            title = context.getString(R.string.delete_track),
-            message = context.getString(R.string.confirm_delete_song),
-            listener = DialogInterface.OnClickListener { dialog, which ->
-                callback.onSongDeleted(song)
-            })
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

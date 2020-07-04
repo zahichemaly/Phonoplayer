@@ -12,18 +12,32 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.ui.viewModels.EditSongFragmentViewModel
 import com.zc.phonoplayer.util.loadUri
 import de.hdodenhof.circleimageview.CircleImageView
 
 class EditSongDialogFragment : DialogFragment() {
     private var song: Song? = null
+    private lateinit var headerAlbumTv: TextView
+    private lateinit var headerArtistTv: TextView
+    private lateinit var trackTv: EditText
+    private lateinit var albumTv: EditText
+    private lateinit var artistTv: EditText
+    private lateinit var yearTv: EditText
+    private lateinit var genreTv: EditText
+    private lateinit var cancelButton: Button
+    private lateinit var saveButton: Button
     private lateinit var songArt: CircleImageView
+    private val viewModel: EditSongFragmentViewModel by activityViewModels()
 
     companion object {
         private const val SONG_EDIT = "song_edit"
-        private const val IMAGE_PICK_CODE = 1000
+        private const val IMAGE_PICK_CODE = 1100
+        private const val REQUEST_SONG_MODIFY = 1101
 
         fun newInstance(song: Song): EditSongDialogFragment {
             val frag = EditSongDialogFragment()
@@ -42,30 +56,35 @@ class EditSongDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_dialog_edit_song, container, false)
         songArt = view.findViewById(R.id.album_art)
-        val headerAlbumTv: TextView = view.findViewById(R.id.header_song_name)
-        val headerArtistTv: TextView = view.findViewById(R.id.header_artist_name)
-        val trackTv: EditText = view.findViewById(R.id.track_name)
-        val albumTv: EditText = view.findViewById(R.id.album_name)
-        val artistTv: EditText = view.findViewById(R.id.artist_name)
-        val yearTv: EditText = view.findViewById(R.id.song_year)
-        val genreTv: EditText = view.findViewById(R.id.song_genre)
-        val cancelButton: Button = view.findViewById(R.id.cancel_button)
-        val saveButton: Button = view.findViewById(R.id.save_button)
+        headerAlbumTv = view.findViewById(R.id.header_song_name)
+        headerArtistTv = view.findViewById(R.id.header_artist_name)
+        trackTv = view.findViewById(R.id.track_name)
+        albumTv = view.findViewById(R.id.album_name)
+        artistTv = view.findViewById(R.id.artist_name)
+        yearTv = view.findViewById(R.id.song_year)
+        genreTv = view.findViewById(R.id.song_genre)
+        cancelButton = view.findViewById(R.id.cancel_button)
+        saveButton = view.findViewById(R.id.save_button)
 
-        song?.let {
-            headerAlbumTv.text = it.title
-            headerArtistTv.text = it.artist
-            requireContext().loadUri(it.getAlbumArtUri().toString(), songArt)
-            trackTv.setText(it.title)
-            albumTv.setText(it.album)
-            artistTv.setText(it.artist)
-            yearTv.setText(it.year.toString())
-            genreTv.setText("Dummy genre")
+        song?.run {
+            headerAlbumTv.text = title
+            headerArtistTv.text = artist
+            requireContext().loadUri(getAlbumArtUri().toString(), songArt)
+            trackTv.setText(title)
+            albumTv.setText(album)
+            artistTv.setText(artist)
+            yearTv.setText(year.toString())
+            saveButton.setOnClickListener {
+                editSong(this)
+            }
         }
-
         songArt.setOnClickListener { openGallery() }
         cancelButton.setOnClickListener { dialog?.dismiss() }
-        saveButton.setOnClickListener { updateSong() }
+        viewModel.permissionToModify().observe(this, Observer { intentSender ->
+            intentSender?.let {
+                startIntentSenderForResult(intentSender, REQUEST_SONG_MODIFY, null, 0, 0, 0, null)
+            }
+        })
         return view
     }
 
@@ -90,17 +109,22 @@ class EditSongDialogFragment : DialogFragment() {
         startActivityForResult(intent, IMAGE_PICK_CODE)
     }
 
-    private fun updateSong() {
-        // update album
+    private fun editSong(song: Song) {
+        song.apply {
+            title = trackTv.text.toString()
+            album = albumTv.text.toString()
+            artist = artistTv.text.toString()
+        }
+        viewModel.updateSong(song)
+        dialog?.dismiss()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            songArt.setImageURI(data?.data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                IMAGE_PICK_CODE -> songArt.setImageURI(data?.data)
+                REQUEST_SONG_MODIFY -> viewModel.updatePendingSong()
+            }
         }
-    }
-
-    interface AlbumCallback {
-        fun onSongUpdated(newSong: Song)
     }
 }

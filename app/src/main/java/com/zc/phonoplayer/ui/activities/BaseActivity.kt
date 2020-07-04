@@ -3,9 +3,12 @@ package com.zc.phonoplayer.ui.activities
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.zc.phonoplayer.adapter.*
+import com.zc.phonoplayer.adapter.AlbumAdapter
+import com.zc.phonoplayer.adapter.ArtistAdapter
+import com.zc.phonoplayer.adapter.GenreAdapter
+import com.zc.phonoplayer.adapter.PlaylistAdapter
 
-abstract class BaseActivity : AppCompatActivity(), SongAdapter.SongCallback, AlbumAdapter.AlbumCallback, ArtistAdapter.ArtistCallback,
+abstract class BaseActivity : AppCompatActivity(), AlbumAdapter.AlbumCallback, ArtistAdapter.ArtistCallback,
     GenreAdapter.GenreCallback, PlaylistAdapter.PlaylistCallback {
 
     protected fun addFragment(@IdRes idRes: Int, fragment: Fragment, actionBarTitle: String?, withStateLoss: Boolean = false) {

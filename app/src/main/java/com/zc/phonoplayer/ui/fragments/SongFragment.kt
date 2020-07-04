@@ -1,5 +1,8 @@
 package com.zc.phonoplayer.ui.fragments
 
+import android.app.Activity
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,24 +11,37 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.SongAdapter
 import com.zc.phonoplayer.adapter.SortOrder
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
+import com.zc.phonoplayer.ui.dialogs.EditSongDialogFragment
+import com.zc.phonoplayer.ui.viewModels.EditSongFragmentViewModel
+import com.zc.phonoplayer.ui.viewModels.MainViewModel
+import com.zc.phonoplayer.ui.viewModels.SongFragmentViewModel
 import com.zc.phonoplayer.util.SONG_LIST
+import com.zc.phonoplayer.util.showConfirmDialog
 import com.zc.phonoplayer.util.showMenuPopup
+import kotlinx.android.synthetic.main.fragment_song.*
 
-class SongFragment : Fragment() {
+class SongFragment : Fragment(), SongAdapter.SongCallback {
     private lateinit var songList: ArrayList<Song>
-    private lateinit var callback: SongAdapter.SongCallback
     private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: SongAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val songViewModel: SongFragmentViewModel by activityViewModels()
+    private val editSongViewModel: EditSongFragmentViewModel by activityViewModels()
 
     companion object {
+        const val REQUEST_SONG_DELETE_PERMISSION = 1001
+
         fun newInstance(songList: ArrayList<Song>): SongFragment {
             val frag = SongFragment()
             val args = Bundle()
@@ -52,7 +68,7 @@ class SongFragment : Fragment() {
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
-            recyclerAdapter = SongAdapter(songList, callback)
+            recyclerAdapter = SongAdapter(songList, this)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
@@ -68,12 +84,68 @@ class SongFragment : Fragment() {
                 true
             })
         }
+        setupObservers()
         return view
+    }
+
+    private fun setupObservers() {
+        songViewModel.permissionToDelete().observe(viewLifecycleOwner, Observer { intentSender ->
+            intentSender?.let {
+                startIntentSenderForResult(intentSender, REQUEST_SONG_DELETE_PERMISSION, null, 0, 0, 0, null)
+            }
+        })
+        songViewModel.nbOfDeletedSongs().observe(viewLifecycleOwner, Observer { nbOfDeletedSongs ->
+            if (nbOfDeletedSongs > 0) {
+                Snackbar.make(recycler_view, getString(R.string.nb_of_deleted_tracks, nbOfDeletedSongs), Snackbar.LENGTH_LONG)
+                    .show()
+                songViewModel.deletedSong?.let {
+                    deleteSong(it)
+                }
+            }
+        })
+        editSongViewModel.nbOfUpdatedSongs().observe(viewLifecycleOwner, Observer { nbOfUpdatedSongs ->
+            if (nbOfUpdatedSongs > 0) {
+                Snackbar.make(recycler_view, getString(R.string.nb_of_updated_tracks, nbOfUpdatedSongs), Snackbar.LENGTH_LONG)
+                    .show()
+                editSongViewModel.updatedSong?.let {
+                    updateData(it)
+                }
+            }
+        })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_SONG_DELETE_PERMISSION && resultCode == Activity.RESULT_OK) {
+            songViewModel.deletePendingSong()
+        } else super.onActivityResult(requestCode, resultCode, data)
+    }
+
+
+    override fun onSongClicked(song: Song) {
+        mainViewModel.updateSong(song)
+    }
+
+    override fun onSongEdit(song: Song) {
+        val dialog = EditSongDialogFragment.newInstance(song)
+        dialog.show(requireActivity().supportFragmentManager, "edit dialog")
+    }
+
+    override fun onSongDeleted(song: Song) {
+        requireContext().showConfirmDialog(
+            title = getString(R.string.delete_track),
+            message = getString(R.string.confirm_delete_song),
+            listener = DialogInterface.OnClickListener { dialog, which ->
+                songViewModel.deleteSong(song)
+            })
     }
 
     fun filterData(query: String) {
         recyclerView.setIndexBarVisibility(false)
         recyclerAdapter.filterData(query)
+    }
+
+    fun updateData(song: Song) {
+        recyclerAdapter.updateData(song)
     }
 
     fun setInitialData() {
@@ -84,9 +156,5 @@ class SongFragment : Fragment() {
 
     fun deleteSong(song: Song) {
         recyclerAdapter.deleteData(song)
-    }
-
-    fun setSongCallback(callback: SongAdapter.SongCallback) {
-        this.callback = callback
     }
 }

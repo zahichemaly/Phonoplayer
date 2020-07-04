@@ -23,14 +23,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.google.android.exoplayer2.util.Log
-import com.google.android.material.snackbar.Snackbar
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.TabAdapter
 import com.zc.phonoplayer.loader.*
 import com.zc.phonoplayer.model.*
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.ui.dialogs.EditAlbumDialogFragment
-import com.zc.phonoplayer.ui.dialogs.EditSongDialogFragment
 import com.zc.phonoplayer.ui.fragments.*
 import com.zc.phonoplayer.ui.viewModels.MainViewModel
 import com.zc.phonoplayer.util.*
@@ -51,9 +49,7 @@ class MainActivity : BaseActivity() {
 
     companion object {
         const val REQUEST_READ_PERMISSION = 1000
-        const val REQUEST_SONG_DELETE_PERMISSION = 10001
-        const val REQUEST_SONG_MODIFY_PERMISSION = 10002
-        const val REQUEST_CODE_SONG = 10003
+        const val REQUEST_CODE_SONG = 1002
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,35 +58,8 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         storageUtil = StorageUtil(this)
         checkPermissions()
-        initializeViewModel()
         initializePlayer()
-    }
-
-    private fun initializeViewModel() {
-        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        mainViewModel.permissionNeededForDelete().observe(this, Observer { intentSender ->
-            intentSender?.let {
-                // On Android 10+, if the app doesn't have permission to modify
-                // or delete an item, it returns an `IntentSender` that we can
-                // use here to prompt the user to grant permission to delete (or modify)
-                // the image.
-                startIntentSenderForResult(intentSender, REQUEST_SONG_DELETE_PERMISSION, null, 0, 0, 0, null)
-            }
-        })
-        mainViewModel.nbOfDeletedSongs().observe(this, Observer { nbOfDeletedSongs ->
-            if (nbOfDeletedSongs > 0) {
-                Snackbar.make(root_layout, getString(R.string.num_of_deleted_tracks, nbOfDeletedSongs), Snackbar.LENGTH_LONG)
-                    .show()
-                tabAdapter.getCurrentFragment()?.run {
-                    if (this is SongFragment) {
-                        mainViewModel.pendingDeleteSong?.let {
-                            deleteSong(it)
-                        }
-                        mainViewModel.pendingDeleteSong = null
-                    }
-                }
-            }
-        })
+        setupObservers()
     }
 
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
@@ -119,6 +88,15 @@ class MainActivity : BaseActivity() {
             song = SongHelper.getSongFromMetadata(metadata)
             updateSongController()
         }
+    }
+
+    private fun setupObservers() {
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        mainViewModel.song().observe(this, Observer { song ->
+            this.song = song
+            updateSongController()
+            playSelectedSong()
+        })
     }
 
     private fun populateUi() {
@@ -279,28 +257,12 @@ class MainActivity : BaseActivity() {
 
     override fun onAttachFragment(fragment: Fragment) {
         when (fragment) {
-            is SongFragment -> fragment.setSongCallback(this)
             is ArtistFragment -> fragment.setArtistCallback(this)
             is AlbumFragment -> fragment.setAlbumCallback(this)
-            is ArtistDetailsFragment -> fragment.setCallback(this, this)
+            is ArtistDetailsFragment -> fragment.setCallback(this)
             is GenreFragment -> fragment.setGenreCallback(this)
             is PlaylistFragment -> fragment.setPlaylistCallback(this)
         }
-    }
-
-    override fun onSongClicked(song: Song) {
-        this.song = song
-        updateSongController()
-        playSelectedSong()
-    }
-
-    override fun onSongEdit(song: Song) {
-        val dialog = EditSongDialogFragment.newInstance(song)
-        dialog.show(supportFragmentManager, "edit dialog")
-    }
-
-    override fun onSongDeleted(song: Song) {
-        mainViewModel.deleteSong(song)
     }
 
     override fun onAlbumClicked(album: Album) {
@@ -313,7 +275,7 @@ class MainActivity : BaseActivity() {
             title = getString(R.string.delete_album),
             message = getString(R.string.confirm_delete_album, album.getNbOfTracks()),
             listener = DialogInterface.OnClickListener { dialog, which ->
-                //TODO delete album
+                //TODO
             })
     }
 
@@ -390,9 +352,6 @@ class MainActivity : BaseActivity() {
             if (songAlbum != null) {
                 addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(songAlbum), songAlbum.title, withStateLoss = true)
             }
-        }
-        if (requestCode == REQUEST_SONG_DELETE_PERMISSION && resultCode == Activity.RESULT_OK) {
-            mainViewModel.deletePendingSong()
         } else super.onActivityResult(requestCode, resultCode, data)
     }
 
