@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/spacing_xlarge">
+        android:padding="@dimen/spacing_large">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/album_art"
@@ -31,13 +31,14 @@
             app:layout_constraintTop_toTopOf="@id/album_art" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="100dp"
             android:layout_marginStart="@dimen/spacing_large"
             android:layout_marginEnd="@dimen/spacing_large"
             android:gravity="center_vertical"
             android:orientation="vertical"
             app:layout_constraintStart_toEndOf="@id/album_art"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -46,18 +47,24 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:singleLine="true"
+                android:marqueeRepeatLimit="marquee_forever"
                 android:text="@string/track_name"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="@string/title_dummy"/>
 
             <TextView
                 android:id="@+id/header_artist_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:marqueeRepeatLimit="marquee_forever"
                 android:text="@string/artist_name"
                 android:textColor="@color/black"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                tools:text="@string/title_dummy"/>
         </LinearLayout>
 
         <LinearLayout
@@ -142,7 +149,6 @@
                     tools:text="Genre" />
 
             </com.google.android.material.textfield.TextInputLayout>
-
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -150,12 +156,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:background="@color/light_grey"
             android:text="@string/save"
             android:textColor="@color/white"
             android:textSize="12sp"
             app:cornerRadius="@dimen/button_corner_radius"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_layout" />
 
@@ -164,13 +170,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/spacing_medium"
             android:layout_marginEnd="@dimen/spacing_medium"
             android:background="@color/light_grey"
             android:text="@string/cancel"
             android:textColor="@color/white"
             android:textSize="12sp"
             app:cornerRadius="@dimen/button_corner_radius"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/save_button"
             app:layout_constraintTop_toBottomOf="@id/edit_layout" />
 

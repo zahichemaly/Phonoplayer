@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Genre
 import com.zc.phonoplayer.model.Playlist
+import com.zc.phonoplayer.util.logI
 
 class GenreAdapter(private var genreList: List<Genre>, private var callback: GenreAdapter.GenreCallback) :
     RecyclerView.Adapter<GenreAdapter.ViewHolder>() {
@@ -25,7 +26,9 @@ class GenreAdapter(private var genreList: List<Genre>, private var callback: Gen
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val genre = genreList[position]
         holder.titleTv.text = genre.name
-        holder.rootLayout.setOnClickListener { callback.onGenreClicked(genre) }
+        holder.rootLayout.setOnClickListener {
+            logI("Genre clicked: $genre")
+            callback.onGenreClicked(genre) }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.util.logI
 
 class AlbumSongAdapter(private var albumSongList: List<Song>, private var onSongClicked: (Song) -> Unit) : RecyclerView.Adapter<AlbumSongAdapter.ViewHolder>() {
 
@@ -25,7 +26,10 @@ class AlbumSongAdapter(private var albumSongList: List<Song>, private var onSong
         holder.songTitleText.text = song.title
         holder.songDurationText.text = song.getFormattedDuration()
         holder.songTrackNoText.text = song.getTrackNo()
-        holder.rootLayout.setOnClickListener { onSongClicked(song) }
+        holder.rootLayout.setOnClickListener {
+            logI("Album Song clicked: $song")
+            onSongClicked(song)
+        }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

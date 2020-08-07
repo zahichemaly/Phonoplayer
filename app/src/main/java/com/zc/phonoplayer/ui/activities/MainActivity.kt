@@ -22,7 +22,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import com.google.android.exoplayer2.util.Log
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.TabAdapter
 import com.zc.phonoplayer.loader.*
@@ -70,12 +69,12 @@ class MainActivity : BaseActivity() {
                 MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
             }
             setupController()
-            Log.d("onConnected", "Controller Connected")
+            logD("Controller connected")
         }
 
         override fun onConnectionFailed() {
             super.onConnectionFailed()
-            Log.d("onConnected", "Connection Failed")
+            logD("Controller connection failed")
         }
     }
 
@@ -161,13 +160,15 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkPermissions() {
-        Log.i("Permission", "Checking permissions")
+        logI("Checking permissions")
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            logI("Permissions denied. Requesting...")
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                 REQUEST_READ_PERMISSION
             )
         } else {
+            logI("Permissions granted!")
             populateUi()
         }
     }

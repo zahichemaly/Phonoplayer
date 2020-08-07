@@ -3,7 +3,7 @@ package com.zc.phonoplayer.ui.activities
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.exoplayer2.util.Log
+import com.zc.phonoplayer.util.logD
 
 /**
  * Activity that is connected to a Media  Browser using a session from MusicService::class.java
@@ -17,7 +17,7 @@ abstract class MusicActivity : AppCompatActivity() {
     protected val mConnectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
-            Log.d("onConnected", "Controller Connected")
+            logD("Controller connected")
             mMediaBrowser.sessionToken.also { token ->
                 mMediaController = MediaControllerCompat(this@MusicActivity, token)
                 MediaControllerCompat.setMediaController(this@MusicActivity, mMediaController)
@@ -28,7 +28,7 @@ abstract class MusicActivity : AppCompatActivity() {
 
         override fun onConnectionFailed() {
             super.onConnectionFailed()
-            Log.d("onConnected", "Connection Failed")
+            logD("Controller connection failed")
         }
     }
 

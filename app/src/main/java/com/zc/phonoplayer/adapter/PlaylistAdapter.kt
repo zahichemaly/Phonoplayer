@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Playlist
 import com.zc.phonoplayer.util.loadUri
+import com.zc.phonoplayer.util.logI
 import de.hdodenhof.circleimageview.CircleImageView
 
 class PlaylistAdapter(private var playlists: List<Playlist>, private var callback: PlaylistAdapter.PlaylistCallback) :
@@ -44,7 +45,10 @@ class PlaylistAdapter(private var playlists: List<Playlist>, private var callbac
                 val song = playlist.songs!![0]
                 context.loadUri(song.getAlbumArtUri().toString(), songArt1)
             }
-            rootLayout.setOnClickListener { callback.onPlaylistClicked(playlist) }
+            rootLayout.setOnClickListener {
+                logI("Playlist clicked: $playlist")
+                callback.onPlaylistClicked(playlist)
+            }
         }
     }
 

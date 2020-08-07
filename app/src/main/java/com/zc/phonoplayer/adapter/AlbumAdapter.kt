@@ -1,7 +1,6 @@
 package com.zc.phonoplayer.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.util.loadUri
+import com.zc.phonoplayer.util.logI
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
@@ -40,10 +40,10 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
             holder.albumArtistText.text = a.artist
             context.loadUri(album.getAlbumArtUri().toString(), holder.albumArt)
             holder.rootLayout.setOnClickListener {
-                Log.i("AlbumAdapter", "Album Clicked: ${a.title}")
+                logI("Album clicked: $album")
                 callback.onAlbumClicked(a)
             }
-            holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
                 val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
                 deleteMenu.setOnMenuItemClickListener {

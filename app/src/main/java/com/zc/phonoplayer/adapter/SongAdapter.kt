@@ -1,8 +1,6 @@
 package com.zc.phonoplayer.adapter
 
 import android.content.Context
-import android.content.DialogInterface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.util.loadUri
-import com.zc.phonoplayer.util.showConfirmDialog
+import com.zc.phonoplayer.util.logI
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
 
@@ -40,17 +38,19 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
             holder.artistText.text = s.artist
             context.loadUri(s.getAlbumArtUri().toString(), holder.albumArt)
             holder.rootLayout.setOnClickListener {
-                Log.i("SongAdapter", "Song clicked: " + s.title)
+                logI("Song clicked: $song")
                 callback.onSongClicked(song)
             }
-            holder.rootLayout.setOnCreateContextMenuListener { menu, v, menuInfo ->
+            holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
                 val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
                 deleteMenu.setOnMenuItemClickListener {
+                    logI("Delete Menu clicked: ${s.title}")
                     callback.onSongDeleted(song)
                     true
                 }
                 editMenu.setOnMenuItemClickListener {
+                    logI("Edit Menu clicked: ${s.title}")
                     callback.onSongEdit(s)
                     true
                 }

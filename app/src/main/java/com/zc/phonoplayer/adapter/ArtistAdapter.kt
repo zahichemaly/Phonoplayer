@@ -8,9 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Artist
+import com.zc.phonoplayer.util.logI
 import java.util.*
 
-class ArtistAdapter(var artistList: List<Artist>, private var callback: ArtistCallback) :
+class ArtistAdapter(private var artistList: List<Artist>, private var callback: ArtistCallback) :
     IndexAdapter<ArtistAdapter.ViewHolder>(artistList.mapNotNull { it.title }) {
     private var filteredArtistList = artistList.toMutableList()
 
@@ -63,6 +64,7 @@ class ArtistAdapter(var artistList: List<Artist>, private var callback: ArtistCa
                 nbOfTracksTv.text = getNbOfTracks()
                 nbOfAlbumsTv.text = getNbOfAlbums()
                 rootLayout.setOnClickListener {
+                    logI("Artist clicked: $artist")
                     callback.onArtistClicked(this)
                 }
             }
