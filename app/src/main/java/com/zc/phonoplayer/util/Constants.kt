@@ -16,6 +16,7 @@ const val SELECTED_INDEX = "selected_index"
 const val SELECTED_ALBUM = "selected_album"
 const val SELECTED_ARTIST = "selected_artist"
 const val IS_ALBUM_SONG = "is_album_song"
+const val HIDE_MENU = "hide_menu"
 const val SONG_LIST = "song_list"
 const val ALBUM_LIST = "album_list"
 const val PLAYLIST = "playlist"
@@ -23,3 +24,7 @@ const val ARTIST_SONG_LIST = "artist_song_list"
 const val GENRE_LIST = "genre_list"
 const val ARTIST_LIST = "artist_list"
 const val ALBUM_ID = "album_id"
+const val ARTIST_ID = "artist_id"
+
+const val RESULT_ALBUM_ID = 1110
+const val RESULT_ARTIST_ID = 1111

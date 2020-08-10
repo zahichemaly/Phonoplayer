@@ -21,7 +21,8 @@ object SongLoader {
         MediaStore.Audio.AudioColumns.ARTIST_ID, //6
         MediaStore.Audio.AudioColumns.DURATION,  //7
         MediaStore.Audio.AudioColumns.TRACK, //8
-        MediaStore.Audio.AudioColumns.YEAR //19
+        MediaStore.Audio.AudioColumns.YEAR, //19
+        MediaStore.Audio.AudioColumns.DATE_ADDED //20
     )
 
     private fun getSongFromCursor(cursor: Cursor): Song {

@@ -1,6 +1,7 @@
 package com.zc.phonoplayer.loader
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.database.Cursor
 import android.provider.MediaStore
 import com.zc.phonoplayer.model.Artist
@@ -34,5 +35,19 @@ object ArtistLoader {
             cursor.close()
         }
         return artistList
+    }
+
+    fun getArtistById(contentResolver: ContentResolver, artistId: Long): Artist? {
+        var artist: Artist? = null
+        val sortOrder = MediaStore.Audio.Artists.ARTIST + " ASC"
+        val uri = ContentUris.withAppendedId(URI, artistId)
+        contentResolver.query(uri, PROJECTION, null, null, sortOrder)?.apply {
+            while (moveToNext()) {
+                artist = getArtistFromCursor(this)
+                break
+            }
+            close()
+        }
+        return artist
     }
 }

@@ -44,16 +44,19 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
                 callback.onAlbumClicked(a)
             }
             holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
+                /* TODO
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
-                val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
-                deleteMenu.setOnMenuItemClickListener {
-                    callback.onAlbumDelete(a)
-                    true
-                }
                 editMenu.setOnMenuItemClickListener {
                     callback.onAlbumEdit(a)
                     true
                 }
+                 */
+                val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
+                deleteMenu.setOnMenuItemClickListener {
+                    callback.onAlbumDelete(a)
+                    true
+                }
+
             }
         }
     }

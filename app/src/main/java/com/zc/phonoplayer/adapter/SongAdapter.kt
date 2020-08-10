@@ -42,16 +42,18 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
                 callback.onSongClicked(song)
             }
             holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
+                /* TODO
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
-                val deleteMenu = menu.add(0, v.id, 1, context.getString(R.string.delete))
-                deleteMenu.setOnMenuItemClickListener {
-                    logI("Delete Menu clicked: ${s.title}")
-                    callback.onSongDeleted(song)
-                    true
-                }
                 editMenu.setOnMenuItemClickListener {
                     logI("Edit Menu clicked: ${s.title}")
                     callback.onSongEdit(s)
+                    true
+                }
+                 */
+                val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
+                deleteMenu.setOnMenuItemClickListener {
+                    logI("Delete Menu clicked: ${s.title}")
+                    callback.onSongDeleted(song)
                     true
                 }
             }
@@ -102,6 +104,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
         val albumText: TextView = itemView.findViewById(R.id.item_album_text)
         val artistText: TextView = itemView.findViewById(R.id.item_artist_text)
         val albumArt: CircleImageView = itemView.findViewById(R.id.item_album_art)
+        val rowIndex: Int = -1
     }
 
     interface SongCallback {

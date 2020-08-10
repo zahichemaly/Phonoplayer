@@ -1,6 +1,5 @@
 package com.zc.phonoplayer.ui.activities
 
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -169,6 +168,7 @@ class SongActivity : AppCompatActivity() {
                 PopupMenu.OnMenuItemClickListener {
                     when (it.itemId) {
                         R.id.action_album -> openAlbum()
+                        R.id.action_artist -> openArtist()
                     }
                     true
                 })
@@ -179,7 +179,16 @@ class SongActivity : AppCompatActivity() {
         song?.let {
             val intent = Intent()
             intent.putExtra(ALBUM_ID, it.albumId)
-            setResult(Activity.RESULT_OK, intent)
+            setResult(RESULT_ALBUM_ID, intent)
+            finish()
+        }
+    }
+
+    private fun openArtist() {
+        song?.let {
+            val intent = Intent()
+            intent.putExtra(ARTIST_ID, it.artistId)
+            setResult(RESULT_ARTIST_ID, intent)
             finish()
         }
     }

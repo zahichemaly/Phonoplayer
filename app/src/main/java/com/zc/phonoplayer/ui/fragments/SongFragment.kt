@@ -24,6 +24,7 @@ import com.zc.phonoplayer.ui.dialogs.EditSongDialogFragment
 import com.zc.phonoplayer.ui.viewModels.EditSongFragmentViewModel
 import com.zc.phonoplayer.ui.viewModels.MainViewModel
 import com.zc.phonoplayer.ui.viewModels.SongFragmentViewModel
+import com.zc.phonoplayer.util.HIDE_MENU
 import com.zc.phonoplayer.util.SONG_LIST
 import com.zc.phonoplayer.util.showConfirmDialog
 import com.zc.phonoplayer.util.showMenuPopup
@@ -35,6 +36,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
     private lateinit var recyclerAdapter: SongAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
+    private var hideMenu: Boolean = false
     private val mainViewModel: MainViewModel by activityViewModels()
     private val songViewModel: SongFragmentViewModel by activityViewModels()
     private val editSongViewModel: EditSongFragmentViewModel by activityViewModels()
@@ -42,10 +44,11 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
     companion object {
         const val REQUEST_SONG_DELETE_PERMISSION = 1001
 
-        fun newInstance(songList: ArrayList<Song>): SongFragment {
+        fun newInstance(songList: ArrayList<Song>, hideMenu: Boolean = false): SongFragment {
             val frag = SongFragment()
             val args = Bundle()
             args.putParcelableArrayList(SONG_LIST, songList)
+            args.putBoolean(HIDE_MENU, hideMenu)
             frag.arguments = args
             return frag
         }
@@ -54,6 +57,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         songList = arguments?.getParcelableArrayList(SONG_LIST) ?: ArrayList()
+        hideMenu = arguments?.getBoolean(HIDE_MENU, false) ?: false
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,17 +76,22 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
-        sortButton.setOnClickListener {
-            requireContext().showMenuPopup(sortButton, R.menu.sort_song_menu, PopupMenu.OnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.action_sort_title_ascending -> recyclerAdapter.sortBy(SortOrder.ASCENDING)
-                    R.id.action_sort_title_descending -> recyclerAdapter.sortBy(SortOrder.DESCENDING)
-                    R.id.action_sort_by_artist -> recyclerAdapter.sortBy(SortOrder.ARTIST)
-                    R.id.action_sort_by_album -> recyclerAdapter.sortBy(SortOrder.ALBUM)
-                    R.id.action_sort_by_year -> recyclerAdapter.sortBy(SortOrder.YEAR)
-                }
-                true
-            })
+        if (hideMenu) {
+            sortButton.visibility = View.GONE
+        } else {
+            sortButton.visibility = View.VISIBLE
+            sortButton.setOnClickListener {
+                requireContext().showMenuPopup(sortButton, R.menu.sort_song_menu, PopupMenu.OnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.action_sort_title_ascending -> recyclerAdapter.sortBy(SortOrder.ASCENDING)
+                        R.id.action_sort_title_descending -> recyclerAdapter.sortBy(SortOrder.DESCENDING)
+                        R.id.action_sort_by_artist -> recyclerAdapter.sortBy(SortOrder.ARTIST)
+                        R.id.action_sort_by_album -> recyclerAdapter.sortBy(SortOrder.ALBUM)
+                        R.id.action_sort_by_year -> recyclerAdapter.sortBy(SortOrder.YEAR)
+                    }
+                    true
+                })
+            }
         }
         setupObservers()
         return view

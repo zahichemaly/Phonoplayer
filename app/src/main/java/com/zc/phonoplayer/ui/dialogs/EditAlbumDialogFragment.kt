@@ -44,11 +44,11 @@ class EditAlbumDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_dialog_edit_album, container, false)
         albumArt = view.findViewById(R.id.album_art)
+        artistEditText = view.findViewById(R.id.artist_name)
         val headerAlbumTv: TextView = view.findViewById(R.id.header_album_name)
         val headerArtistTv: TextView = view.findViewById(R.id.header_artist_name)
         val headerNbOfSongsTv: TextView = view.findViewById(R.id.heaer_no_of_tracks)
         val albumEt: EditText = view.findViewById(R.id.album_name)
-        artistEditText = view.findViewById(R.id.artist_name)
         val albumArtistEt: EditText = view.findViewById(R.id.album_artist_name)
         val albumYearEt: EditText = view.findViewById(R.id.album_year)
         val albumGenreEt: EditText = view.findViewById(R.id.album_genre)
@@ -64,7 +64,7 @@ class EditAlbumDialogFragment : DialogFragment() {
             albumEt.setText(it.title)
             artistEditText.setText(it.artist)
             albumArtistEt.setText(it.artist)
-            albumYearEt.setText("")
+            albumYearEt.setText(it.year.toString())
             albumGenreEt.setText("")
         }
 

@@ -11,14 +11,16 @@ data class Album(
     var title: String? = null,
     var artist: String? = null,
     var art: String? = null,
-    var nbOfTracks: Long
+    var nbOfTracks: Long,
+    var year: Int
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
-        parcel.readLong()
+        parcel.readLong(),
+        parcel.readInt()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -27,6 +29,7 @@ data class Album(
         parcel.writeString(artist)
         parcel.writeString(art)
         parcel.writeLong(nbOfTracks)
+        parcel.writeInt(year)
     }
 
     override fun describeContents(): Int {

@@ -50,9 +50,4 @@ object SongHelper {
             .putLong(MediaMetadataCompat.METADATA_KEY_YEAR, song.year.toLong())
             .build()
     }
-
-    fun deleteSong(contentResolver: ContentResolver, id: Long) {
-        val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
-        contentResolver.delete(uri, null, null)
-    }
 }

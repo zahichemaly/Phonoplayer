@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,8 @@ import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.util.logI
 
-class AlbumSongAdapter(private var albumSongList: List<Song>, private var onSongClicked: (Song) -> Unit) : RecyclerView.Adapter<AlbumSongAdapter.ViewHolder>() {
+class AlbumSongAdapter(private var albumSongList: List<Song>, private var onSongClicked: (Song) -> Unit) :
+    RecyclerView.Adapter<AlbumSongAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_album_song, parent, false)
@@ -21,11 +23,12 @@ class AlbumSongAdapter(private var albumSongList: List<Song>, private var onSong
         return albumSongList.size
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val song = albumSongList[position]
         holder.songTitleText.text = song.title
         holder.songDurationText.text = song.getFormattedDuration()
-        holder.songTrackNoText.text = song.getTrackNo()
+        holder.songTrackNoText.text = "${String.format("%02d", position + 1)}."
         holder.rootLayout.setOnClickListener {
             logI("Album Song clicked: $song")
             onSongClicked(song)

@@ -59,8 +59,8 @@ class ArtistDetailsFragment : Fragment() {
     private fun setupTabLayout() {
         tabLayout.setupWithViewPager(viewPager)
         tabAdapter = TabAdapter(childFragmentManager)
-        tabAdapter.addFragment(SongFragment.newInstance(artistSongs), requireContext().getString(R.string.tracks_, artist!!.nbOfTracks))
-        tabAdapter.addFragment(AlbumFragment.newInstance(artistAlbums), requireContext().getString(R.string.albums_, artist!!.nbOfAlbums))
+        tabAdapter.addFragment(SongFragment.newInstance(artistSongs, true), requireContext().getString(R.string.tracks_, artist!!.nbOfTracks))
+        tabAdapter.addFragment(AlbumFragment.newInstance(artistAlbums, true), requireContext().getString(R.string.albums_, artist!!.nbOfAlbums))
         viewPager.adapter = tabAdapter
     }
 

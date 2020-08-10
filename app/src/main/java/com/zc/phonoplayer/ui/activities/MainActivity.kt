@@ -1,7 +1,6 @@
 package com.zc.phonoplayer.ui.activities
 
 import android.Manifest
-import android.app.Activity
 import android.content.ComponentName
 import android.content.DialogInterface
 import android.content.Intent
@@ -347,11 +346,23 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_CODE_SONG && resultCode == Activity.RESULT_OK) {
-            val albumId = data?.getLongExtra(ALBUM_ID, 0L) ?: 0L
-            val songAlbum = AlbumLoader.getAlbumById(contentResolver, albumId)
-            if (songAlbum != null) {
-                addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(songAlbum), songAlbum.title, withStateLoss = true)
+        if (requestCode == REQUEST_CODE_SONG) {
+            when (resultCode) {
+                RESULT_ALBUM_ID -> {
+                    val albumId = data?.getLongExtra(ALBUM_ID, 0L) ?: 0L
+                    val album = AlbumLoader.getAlbumById(contentResolver, albumId)
+                    if (album != null) {
+                        addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(album), album.title, true)
+                    }
+                }
+                RESULT_ARTIST_ID -> {
+                    val artistId = data?.getLongExtra(ARTIST_ID, 0L) ?: 0L
+                    val artist = ArtistLoader.getArtistById(contentResolver, artistId)
+                    val artistSongs = SongLoader.getArtistSongs(songList, artistId)
+                    if (artist != null && artistSongs.isNotEmpty()) {
+                        addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(artist, artistSongs), artist.title, true)
+                    }
+                }
             }
         } else super.onActivityResult(requestCode, resultCode, data)
     }

@@ -13,7 +13,8 @@ object AlbumLoader {
         MediaStore.Audio.Albums.ALBUM,  //1
         MediaStore.Audio.Albums.ARTIST,  //2
         MediaStore.Audio.Albums.ALBUM_ART,  //3
-        MediaStore.Audio.Albums.NUMBER_OF_SONGS //4
+        MediaStore.Audio.Albums.NUMBER_OF_SONGS, //4
+        MediaStore.Audio.Albums.FIRST_YEAR //5
     )
 
     private fun getAlbumFromCursor(cursor: Cursor): Album {
@@ -22,7 +23,8 @@ object AlbumLoader {
         val artist = cursor.getString(2)
         val art = cursor.getString(3)
         val tracks = cursor.getLong(4)
-        return Album(id, title, artist, art, tracks)
+        val year = cursor.getInt(5)
+        return Album(id, title, artist, art, tracks, year)
     }
 
     fun getAlbums(contentResolver: ContentResolver): ArrayList<Album> {
