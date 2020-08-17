@@ -90,10 +90,18 @@ class MainActivity : BaseActivity() {
 
     private fun setupObservers() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        mainViewModel.song().observe(this, Observer { song ->
-            this.song = song
+        mainViewModel.playlist().observe(this, Observer { songList ->
+            this.songList = songList
+            this.song = songList.first()
             updateSongController()
             playSelectedSong()
+        })
+        mainViewModel.shuffle().observe(this, Observer {
+            storageUtil.saveShuffle(it)
+            if (it) {
+                mediaController?.transportControls?.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                mediaController?.transportControls?.play()
+            }
         })
     }
 
@@ -191,6 +199,7 @@ class MainActivity : BaseActivity() {
             when (mediaController?.playbackState?.state) {
                 PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.STATE_NONE -> {
                     playSelectedSong()
+                    controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_pause))
                 }
                 PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING, PlaybackStateCompat.STATE_CONNECTING -> {
                     mediaController?.transportControls?.pause()
@@ -198,12 +207,19 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
+        controller_previous_button.setOnClickListener {
+            mediaController?.transportControls?.skipToPrevious()
+            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+        }
+        controller_next_button.setOnClickListener {
+            mediaController?.transportControls?.skipToNext()
+            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+        }
         mediaController?.registerCallback(mControllerCallback)
-        val cachedSong = storageUtil.getStoredSong()
+        val cachedSong = storageUtil.getSavedSong()
         if (cachedSong != null) {
             song = cachedSong
             updateSongController()
-            //mediaController?.transportControls?.seekTo(storageUtil.getStoredPosition())
         }
     }
 
@@ -241,21 +257,15 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun onPause() {
-        song?.let {
-            storageUtil.storeSong(it)
-        }
-        storageUtil.storePosition(mediaController?.playbackState?.position ?: 0L)
-        super.onPause()
-    }
-
     override fun onDestroy() {
+        mediaController?.sendCommand("disconnect", null, null)
         mediaController?.unregisterCallback(mControllerCallback)
         mediaBrowser.disconnect()
         super.onDestroy()
     }
 
     override fun onAttachFragment(fragment: Fragment) {
+        //TODO use view models
         when (fragment) {
             is ArtistFragment -> fragment.setArtistCallback(this)
             is AlbumFragment -> fragment.setAlbumCallback(this)

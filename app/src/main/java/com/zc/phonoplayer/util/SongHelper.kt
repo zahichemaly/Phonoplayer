@@ -1,7 +1,6 @@
 package com.zc.phonoplayer.util
 
 import android.content.ContentResolver
-import android.content.ContentUris
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -22,6 +21,16 @@ object SongHelper {
                 return MediaStore.Images.Media.getBitmap(contentResolver, uri)
             }
         } ?: return Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+    }
+
+    fun getDefaultPlaylist(selectedSong: Song, songList: ArrayList<Song>): ArrayList<Song> {
+        val index = songList.indexOf(selectedSong)
+        return if (index >= 0) {
+            val listPair = songList.splitAt(index)
+            val playlist = listPair.second.toMutableList()
+            playlist.addAll(listPair.first)
+            playlist.toArrayList()
+        } else songList
     }
 
     fun getSongFromMetadata(metadata: MediaMetadataCompat): Song {

@@ -14,7 +14,22 @@
         android:layout_marginTop="@dimen/spacing_medium"
         android:layout_marginBottom="@dimen/spacing_medium"
         android:layout_marginStart="@dimen/spacing_xlarge"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:background="@null"
+        android:contentDescription="@string/sort">
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/shuffle_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_shuffle_on"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_medium"
+        android:layout_marginEnd="@dimen/spacing_xlarge"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:background="@null"
         android:contentDescription="@string/sort">
     </ImageButton>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,37 +12,43 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/album_art"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="25dp"
-            android:src="@drawable/ic_default_music"
-            app:civ_border_color="@color/dark_grey"
-            app:civ_border_width="1dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginEnd="25dp"
+            android:id="@+id/album_info_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@id/album_art"
-            app:layout_constraintStart_toEndOf="@id/album_art"
-            app:layout_constraintTop_toTopOf="@id/album_art">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/album_art"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_margin="15dp"
+                android:src="@drawable/ic_default_music"
+                app:civ_border_color="@color/dark_grey"
+                app:civ_border_width="1dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/album_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/album_title"
+                android:layout_marginStart="@dimen/spacing_xlarge"
+                android:layout_marginEnd="@dimen/spacing_xlarge"
+                android:layout_marginBottom="@dimen/spacing_xlarge"
+                android:scrollHorizontally="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:singleLine="true"
+                android:ellipsize="marquee"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="@string/title_dummy"/>
 
             <TextView
                 android:id="@+id/album_artist"
@@ -50,8 +57,8 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@string/album_artist"
-                android:textColor="@color/white"
-                android:textSize="@dimen/title_medium" />
+                android:textColor="@color/light_grey"
+                tools:text="@string/title_dummy"/>
 
             <TextView
                 android:id="@+id/album_nb_of_tracks"
@@ -60,8 +67,7 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@string/tracks"
-                android:textColor="@color/white"
-                android:textSize="@dimen/title_medium" />
+                android:textColor="@color/light_grey" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -71,7 +77,7 @@
             android:layout_marginTop="25dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/album_art" />
+            app:layout_constraintTop_toBottomOf="@+id/album_info_layout" />
 
         <View
             android:layout_width="match_parent"

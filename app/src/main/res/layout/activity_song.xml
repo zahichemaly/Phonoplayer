@@ -12,10 +12,10 @@
         android:id="@+id/header_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
         android:paddingStart="25dp"
+        android:paddingTop="15dp"
         android:paddingEnd="25dp"
+        android:paddingBottom="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -25,18 +25,16 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:background="@color/background_color_dark"
-            android:src="@drawable/ic_arrow_back">
-        </ImageButton>
+            android:src="@drawable/ic_arrow_back" />
 
         <ImageButton
             android:id="@+id/menu_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_large"
             android:layout_alignParentEnd="true"
+            android:layout_marginStart="@dimen/spacing_large"
             android:background="@color/background_color_dark"
-            android:src="@drawable/ic_settings_dots">
-        </ImageButton>
+            android:src="@drawable/ic_settings_dots" />
 
         <ImageButton
             android:id="@+id/volume_button"
@@ -44,8 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_toStartOf="@id/menu_button"
             android:background="@color/background_color_dark"
-            android:src="@drawable/ic_volume_up">
-        </ImageButton>
+            android:src="@drawable/ic_volume_up" />
 
     </RelativeLayout>
 
@@ -60,21 +57,50 @@
         app:layout_constraintTop_toBottomOf="@+id/header_layout"
         tools:src="@drawable/ic_default_music" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="25dp"
+        app:layout_constraintBottom_toTopOf="@id/seek_bar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <ImageButton
+            android:id="@+id/shuffle_button"
+            android:layout_width="@dimen/action_button_wh"
+            android:layout_height="@dimen/action_button_wh"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/exo_controls_shuffle_off" />
+
+        <ImageButton
+            android:id="@+id/repeat_button"
+            android:layout_width="@dimen/action_button_wh"
+            android:layout_height="@dimen/action_button_wh"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/exo_controls_shuffle_off" />
+
+    </RelativeLayout>
+
     <SeekBar
         android:id="@+id/seek_bar"
-        android:layout_width="300dp"
-        android:layout_height="25dp"
         style="@android:style/Widget.DeviceDefault.SeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/song_artist"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/song_artist" />
 
     <TextView
         android:id="@+id/song_elapsed_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
+        android:layout_marginStart="60dp"
         android:text="@string/_00_00"
         android:textColor="@color/white"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -84,7 +110,7 @@
         android:id="@+id/song_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="60dp"
         android:text="00:00"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -115,8 +141,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -125,9 +151,9 @@
         tools:text="Song Artist" />
 
     <RelativeLayout
-        android:layout_width="250dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_margin="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/seek_bar">
@@ -137,24 +163,21 @@
             android:layout_width="@dimen/action_button_wh"
             android:layout_height="@dimen/action_button_wh"
             android:layout_alignParentStart="true"
-            android:background="@drawable/exo_controls_previous">
-        </ImageButton>
+            android:background="@drawable/exo_controls_previous" />
 
         <ImageButton
             android:id="@+id/play_pause_button"
             android:layout_width="@dimen/action_button_wh"
             android:layout_height="@dimen/action_button_wh"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/exo_controls_pause">
-        </ImageButton>
+            android:background="@drawable/exo_controls_pause" />
 
         <ImageButton
             android:id="@+id/next_button"
             android:layout_width="@dimen/action_button_wh"
             android:layout_height="@dimen/action_button_wh"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/exo_controls_next">
-        </ImageButton>
+            android:background="@drawable/exo_controls_next" />
 
     </RelativeLayout>
 

@@ -36,6 +36,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
     private lateinit var recyclerAdapter: SongAdapter
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
+    private lateinit var shuffleButton: ImageButton
     private var hideMenu: Boolean = false
     private val mainViewModel: MainViewModel by activityViewModels()
     private val songViewModel: SongFragmentViewModel by activityViewModels()
@@ -64,6 +65,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
         val view = inflater.inflate(R.layout.fragment_song, container, false)
         recyclerView = view.findViewById(R.id.recycler_view)
         sortButton = view.findViewById(R.id.sort_button)
+        shuffleButton = view.findViewById(R.id.shuffle_button)
         emptyText = view.findViewById(R.id.empty_songs_text)
 
         if (songList.isEmpty()) {
@@ -92,6 +94,10 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
                     true
                 })
             }
+        }
+
+        shuffleButton.setOnClickListener {
+            mainViewModel.updateShuffle(true)
         }
         setupObservers()
         return view
@@ -131,7 +137,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
 
 
     override fun onSongClicked(song: Song) {
-        mainViewModel.updateSong(song)
+        mainViewModel.updatePlaylist(song, songList)
     }
 
     override fun onSongEdit(song: Song) {
