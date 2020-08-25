@@ -73,6 +73,10 @@
     <string name="nb_of_deleted_tracks">%d track(s) deleted successfully.</string>
     <string name="nb_of_updated_tracks">%d track(s) updated successfully.</string>
 
-    <string name="shuffle_mode_">Shuffle Mode %s</string>
+    <string name="shuffle_mode_on">Shuffle Mode ON</string>
+    <string name="shuffle_mode_off">Shuffle Mode OFF</string>
+    <string name="repeat_off">Repeat OFF</string>
+    <string name="repeat_one">Repeat 1</string>
+    <string name="repeat_all">Repeat all</string>
 
 </resources>

@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.AlbumSongAdapter
 import com.zc.phonoplayer.loader.SongLoader

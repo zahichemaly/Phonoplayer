@@ -23,16 +23,6 @@ object SongHelper {
         } ?: return Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
     }
 
-    fun getDefaultPlaylist(selectedSong: Song, songList: ArrayList<Song>): ArrayList<Song> {
-        val index = songList.indexOf(selectedSong)
-        return if (index >= 0) {
-            val listPair = songList.splitAt(index)
-            val playlist = listPair.second.toMutableList()
-            playlist.addAll(listPair.first)
-            playlist.toArrayList()
-        } else songList
-    }
-
     fun getSongFromMetadata(metadata: MediaMetadataCompat): Song {
         return Song(
             id = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong(),

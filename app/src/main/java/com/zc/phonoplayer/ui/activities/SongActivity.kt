@@ -53,8 +53,12 @@ class SongActivity : AppCompatActivity() {
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat) {
-            song = SongHelper.getSongFromMetadata(metadata)
-            updateSong()
+            val songFromMetadata = SongHelper.getSongFromMetadata(metadata)
+            if (songFromMetadata != song) {
+                song = songFromMetadata
+                updateSong()
+                initializeSeekBar()
+            }
         }
     }
 
@@ -88,10 +92,8 @@ class SongActivity : AppCompatActivity() {
     private fun playSelectedSong() {
         val extras = Bundle()
         extras.putParcelable(SELECTED_SONG, song)
-        val songList = SongLoader.getSongsFromAlbum(contentResolver, song.albumId)
-        //TODO get saved playlist
-        val playlist = SongHelper.getDefaultPlaylist(song, songList)
-        extras.putParcelableArrayList(SONG_LIST, playlist)
+        val albumSongs = SongLoader.getSongsFromAlbum(contentResolver, song.albumId)
+        extras.putParcelableArrayList(SONG_LIST, albumSongs)
         mediaController.transportControls?.playFromUri(song.getUri(), extras)
     }
 
@@ -133,6 +135,7 @@ class SongActivity : AppCompatActivity() {
     }
 
     private fun initializeSeekBar() {
+        seek_bar.progress = 0
         seekBarThread = object : Thread() {
             override fun run() {
                 val totalDuration = song.duration
@@ -180,10 +183,11 @@ class SongActivity : AppCompatActivity() {
             if (isShuffleEnabled) {
                 mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
                 shuffle_button.background = drawable(R.drawable.exo_controls_shuffle_on)
-                //Snackbar.make(header_layout, getString(R.string.shuffle_mode_, "ON"), Snackbar.LENGTH_SHORT).show()
+                showSnackbar(getString(R.string.shuffle_mode_on))
             } else {
                 mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
                 shuffle_button.background = drawable(R.drawable.exo_controls_shuffle_off)
+                showSnackbar(getString(R.string.shuffle_mode_off))
             }
         }
         repeat_button.setOnClickListener {
@@ -193,14 +197,17 @@ class SongActivity : AppCompatActivity() {
                 RepeatMode.OFF.value -> {
                     mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
                     repeat_button.background = drawable(R.drawable.exo_controls_repeat_off)
+                    showSnackbar(getString(R.string.repeat_off))
                 }
                 RepeatMode.ONE.value -> {
                     mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
                     repeat_button.background = drawable(R.drawable.exo_controls_repeat_one)
+                    showSnackbar(getString(R.string.repeat_one))
                 }
                 RepeatMode.ALL.value -> {
                     mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
                     repeat_button.background = drawable(R.drawable.exo_controls_repeat_all)
+                    showSnackbar(getString(R.string.repeat_all))
                 }
             }
         }

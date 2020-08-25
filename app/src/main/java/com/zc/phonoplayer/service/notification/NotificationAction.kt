@@ -1,4 +1,4 @@
-package com.zc.phonoplayer.service
+package com.zc.phonoplayer.service.notification
 
 enum class NotificationAction(val value: Int) {
     PLAY(0),

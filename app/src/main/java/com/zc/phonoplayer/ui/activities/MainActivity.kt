@@ -92,16 +92,14 @@ class MainActivity : BaseActivity() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         mainViewModel.playlist().observe(this, Observer { songList ->
             this.songList = songList
-            this.song = songList.first()
+            this.song = mainViewModel.getSong()
             updateSongController()
             playSelectedSong()
         })
         mainViewModel.shuffle().observe(this, Observer {
-            storageUtil.saveShuffle(it)
-            if (it) {
-                mediaController?.transportControls?.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-                mediaController?.transportControls?.play()
-            }
+            val params = Bundle()
+            params.putParcelableArrayList(SONG_LIST, songList)
+            mediaController?.sendCommand(COMMAND_SHUFFLE_ALL, params, null)
         })
     }
 
@@ -258,7 +256,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        mediaController?.sendCommand("disconnect", null, null)
+        mediaController?.sendCommand(COMMAND_DISCONNECT, null, null)
         mediaController?.unregisterCallback(mControllerCallback)
         mediaBrowser.disconnect()
         super.onDestroy()

@@ -1,6 +1,7 @@
 package com.zc.phonoplayer.util
 
 const val pkg = "com.zc.phonoplayer"
+
 const val ACTION_PLAY = "${pkg}_ACTION_PLAY"
 const val ACTION_PAUSE = "${pkg}_ACTION_PAUSE"
 const val ACTION_PREVIOUS = "${pkg}_ACTION_PREVIOUS"
@@ -26,5 +27,10 @@ const val ARTIST_LIST = "artist_list"
 const val ALBUM_ID = "album_id"
 const val ARTIST_ID = "artist_id"
 
+// Activity results
 const val RESULT_ALBUM_ID = 1110
 const val RESULT_ARTIST_ID = 1111
+
+// Service commands
+const val COMMAND_SHUFFLE_ALL = "shuffle_all"
+const val COMMAND_DISCONNECT = "disconnect"

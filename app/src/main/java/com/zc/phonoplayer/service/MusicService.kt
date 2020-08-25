@@ -1,134 +1,108 @@
 package com.zc.phonoplayer.service
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.core.app.NotificationCompat
 import androidx.media.MediaBrowserServiceCompat
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.zc.phonoplayer.R
+import com.google.android.exoplayer2.Player
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.service.notification.MusicNotification
+import com.zc.phonoplayer.service.player.MusicPlayer
 import com.zc.phonoplayer.util.*
 
 class MusicService : MediaBrowserServiceCompat() {
-    private var mExoPlayer: SimpleExoPlayer? = null
     private var mMediaSession: MediaSessionCompat? = null
     private var mTransportControls: MediaControllerCompat.TransportControls? = null
     private lateinit var mStateBuilder: PlaybackStateCompat.Builder
-    private lateinit var notificationManager: NotificationManager
-    private var oldUri: Uri? = null
-    private var mAttrs: AudioAttributes? = null
-    private var currentSong: Song? = null
-    private var currentPlaylist: ArrayList<Song>? = null
-    private lateinit var dynamicMediaSource: DynamicMediaSource
-    private lateinit var storageUtil: StorageUtil
-
-    companion object {
-        const val NOTIFICATION_ID = 180018
-        const val CHANNEL_ID = "1818181818"
-    }
-
+    private var song: Song? = null
+    private var songList: ArrayList<Song>? = null
+    private lateinit var musicNotification: MusicNotification
+    private lateinit var musicPlayer: MusicPlayer
+    fun getSong(): Song? = song
+    fun getMediaSession(): MediaSessionCompat? = mMediaSession
     private val mMediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
             super.onPlayFromUri(uri, extras)
             logD("On Play From uri $uri")
-            currentSong = extras?.getParcelable(SELECTED_SONG) as Song?
-            currentPlaylist = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf()
-            dynamicMediaSource.addSongs(currentPlaylist!!)
-            uri?.let {
-                if (uri != oldUri) init()
-                else play()
-                oldUri = uri
-            }
+            song = extras?.getParcelable(SELECTED_SONG) as Song?
+            songList = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf()
+            musicPlayer.prepareUri(uri!!, songList!!)
+            musicPlayer.play()
+            updateMetadata()
+            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, musicPlayer.getPosition())
+            musicNotification.build(PlaybackStatus.PLAYING)
+            mMediaSession?.isActive = true
         }
 
         override fun onPlay() {
             super.onPlay()
-            logD("On Play")
             play()
         }
 
         override fun onPause() {
             super.onPause()
-            logD("On Pause")
-            pause()
+            musicPlayer.pause()
+            if (musicPlayer.isPlaying()) {
+                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, musicPlayer.getPosition())
+                musicNotification.build(PlaybackStatus.PAUSED)
+            }
         }
 
         override fun onStop() {
             super.onStop()
-            logD("On Stop")
             stop()
         }
 
         override fun onSkipToNext() {
             super.onSkipToNext()
-            logD("On Skip To Next")
-            next()
+            skip(SkipStatus.SKIPPED_NEXT)
         }
 
         override fun onSkipToPrevious() {
             super.onSkipToPrevious()
-            logD("On Skip To Previous")
-            previous()
+            skip(SkipStatus.SKIPPED_PREVIOUS)
         }
 
         override fun onSeekTo(pos: Long) {
             super.onSeekTo(pos)
-            logD("On Seek To position $pos")
-            mExoPlayer?.seekTo(pos)
+            musicPlayer.seekTo(pos)
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
-            logD("On Set Shuffle Mode to $shuffleMode")
-            mExoPlayer?.run {
-                shuffleModeEnabled = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
-                storageUtil.saveShuffle(shuffleModeEnabled)
-            }
+            musicPlayer.setShuffleMode(shuffleMode)
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
             super.onSetRepeatMode(repeatMode)
-            logD("On Set Repeat Mode to $repeatMode")
-            mExoPlayer?.run {
-                when (repeatMode) {
-                    PlaybackStateCompat.REPEAT_MODE_NONE -> this.repeatMode = Player.REPEAT_MODE_OFF
-                    PlaybackStateCompat.REPEAT_MODE_ONE -> this.repeatMode = Player.REPEAT_MODE_ONE
-                    PlaybackStateCompat.REPEAT_MODE_ALL -> this.repeatMode = Player.REPEAT_MODE_ALL
-                    else -> this.repeatMode = Player.REPEAT_MODE_OFF
-                }
-            }
-            storageUtil.saveRepeatMode(repeatMode)
+            musicPlayer.setRepeatMode(repeatMode)
         }
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
             logD("On Command received")
-            if (command == "disconnect") {
+            if (command == COMMAND_DISCONNECT) {
                 stop()
+            }
+            if (command == COMMAND_SHUFFLE_ALL) {
+                songList = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf()
+                musicPlayer.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                musicPlayer.prepareAll(songList!!)
+                play()
             }
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-        storageUtil = StorageUtil(this)
+        musicNotification = MusicNotification()
+        musicNotification.init(this)
         initializePlayer()
-        initializeExtractor()
-        initializeAttributes()
         mMediaSession = MediaSessionCompat(baseContext, "tag for debugging").apply {
-            //setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
             mStateBuilder = PlaybackStateCompat.Builder().setActions(PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PLAY_PAUSE)
             setPlaybackState(mStateBuilder.build())
             setCallback(mMediaSessionCallback)
@@ -144,180 +118,48 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     private fun initializePlayer() {
-        mExoPlayer = ExoPlayerFactory.newSimpleInstance(this, DefaultRenderersFactory(baseContext), DefaultTrackSelector(), DefaultLoadControl())
-        mExoPlayer!!.shuffleModeEnabled = storageUtil.getSavedShuffle()
-        mExoPlayer!!.repeatMode = storageUtil.getSavedRepeatMode()
-        mExoPlayer!!.addListener(object : Player.EventListener {
+        musicPlayer = MusicPlayer(this, object : Player.EventListener {
             override fun onPositionDiscontinuity(reason: Int) {
                 if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-                    currentSong = dynamicMediaSource.getSong(mExoPlayer!!.currentWindowIndex)
+                    song = musicPlayer.getCurrentSong()
                     updateMetadata()
                     updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
-                    buildNotification(PlaybackStatus.PLAYING)
+                    musicNotification.build(PlaybackStatus.PLAYING)
                 }
             }
         })
     }
 
-    private fun init() {
-        if (mExoPlayer == null) initializePlayer()
-        mExoPlayer?.apply {
-            // AudioAttributes here from exoplayer package !!!
-            mAttrs?.let { initializeAttributes() }
-            // In 2.9.X you don't need to manually handle audio focus :D
-            setAudioAttributes(mAttrs, true)
-            prepare(dynamicMediaSource.getMediaSource())
-            play()
-        }
-    }
-
     private fun play() {
-        mExoPlayer?.apply {
-            playWhenReady = true
-            updateMetadata()
-            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, currentPosition)
-            buildNotification(PlaybackStatus.PLAYING)
-            mMediaSession?.isActive = true
-        }
+        musicPlayer.play()
+        song = musicPlayer.getCurrentSong()
+        updateMetadata()
+        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, musicPlayer.getPosition())
+        musicNotification.build(PlaybackStatus.PLAYING)
+        mMediaSession?.isActive = true
     }
 
-    private fun pause() {
-        mExoPlayer?.apply {
-            playWhenReady = false
-            if (playbackState == PlaybackStateCompat.STATE_PLAYING) {
-                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, currentPosition)
-                buildNotification(PlaybackStatus.PAUSED)
-            }
+    private fun skip(skipStatus: SkipStatus) {
+        when (skipStatus) {
+            SkipStatus.SKIPPED_PREVIOUS -> musicPlayer.previous()
+            SkipStatus.SKIPPED_NEXT -> musicPlayer.next()
         }
+        song = musicPlayer.getCurrentSong()
+        updateMetadata()
+        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
+        musicNotification.build(PlaybackStatus.PLAYING)
     }
 
     private fun stop() {
-        if (currentSong != null) {
-            storageUtil.saveSong(currentSong!!)
-        }
-        mExoPlayer?.apply {
-            storageUtil.savePosition(currentPosition)
-            playWhenReady = false
-            release()
-        }
-        mExoPlayer = null
+        musicPlayer.stop()
         updatePlaybackState(PlaybackStateCompat.STATE_NONE, 0L)
-        removeNotification()
+        musicNotification.remove()
         mMediaSession?.isActive = false
         mMediaSession?.release()
     }
 
-    private fun previous() {
-        mExoPlayer?.apply {
-            playWhenReady = false
-            previous()
-            currentSong = dynamicMediaSource.getSong(currentWindowIndex)
-            updateMetadata()
-            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
-            buildNotification(PlaybackStatus.PLAYING)
-            playWhenReady = true
-        }
-    }
-
-    private fun next() {
-        mExoPlayer?.apply {
-            playWhenReady = false
-            next()
-            currentSong = dynamicMediaSource.getSong(currentWindowIndex)
-            updateMetadata()
-            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
-            buildNotification(PlaybackStatus.PLAYING)
-            playWhenReady = true
-        }
-    }
-
     private fun updatePlaybackState(state: Int, position: Long) {
         mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, 1.0f).build())
-    }
-
-    private fun initializeAttributes() {
-        mAttrs = AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.CONTENT_TYPE_MUSIC).build()
-    }
-
-    private fun initializeExtractor() {
-        dynamicMediaSource = DynamicMediaSource(this)
-    }
-
-    private fun buildNotification(status: PlaybackStatus) {
-        var pendingIntent: PendingIntent? = null
-        val mainAction: Int
-        when (status) {
-            PlaybackStatus.PLAYING -> {
-                mainAction = R.drawable.exo_notification_pause
-                pendingIntent = getPendingIntentFromAction(NotificationAction.PAUSE.value)
-
-            }
-            PlaybackStatus.PAUSED -> {
-                mainAction = R.drawable.exo_notification_play
-                pendingIntent = getPendingIntentFromAction(NotificationAction.PLAY.value)
-            }
-        }
-        val songTitle = currentSong?.title ?: getString(R.string.na)
-        val songArtist = currentSong?.artist ?: getString(R.string.na)
-        val albumArtBitmap = SongHelper.getBitmapFromUri(currentSong?.getAlbumArtUri(), contentResolver)
-
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setShowWhen(false)
-            .setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle()
-                    .setShowCancelButton(true)
-                    .setMediaSession(mMediaSession?.sessionToken)
-                    .setShowActionsInCompactView(0, 1, 2)
-            )
-            .setColor(color(R.color.background_color_dark))
-            .setOnlyAlertOnce(true)
-            .setOngoing(true)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentText(songArtist)
-            .setContentTitle(songTitle)
-            .setLargeIcon(albumArtBitmap)
-            .addAction(
-                R.drawable.exo_notification_previous,
-                getString(R.string.action_previous),
-                getPendingIntentFromAction(NotificationAction.PREVIOUS.value)
-            )
-            .addAction(mainAction, getString(R.string.action_play_pause), pendingIntent)
-            .addAction(
-                R.drawable.exo_notification_next,
-                getString(R.string.action_next),
-                getPendingIntentFromAction(NotificationAction.NEXT.value)
-            )
-
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(CHANNEL_ID, "Playback", NotificationManager.IMPORTANCE_DEFAULT)
-            notificationChannel.setSound(null, null)
-            notificationManager.createNotificationChannel(notificationChannel)
-            notificationBuilder.setChannelId(CHANNEL_ID)
-        }
-        val notification = notificationBuilder.build()
-        notificationManager.notify(NOTIFICATION_ID, notification)
-        startForeground(NOTIFICATION_ID, notification)
-    }
-
-    private fun removeNotification() {
-        logD("Removing notification")
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(NOTIFICATION_ID)
-        notificationManager.cancelAll()
-        stopForeground(true)
-    }
-
-    private fun getPendingIntentFromAction(action: Int): PendingIntent {
-        val intent = Intent(this, MusicService::class.java)
-        when (action) {
-            NotificationAction.PLAY.value -> intent.action = ACTION_PLAY
-            NotificationAction.PAUSE.value -> intent.action = ACTION_PAUSE
-            NotificationAction.PREVIOUS.value -> intent.action = ACTION_PREVIOUS
-            NotificationAction.NEXT.value -> intent.action = ACTION_NEXT
-        }
-        return PendingIntent.getService(this, action, intent, 0)
     }
 
     private fun handlePendingIntent(intent: Intent?) {
@@ -333,7 +175,9 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     private fun updateMetadata() {
-        mMediaSession?.setMetadata(SongHelper.getMetadataFromSong(currentSong!!))
+        if (song != null) {
+            mMediaSession?.setMetadata(SongHelper.getMetadataFromSong(song!!))
+        }
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {

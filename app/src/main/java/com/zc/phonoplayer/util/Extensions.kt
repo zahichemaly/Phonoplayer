@@ -1,20 +1,26 @@
 package com.zc.phonoplayer.util
 
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.zc.phonoplayer.R
 import de.hdodenhof.circleimageview.CircleImageView
+import java.util.*
+
 
 fun Context.loadUri(drawable: String?, imageView: CircleImageView) {
     Glide.with(this)
@@ -46,6 +52,16 @@ fun Context.showMenuPopup(view: View, @MenuRes menuRes: Int, listener: PopupMenu
     popup.menuInflater.inflate(menuRes, popup.menu)
     popup.setOnMenuItemClickListener(listener)
     popup.show()
+}
+
+fun Activity.showSnackbar(text: String) {
+    val snack = Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT)
+    val params = snack.view.layoutParams as ViewGroup.MarginLayoutParams
+    params.setMargins(12, 12, 12, 12)
+    snack.view.layoutParams = params
+    snack.view.background = getDrawable(R.drawable.bg_snackbar)
+    ViewCompat.setElevation(snack.view, 6f)
+    snack.show()
 }
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson<T>(json, object : TypeToken<T>() {}.type)
