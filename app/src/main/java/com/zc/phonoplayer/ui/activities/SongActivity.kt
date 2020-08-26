@@ -13,7 +13,6 @@ import android.widget.PopupMenu
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.loader.SongLoader
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.service.RepeatMode
@@ -26,6 +25,7 @@ class SongActivity : AppCompatActivity() {
     private lateinit var mediaBrowser: MediaBrowserCompat
     private lateinit var seekBarThread: Thread
     private lateinit var song: Song
+    private var songList: ArrayList<Song>? = null
     private var isAlbumSong = false
     private var isShuffleEnabled = false
     private var repeatMode = RepeatMode.OFF.value
@@ -57,6 +57,7 @@ class SongActivity : AppCompatActivity() {
             if (songFromMetadata != song) {
                 song = songFromMetadata
                 updateSong()
+                seek_bar.progress = 0
                 initializeSeekBar()
             }
         }
@@ -71,6 +72,7 @@ class SongActivity : AppCompatActivity() {
         val componentName = ComponentName(this, MusicService::class.java)
         mediaBrowser = MediaBrowserCompat(this, componentName, connectionCallback, null)
         song = intent.getParcelableExtra(SELECTED_SONG)!!
+        songList = intent.getParcelableArrayListExtra(SONG_LIST) ?: arrayListOf()
         isAlbumSong = intent.getBooleanExtra(IS_ALBUM_SONG, false)
         setupControls()
         setupSeekBar()
@@ -92,8 +94,8 @@ class SongActivity : AppCompatActivity() {
     private fun playSelectedSong() {
         val extras = Bundle()
         extras.putParcelable(SELECTED_SONG, song)
-        val albumSongs = SongLoader.getSongsFromAlbum(contentResolver, song.albumId)
-        extras.putParcelableArrayList(SONG_LIST, albumSongs)
+        //val albumSongs = SongLoader.getSongsFromAlbum(contentResolver, song.albumId)
+        extras.putParcelableArrayList(SONG_LIST, songList!!)
         mediaController.transportControls?.playFromUri(song.getUri(), extras)
     }
 
@@ -135,7 +137,6 @@ class SongActivity : AppCompatActivity() {
     }
 
     private fun initializeSeekBar() {
-        seek_bar.progress = 0
         seekBarThread = object : Thread() {
             override fun run() {
                 val totalDuration = song.duration

@@ -18,6 +18,7 @@
         android:textSize="12sp"
         android:background="@color/light_grey"
         android:text="@string/create_playlist"
+        android:visibility="gone"
         app:cornerRadius="@dimen/button_corner_radius">
     </com.google.android.material.button.MaterialButton>
 

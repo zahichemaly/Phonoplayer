@@ -97,7 +97,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
         }
 
         shuffleButton.setOnClickListener {
-            mainViewModel.updateShuffle(true)
+            mainViewModel.updatePlaylist(songList)
         }
         setupObservers()
         return view

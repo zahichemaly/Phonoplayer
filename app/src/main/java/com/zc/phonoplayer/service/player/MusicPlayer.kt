@@ -10,16 +10,16 @@ import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.util.StorageUtil
 import com.zc.phonoplayer.util.logD
 
-class MusicPlayer(service: MusicService, var callback: Player.EventListener) {
+class MusicPlayer(val service: MusicService, var callback: Player.EventListener) {
     private var mExoPlayer: SimpleExoPlayer =
         ExoPlayerFactory.newSimpleInstance(service, DefaultRenderersFactory(service.baseContext), DefaultTrackSelector(), DefaultLoadControl())
     private var mAttrs: AudioAttributes
     private var storageUtil: StorageUtil = StorageUtil(service)
     private var dynamicMediaSource: DynamicMediaSource
+    var isRestored = false
 
     init {
         logD("Initializing music player")
-        //mExoPlayer.shuffleModeEnabled = storageUtil.getSavedShuffle()
         mExoPlayer.shuffleModeEnabled = true
         mExoPlayer.repeatMode = storageUtil.getSavedRepeatMode()
         mExoPlayer.addListener(callback)
@@ -28,15 +28,35 @@ class MusicPlayer(service: MusicService, var callback: Player.EventListener) {
         dynamicMediaSource = DynamicMediaSource(service)
     }
 
+    fun restoreState() {
+        val song = storageUtil.getSavedSong()
+        val songList = storageUtil.getSavedSongList()
+        val position = storageUtil.getSavedPosition()
+        val shuffleMode = storageUtil.getSavedShuffle()
+        var currentIndex = 0
+        if (song != null && !songList.isNullOrEmpty()) {
+            dynamicMediaSource.addSongsShuffled(song.getUri(), songList, shuffleMode)
+            mExoPlayer.prepare(dynamicMediaSource.getMediaSource(), false, true)
+            currentIndex = dynamicMediaSource.getSongIndex(song.getUri())
+            isRestored = true
+        }
+        if (position != C.TIME_UNSET) {
+            mExoPlayer.seekTo(currentIndex, position)
+            service.updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, position)
+        }
+    }
+
     fun prepareUri(uri: Uri, songList: ArrayList<Song>) {
         dynamicMediaSource.addSongsShuffled(uri, songList, storageUtil.getSavedShuffle())
-        mExoPlayer.prepare(dynamicMediaSource.getMediaSource())
+        mExoPlayer.prepare(dynamicMediaSource.getMediaSource(), false, true)
+        val startingIndex = dynamicMediaSource.getSongIndex(uri)
+        mExoPlayer.seekTo(startingIndex, 0)
     }
 
     fun prepareAll(songList: ArrayList<Song>) {
-        val randomStartingIndex = (0..songList.size).random()
+        val randomStartingIndex = (0 until songList.size).random()
         dynamicMediaSource.addSongsShuffled(songList, randomStartingIndex)
-        mExoPlayer.prepare(dynamicMediaSource.getMediaSource())
+        mExoPlayer.prepare(dynamicMediaSource.getMediaSource(), false, true)
         mExoPlayer.seekTo(randomStartingIndex, 0)
     }
 
@@ -61,7 +81,10 @@ class MusicPlayer(service: MusicService, var callback: Player.EventListener) {
     }
 
     fun stop() {
+        val song = getCurrentSong()
+        if (song != null) storageUtil.saveSong(song)
         storageUtil.savePosition(mExoPlayer.currentPosition)
+        storageUtil.saveSongList(dynamicMediaSource.getSongList())
         mExoPlayer.playWhenReady = false
         mExoPlayer.release()
     }

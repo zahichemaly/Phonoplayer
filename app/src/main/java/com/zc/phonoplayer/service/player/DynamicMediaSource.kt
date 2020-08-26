@@ -12,10 +12,11 @@ import com.zc.phonoplayer.model.Song
 
 class DynamicMediaSource(var context: Context) {
     private var mSongList: MutableList<Song> = mutableListOf()
-    private lateinit var mConcatenatingMediaSource: ConcatenatingMediaSource
+    private var mConcatenatingMediaSource: ConcatenatingMediaSource? = null
     private val userAgent = Util.getUserAgent(context, BuildConfig.APPLICATION_ID)
 
     fun getMediaSource(): ConcatenatingMediaSource? = mConcatenatingMediaSource
+    fun getSongList(): List<Song> = mSongList.toList()
 
     fun addSongsShuffled(uri: Uri, songs: List<Song>, isShuffled: Boolean = false) {
         mSongList.clear()
@@ -23,13 +24,18 @@ class DynamicMediaSource(var context: Context) {
             mSongList.add(it)
             extractMediaSource(it.getUri())
         }
-        mConcatenatingMediaSource = ConcatenatingMediaSource(*mediaSources.toTypedArray())
-        val startIndex = getSongIndex(uri)
-        if (isShuffled) {
-            val shuffleOrder = ShuffledOrderFromIndex(mSongList.size, startIndex)
-            mConcatenatingMediaSource.setShuffleOrder(shuffleOrder)
+        if (mConcatenatingMediaSource == null) {
+            mConcatenatingMediaSource = ConcatenatingMediaSource(*mediaSources.toTypedArray())
         } else {
-            mConcatenatingMediaSource.setShuffleOrder(SequentialOrder(mSongList.size, startIndex))
+            mConcatenatingMediaSource!!.clear()
+            mConcatenatingMediaSource!!.addMediaSources(mediaSources)
+        }
+        val startingIndex = getSongIndex(uri)
+        if (isShuffled) {
+            val shuffleOrder = ShuffledOrderFromIndex(mSongList.size, startingIndex)
+            mConcatenatingMediaSource?.setShuffleOrder(shuffleOrder)
+        } else {
+            mConcatenatingMediaSource?.setShuffleOrder(SequentialOrder(mSongList.size, startingIndex))
         }
     }
 
@@ -49,10 +55,10 @@ class DynamicMediaSource(var context: Context) {
     }
 
     private fun getMediaSource(index: Int): MediaSource? {
-        return mConcatenatingMediaSource.getMediaSource(index)
+        return mConcatenatingMediaSource?.getMediaSource(index)
     }
 
-    private fun getSongIndex(uri: Uri): Int {
+    fun getSongIndex(uri: Uri): Int {
         return mSongList.indexOfFirst { it.getUri() == uri }
     }
 

@@ -89,4 +89,9 @@ data class Song(
         val trackNo = trackNoWithDiscNo.substring(max(trackNoWithDiscNo.length - 2, 0))
         return "$trackNo."
     }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is Song) other.data == this.data
+        else false
+    }
 }

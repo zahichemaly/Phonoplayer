@@ -31,7 +31,11 @@ class MusicService : MediaBrowserServiceCompat() {
             logD("On Play From uri $uri")
             song = extras?.getParcelable(SELECTED_SONG) as Song?
             songList = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf()
-            musicPlayer.prepareUri(uri!!, songList!!)
+            if (musicPlayer.isRestored) {
+                musicPlayer.isRestored = false
+            } else {
+                musicPlayer.prepareUri(uri!!, songList!!)
+            }
             musicPlayer.play()
             updateMetadata()
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, musicPlayer.getPosition())
@@ -84,7 +88,7 @@ class MusicService : MediaBrowserServiceCompat() {
         }
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
-            logD("On Command received")
+            logD("On Command received $command")
             if (command == COMMAND_DISCONNECT) {
                 stop()
             }
@@ -110,6 +114,7 @@ class MusicService : MediaBrowserServiceCompat() {
             isActive = true
         }
         mTransportControls = mMediaSession?.controller?.transportControls
+        musicPlayer.restoreState()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -122,6 +127,7 @@ class MusicService : MediaBrowserServiceCompat() {
             override fun onPositionDiscontinuity(reason: Int) {
                 if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
                     song = musicPlayer.getCurrentSong()
+                    logD("Playback ended - Next song $song")
                     updateMetadata()
                     updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
                     musicNotification.build(PlaybackStatus.PLAYING)
@@ -145,12 +151,14 @@ class MusicService : MediaBrowserServiceCompat() {
             SkipStatus.SKIPPED_NEXT -> musicPlayer.next()
         }
         song = musicPlayer.getCurrentSong()
+        logD("$skipStatus to $song")
         updateMetadata()
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
         musicNotification.build(PlaybackStatus.PLAYING)
     }
 
     private fun stop() {
+        logD("Stopping music service")
         musicPlayer.stop()
         updatePlaybackState(PlaybackStateCompat.STATE_NONE, 0L)
         musicNotification.remove()
@@ -158,7 +166,7 @@ class MusicService : MediaBrowserServiceCompat() {
         mMediaSession?.release()
     }
 
-    private fun updatePlaybackState(state: Int, position: Long) {
+    fun updatePlaybackState(state: Int, position: Long) {
         mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, 1.0f).build())
     }
 

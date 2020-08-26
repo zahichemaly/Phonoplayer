@@ -11,6 +11,8 @@
     <dimen name="spacing_xlarge">20dp</dimen>
     <dimen name="spacing_xxlarge">25dp</dimen>
 
+    <dimen name="max_width_normal">350dp</dimen>
+
     <dimen name="radius_medium">16dp</dimen>
     <dimen name="radius_large">20dp</dimen>
 

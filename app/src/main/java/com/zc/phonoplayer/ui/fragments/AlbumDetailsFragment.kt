@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
@@ -52,6 +53,7 @@ class AlbumDetailsFragment : Fragment() {
         val albumTitleTv: TextView = view.findViewById(R.id.album_title)
         val albumArtistTv: TextView = view.findViewById(R.id.album_artist)
         val albumNbOfTracksTv: TextView = view.findViewById(R.id.album_nb_of_tracks)
+        val shuffleButton: ImageButton = view.findViewById(R.id.shuffle_button)
         recyclerView = view.findViewById(R.id.recycler_view)
         album?.let { it ->
             albumTitleTv.text = it.title
@@ -65,19 +67,13 @@ class AlbumDetailsFragment : Fragment() {
 //                .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 8)))
 //                .into(albumHeader)
         }
+        shuffleButton.setOnClickListener {
+            mainViewModel.updatePlaylist(albumSongs)
+        }
         recyclerAdapter = AlbumSongAdapter(albumSongs) { song -> mainViewModel.updatePlaylist(song, albumSongs) }
         recyclerView.isNestedScrollingEnabled = true
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = recyclerAdapter
         return view
-    }
-
-    private fun updateSong(song: Song) {
-        /*
-        val intent = Intent(activity, SongActivity::class.java)
-        intent.putExtra(SELECTED_SONG, song)
-        intent.putExtra(IS_ALBUM_SONG, true)
-        startActivity(intent)
-         */
     }
 }

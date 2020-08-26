@@ -90,16 +90,17 @@ class MainActivity : BaseActivity() {
 
     private fun setupObservers() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        mainViewModel.playlist().observe(this, Observer { songList ->
-            this.songList = songList
-            this.song = mainViewModel.getSong()
-            updateSongController()
-            playSelectedSong()
-        })
-        mainViewModel.shuffle().observe(this, Observer {
-            val params = Bundle()
-            params.putParcelableArrayList(SONG_LIST, songList)
-            mediaController?.sendCommand(COMMAND_SHUFFLE_ALL, params, null)
+        mainViewModel.playlist().observe(this, Observer { playlist ->
+            this.songList = playlist.getSongList()
+            this.song = playlist.getSelectedSong()
+            if (playlist.isShuffled()) {
+                val params = Bundle()
+                params.putParcelableArrayList(SONG_LIST, songList)
+                mediaController?.sendCommand(COMMAND_SHUFFLE_ALL, params, null)
+            } else {
+                updateSongController()
+                playSelectedSong()
+            }
         })
     }
 
@@ -146,6 +147,7 @@ class MainActivity : BaseActivity() {
         controller_layout_view.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
             intent.putExtra(SELECTED_SONG, song)
+            intent.putExtra(SONG_LIST, songList)
             startActivityForResult(intent, REQUEST_CODE_SONG)
         }
     }
@@ -380,7 +382,7 @@ class MainActivity : BaseActivity() {
             if (!searchView.isIconified) {
                 searchView.isIconified = true
             } else {
-                super.onBackPressed()
+                moveTaskToBack(true)
             }
         } else {
             searchMenuItem.isVisible = true

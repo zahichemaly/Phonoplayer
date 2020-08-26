@@ -41,10 +41,10 @@ class StorageUtil(context: Context) {
         } ?: return null
     }
 
-    fun getSavedSongList(): List<Song>? {
+    fun getSavedSongList(): ArrayList<Song>? {
         val json = prefs.getString(SAVED_PLAYLIST, null)
         json?.run {
-            return Gson().fromJson<List<Song>>(this)
+            return Gson().fromJson<ArrayList<Song>>(this)
         } ?: return null
     }
 
