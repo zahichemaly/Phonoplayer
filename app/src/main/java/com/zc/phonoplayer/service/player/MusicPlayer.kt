@@ -16,7 +16,6 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
     private var mAttrs: AudioAttributes
     private var storageUtil: StorageUtil = StorageUtil(service)
     private var dynamicMediaSource: DynamicMediaSource
-    var isRestored = false
 
     init {
         logD("Initializing music player")
@@ -38,7 +37,6 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
             dynamicMediaSource.addSongsShuffled(song.getUri(), songList, shuffleMode)
             mExoPlayer.prepare(dynamicMediaSource.getMediaSource(), false, true)
             currentIndex = dynamicMediaSource.getSongIndex(song.getUri())
-            isRestored = true
         }
         if (position != C.TIME_UNSET) {
             mExoPlayer.seekTo(currentIndex, position)
@@ -60,6 +58,14 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
         mExoPlayer.seekTo(randomStartingIndex, 0)
     }
 
+    fun shuffle(shuffleMode: Int) {
+        val uri = getCurrentSong()?.getUri()
+        if (uri != null) {
+            val shuffleModeEnabled = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
+            dynamicMediaSource.setShuffleOrder(uri, shuffleModeEnabled)
+        }
+    }
+
     fun play() {
         mExoPlayer.playWhenReady = true
     }
@@ -69,15 +75,11 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
     }
 
     fun previous() {
-        pause()
         mExoPlayer.previous()
-        play()
     }
 
     fun next() {
-        pause()
         mExoPlayer.next()
-        play()
     }
 
     fun stop() {
@@ -93,7 +95,7 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
         mExoPlayer.seekTo(position)
     }
 
-    fun isPlaying(): Boolean = mExoPlayer.playbackState == PlaybackStateCompat.STATE_PLAYING
+    fun isPlaying(): Boolean = mExoPlayer.isPlaying
     fun getPosition(): Long = mExoPlayer.currentPosition
     fun getCurrentSong(): Song? = dynamicMediaSource.getSong(mExoPlayer.currentWindowIndex)
 

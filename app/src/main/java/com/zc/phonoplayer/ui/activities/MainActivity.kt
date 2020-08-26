@@ -198,7 +198,7 @@ class MainActivity : BaseActivity() {
         controller_play_button.setOnClickListener {
             when (mediaController?.playbackState?.state) {
                 PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.STATE_NONE -> {
-                    playSelectedSong()
+                    mediaController?.transportControls?.play()
                     controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_pause))
                 }
                 PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING, PlaybackStateCompat.STATE_CONNECTING -> {

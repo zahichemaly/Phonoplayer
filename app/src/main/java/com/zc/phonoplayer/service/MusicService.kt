@@ -31,11 +31,7 @@ class MusicService : MediaBrowserServiceCompat() {
             logD("On Play From uri $uri")
             song = extras?.getParcelable(SELECTED_SONG) as Song?
             songList = extras?.getParcelableArrayList<Song>(SONG_LIST) ?: arrayListOf()
-            if (musicPlayer.isRestored) {
-                musicPlayer.isRestored = false
-            } else {
-                musicPlayer.prepareUri(uri!!, songList!!)
-            }
+            musicPlayer.prepareUri(uri!!, songList!!)
             musicPlayer.play()
             updateMetadata()
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, musicPlayer.getPosition())
@@ -51,10 +47,8 @@ class MusicService : MediaBrowserServiceCompat() {
         override fun onPause() {
             super.onPause()
             musicPlayer.pause()
-            if (musicPlayer.isPlaying()) {
-                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, musicPlayer.getPosition())
-                musicNotification.build(PlaybackStatus.PAUSED)
-            }
+            updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, musicPlayer.getPosition())
+            musicNotification.build(PlaybackStatus.PAUSED)
         }
 
         override fun onStop() {
@@ -80,6 +74,7 @@ class MusicService : MediaBrowserServiceCompat() {
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
             musicPlayer.setShuffleMode(shuffleMode)
+            musicPlayer.shuffle(shuffleMode)
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
@@ -139,6 +134,7 @@ class MusicService : MediaBrowserServiceCompat() {
     private fun play() {
         musicPlayer.play()
         song = musicPlayer.getCurrentSong()
+        logD("Now playing $song")
         updateMetadata()
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, musicPlayer.getPosition())
         musicNotification.build(PlaybackStatus.PLAYING)
@@ -153,8 +149,15 @@ class MusicService : MediaBrowserServiceCompat() {
         song = musicPlayer.getCurrentSong()
         logD("$skipStatus to $song")
         updateMetadata()
-        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
-        musicNotification.build(PlaybackStatus.PLAYING)
+        if (musicPlayer.isPlaying()) {
+            musicPlayer.play()
+            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, 0L)
+            musicNotification.build(PlaybackStatus.PLAYING)
+        } else {
+            musicPlayer.pause()
+            updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, 0L)
+            musicNotification.build(PlaybackStatus.PAUSED)
+        }
     }
 
     private fun stop() {

@@ -30,13 +30,7 @@ class DynamicMediaSource(var context: Context) {
             mConcatenatingMediaSource!!.clear()
             mConcatenatingMediaSource!!.addMediaSources(mediaSources)
         }
-        val startingIndex = getSongIndex(uri)
-        if (isShuffled) {
-            val shuffleOrder = ShuffledOrderFromIndex(mSongList.size, startingIndex)
-            mConcatenatingMediaSource?.setShuffleOrder(shuffleOrder)
-        } else {
-            mConcatenatingMediaSource?.setShuffleOrder(SequentialOrder(mSongList.size, startingIndex))
-        }
+        setShuffleOrder(uri, isShuffled)
     }
 
     fun addSongsShuffled(songs: List<Song>, startingIndex: Int) {
@@ -47,6 +41,15 @@ class DynamicMediaSource(var context: Context) {
         }
         val shuffleOrder = ShuffledOrderFromIndex(mSongList.size, startingIndex)
         mConcatenatingMediaSource = ConcatenatingMediaSource(false, shuffleOrder, *mediaSources.toTypedArray())
+    }
+
+    fun setShuffleOrder(uri: Uri, isShuffled: Boolean) {
+        val index = getSongIndex(uri)
+        if (isShuffled) {
+            mConcatenatingMediaSource?.setShuffleOrder(ShuffledOrderFromIndex(mSongList.size, index))
+        } else {
+            mConcatenatingMediaSource?.setShuffleOrder(SequentialOrder(mSongList.size, index))
+        }
     }
 
     fun getSong(index: Int): Song? {

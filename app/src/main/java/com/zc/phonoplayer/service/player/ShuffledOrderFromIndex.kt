@@ -17,8 +17,9 @@ class ShuffledOrderFromIndex(private val length: Int, private val startingIndex:
     }
 
     init {
+        val randomList = (0 until length).shuffled()
         for (i in 0 until length) {
-            shuffled[i] = 1 + random.nextInt(i + 1)
+            shuffled[i] = randomList[i]
         }
     }
 
@@ -29,7 +30,7 @@ class ShuffledOrderFromIndex(private val length: Int, private val startingIndex:
     override fun getNextIndex(index: Int): Int {
         return if (length > 0) {
             var nextIndex = shuffled.indexOf(index)
-            if (++nextIndex < shuffled.size) {
+            if (++nextIndex < length) {
                 shuffled[nextIndex]
             } else {
                 shuffled[0]
@@ -50,7 +51,8 @@ class ShuffledOrderFromIndex(private val length: Int, private val startingIndex:
 
     override fun getLastIndex(): Int {
         return if (length > 0) {
-            val lastIndex = startingIndex - 1
+            val startingIndexInShuffled = shuffled.indexOf(startingIndex)
+            val lastIndex = startingIndexInShuffled - 1
             if (lastIndex < 0) length - 1
             else lastIndex
         } else C.INDEX_UNSET
