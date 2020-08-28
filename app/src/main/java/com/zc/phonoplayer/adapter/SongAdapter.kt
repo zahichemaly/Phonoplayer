@@ -41,6 +41,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
                 logI("Song clicked: $song")
                 callback.onSongClicked(song)
             }
+            /*
             holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
                 /* TODO
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
@@ -57,6 +58,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
                     true
                 }
             }
+             */
         }
     }
 

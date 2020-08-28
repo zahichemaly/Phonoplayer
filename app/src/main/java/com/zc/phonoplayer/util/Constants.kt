@@ -28,8 +28,8 @@ const val ALBUM_ID = "album_id"
 const val ARTIST_ID = "artist_id"
 
 // Activity results
-const val RESULT_ALBUM_ID = 1110
-const val RESULT_ARTIST_ID = 1111
+const val RESULT_ALBUM_ID = 100210
+const val RESULT_ARTIST_ID = 100211
 
 // Service commands
 const val COMMAND_SHUFFLE_ALL = "shuffle_all"

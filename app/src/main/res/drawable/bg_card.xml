@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/card_bg_color"/>
+            <corners android:radius="@dimen/radius_medium"/>
+        </shape>
+    </item>
+
     <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/light_grey" />
-            <corners android:radius="25dp" />
+        <shape>
+            <solid android:color="?attr/card_bg_color"/>
+            <corners android:radius="@dimen/radius_medium"/>
         </shape>
     </item>
-    <item android:top="2dp">
-        <shape android:shape="rectangle">
-            <solid android:color="@color/light_grey" />
-            <corners android:radius="25dp" />
-        </shape>
-    </item>
-</layer-list>
+</selector>

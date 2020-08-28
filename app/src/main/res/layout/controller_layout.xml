@@ -3,22 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/controller_layout"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:background="@color/background_color_dark"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card_controller"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/item_divider_color" />
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/controller_song_art"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentStart="true"
         android:layout_margin="@dimen/spacing_small"
         android:padding="@dimen/spacing_small"
@@ -40,11 +34,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:text="@string/title_dummy"
-            android:textColor="@color/white"
-            android:textSize="@dimen/title_medium"
+            android:textColor="@color/card_title_text_color"
+            android:textSize="@dimen/text_size_medium"
             android:textStyle="bold" />
 
         <TextView
@@ -54,9 +47,9 @@
             android:ellipsize="marquee"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
-            android:text="@string/song_artist"
-            android:textColor="@color/white"
-            android:textSize="@dimen/title_small" />
+            android:text="@string/title_dummy"
+            android:textColor="@color/card_title_text_color"
+            android:textSize="@dimen/text_size_small" />
     </LinearLayout>
 
     <RelativeLayout
@@ -65,37 +58,36 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="25dp"
-        android:layout_marginEnd="25dp"
+        android:layout_marginEnd="@dimen/spacing_xxlarge"
         android:layout_toEndOf="@id/controller_song_layout"
         android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/controller_previous_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/button_width_height_large"
+            android:layout_height="@dimen/button_width_height_large"
             android:layout_alignParentStart="true"
-            android:background="@color/background_color_dark"
+            android:background="?android:attr/actionBarItemBackground"
             android:contentDescription="@string/exo_controls_previous_description"
-            android:src="@drawable/exo_controls_previous" />
+            android:src="@drawable/ic_controller_previous" />
 
         <ImageButton
             android:id="@+id/controller_play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/button_width_height_large"
+            android:layout_height="@dimen/button_width_height_large"
             android:layout_centerInParent="true"
-            android:background="@color/background_color_dark"
+            android:background="?android:attr/actionBarItemBackground"
             android:contentDescription="@string/exo_controls_play_description"
-            android:src="@drawable/exo_controls_play" />
+            android:src="@drawable/ic_controller_play" />
 
         <ImageButton
             android:id="@+id/controller_next_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/button_width_height_large"
+            android:layout_height="@dimen/button_width_height_large"
             android:layout_alignParentEnd="true"
-            android:background="@color/background_color_dark"
+            android:background="?android:attr/actionBarItemBackground"
             android:contentDescription="@string/exo_controls_next_description"
-            android:src="@drawable/exo_controls_next" />
+            android:src="@drawable/ic_controller_next" />
 
     </RelativeLayout>
 

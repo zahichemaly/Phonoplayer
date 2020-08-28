@@ -62,7 +62,7 @@ class MusicNotification {
                     .setMediaSession(service.getMediaSession()?.sessionToken)
                     .setShowActionsInCompactView(0, 1, 2)
             )
-            .setColor(service.color(R.color.background_color_dark))
+            .setColor(service.color(R.color.black))
             .setOnlyAlertOnce(true)
             .setOngoing(true)
             .setSmallIcon(R.drawable.ic_notification)

@@ -5,7 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:id="@+id/item_album_card"
-    android:background="@color/background_color_dark"
+    android:layout_margin="@dimen/margin_card_layout"
+    android:background="@drawable/bg_card"
     android:clickable="true"
     android:focusable="true">
 
@@ -38,8 +39,8 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/title_dummy"
-            android:textColor="@color/white"
-            android:textSize="@dimen/title_medium"
+            android:textColor="@color/card_title_text_color"
+            android:textSize="@dimen/text_size_large"
             android:textStyle="bold" />
 
         <TextView
@@ -49,8 +50,8 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/album_artist"
-            android:textColor="@color/content_text_color"
-            android:textSize="@dimen/title_small" />
+            android:textColor="@color/card_content_text_color"
+            android:textSize="@dimen/text_size_medium" />
 
     </LinearLayout>
 
@@ -65,11 +66,5 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:src="@drawable/ic_settings_dots">
     </ImageView>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/item_divider_color"/>
 
 </RelativeLayout>

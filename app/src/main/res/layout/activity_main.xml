@@ -13,19 +13,18 @@
         android:background="@color/colorPrimary"
         android:theme="@style/AppTheme.ActionBar"
         app:elevation="0dp"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="@string/app_name"
+        app:layout_constraintTop_toTopOf="parent"
         app:menu="@menu/app_bar_menu"
-        app:layout_constraintTop_toTopOf="parent">
-    </androidx.appcompat.widget.Toolbar>
+        app:popupTheme="@style/Theme.AppCompat.DayNight"
+        app:title="@string/app_name" />
 
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/controller_layout_view"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintBottom_toTopOf="@id/controller_layout_view">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -35,15 +34,15 @@
                 android:id="@+id/navigation_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_gravity="bottom"
                 android:background="@color/colorPrimaryDark"
                 app:elevation="0dp"
                 app:itemIconTint="@color/white"
+                app:itemRippleColor="@color/card_bg_color_pressed"
                 app:itemTextColor="@color/white"
                 app:labelVisibilityMode="selected"
-                android:layout_alignParentTop="true"
-                app:menu="@menu/navigation_menu">
-            </com.google.android.material.bottomnavigation.BottomNavigationView>
+                app:menu="@menu/navigation_menu" />
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/view_pager"
@@ -51,21 +50,20 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/navigation_bar"
                 android:layout_alignParentBottom="true"
-                android:background="@color/background_color_dark">
-            </androidx.viewpager.widget.ViewPager>
+                android:background="?attr/bg_color" />
 
         </RelativeLayout>
     </FrameLayout>
 
     <include
-        layout="@layout/controller_layout"
         android:id="@+id/controller_layout_view"
+        layout="@layout/controller_layout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        tools:visibility="visible"
+        android:layout_height="wrap_content"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

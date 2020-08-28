@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container_songs"
-    android:background="@color/background_color_dark"
+    android:background="?attr/bg_color"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_sort"
+        android:tint="?attr/button_color"
         android:layout_marginTop="@dimen/spacing_medium"
         android:layout_marginBottom="@dimen/spacing_medium"
         android:layout_marginStart="@dimen/spacing_xlarge"
@@ -24,7 +25,8 @@
         android:id="@+id/shuffle_button"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/ic_shuffle_on"
+        android:src="@drawable/ic_shuffle_enabled"
+        android:tint="?attr/button_color"
         android:layout_marginTop="@dimen/spacing_medium"
         android:layout_marginBottom="@dimen/spacing_medium"
         android:layout_marginEnd="@dimen/spacing_xlarge"
@@ -50,7 +52,8 @@
         android:layout_centerInParent="true"
         android:visibility="visible"
         tools:visibility="visible"
-        android:textColor="@color/white"
+        android:textColor="@color/dark_grey"
+        android:textSize="@dimen/text_size_normal"
         android:text="@string/empty_songs">
     </TextView>
 

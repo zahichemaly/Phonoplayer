@@ -1,24 +1,36 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/red</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="AppTheme">
+        <item name="bg_color">@color/bg_color</item>
+        <item name="button_color">@color/button_color_tint_dark</item>
+        <item name="card_bg_color">@color/card_bg_color</item>
+        <item name="card_title_text_color">@color/card_title_text_color</item>
+        <item name="card_content_text_color">@color/light_grey</item>
         <item name="android:statusBarColor">@color/colorPrimary</item>
-        <item name="android:navigationBarColor">@color/background_color_dark</item>
+        <item name="android:navigationBarColor">@color/navigation_bar_color</item>
     </style>
 
     <style name="SongActivityTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/background_color_dark</item>
-        <item name="android:navigationBarColor">@color/background_color_dark</item>
+        <item name="android:statusBarColor">@color/bg_color_dark</item>
+        <item name="android:navigationBarColor">@color/bg_color_dark</item>
     </style>
 
-    <style name="AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar" >
+    <style name="AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
+
+    <style name="PopupMenuStyle" parent="Theme.AppCompat.DayNight">
+        <item name="android:background">@android:color/white</item>
     </style>
 
     <style name="TextInputEditTextStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">

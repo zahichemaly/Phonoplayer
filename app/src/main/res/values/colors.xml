@@ -16,19 +16,27 @@
     <color name="light_blue">#427BA6</color>
     <color name="dark_blue">#243E53</color>
 
+    <!--theme-->
+    <color name="bg_color">@color/white</color>
+    <color name="bg_color_dark">@color/black</color>
+    <color name="button_color_tint">@color/black</color>
+    <color name="button_color_tint_dark">@color/dark_grey</color>
+    <color name="card_bg_color">#f6f6f6</color>
+    <color name="card_bg_color_dark">#0e0e0e</color>
+    <color name="card_title_text_color">@color/black</color>
+    <color name="card_content_text_color">@color/light_grey</color>
+    <color name="card_bg_color_pressed">#52DCDCDC</color>
+    <color name="navigation_bar_color">@color/white</color>
+
     <!-- recycler view item colors -->
     <color name="item_background_color">@color/black</color>
     <color name="item_divider_color">@color/dark_grey</color>
     <color name="item_circle_border_inactive">@color/white</color>
     <color name="item_circle_border_active">@color/orange</color>
-    <color name="background_color_dark">@color/black</color>
 
     <!-- song item layout -->
-    <color name="song_idle">@color/background_color_dark</color>
+    <color name="song_idle">@color/black</color>
     <color name="song_playing">@color/sky_blue</color>
     <color name="song_paused">@color/orange</color>
-
-    <color name="content_text_color">#999da4</color>
-
 
 </resources>

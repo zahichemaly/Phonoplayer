@@ -20,7 +20,7 @@ import com.zc.phonoplayer.util.showMenuPopup
 class ArtistFragment : Fragment() {
     private lateinit var callback: ArtistAdapter.ArtistCallback
     private lateinit var recyclerView: IndexedRecyclerView
-    private lateinit var recyclerAdapter: ArtistAdapter
+    private var recyclerAdapter: ArtistAdapter? = null
     private lateinit var artistList: List<Artist>
     private lateinit var sortButton: ImageButton
 
@@ -36,7 +36,7 @@ class ArtistFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        artistList = arguments?.getParcelableArrayList(ARTIST_LIST) ?: ArrayList()
+        artistList = arguments?.getParcelableArrayList(ARTIST_LIST) ?: arrayListOf()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -57,11 +57,13 @@ class ArtistFragment : Fragment() {
         sortButton.setOnClickListener {
             requireActivity().showMenuPopup(sortButton, R.menu.sort_artist_menu,
                 PopupMenu.OnMenuItemClickListener {
-                    when (it.itemId) {
-                        R.id.action_sort_title_ascending -> recyclerAdapter.sortBy(SortOrder.ASCENDING)
-                        R.id.action_sort_title_descending -> recyclerAdapter.sortBy(SortOrder.DESCENDING)
-                        R.id.action_sort_by_nb_of_tracks -> recyclerAdapter.sortBy(SortOrder.NB_OF_TRACKS)
-                        R.id.action_sort_by_nb_of_albums -> recyclerAdapter.sortBy(SortOrder.NB_OF_ALBUMS)
+                    recyclerAdapter?.run {
+                        when (it.itemId) {
+                            R.id.action_sort_title_ascending -> sortBy(SortOrder.ASCENDING)
+                            R.id.action_sort_title_descending -> sortBy(SortOrder.DESCENDING)
+                            R.id.action_sort_by_nb_of_tracks -> sortBy(SortOrder.NB_OF_TRACKS)
+                            R.id.action_sort_by_nb_of_albums -> sortBy(SortOrder.NB_OF_ALBUMS)
+                        }
                     }
                     true
                 })
@@ -71,12 +73,12 @@ class ArtistFragment : Fragment() {
 
     fun filterData(query: String) {
         recyclerView.setIndexBarVisibility(false)
-        recyclerAdapter.filterData(query)
+        recyclerAdapter?.filterData(query)
     }
 
     fun setInitialData() {
         recyclerView.setIndexBarVisibility(true)
-        recyclerAdapter.resetData()
+        recyclerAdapter?.resetData()
         recyclerView.smoothScrollToPosition(0)
     }
 

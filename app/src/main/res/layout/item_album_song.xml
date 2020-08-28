@@ -3,16 +3,11 @@
     android:id="@+id/item_album_song_card"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@color/background_color_dark"
+    android:background="@drawable/bg_card"
+    android:layout_margin="@dimen/margin_card_layout"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/item_divider_color" />
 
     <TextView
         android:id="@+id/item_album_song_track_no"
@@ -24,8 +19,8 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/song_track_no"
-        android:textColor="@color/white"
-        android:textSize="@dimen/title_small" />
+        android:textColor="@color/light_grey"
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
         android:id="@+id/item_album_song_title"
@@ -39,8 +34,8 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/title_dummy"
-        android:textColor="@color/white"
-        android:textSize="@dimen/title_small" />
+        android:textColor="@color/light_grey"
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
         android:id="@+id/item_album_song_duration"
@@ -52,7 +47,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text="@string/song_duration"
-        android:textColor="@color/white"
-        android:textSize="@dimen/title_small" />
+        android:textColor="@color/light_grey"
+        android:textSize="@dimen/text_size_medium" />
 
 </RelativeLayout>

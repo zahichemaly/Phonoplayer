@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="50dp"
     android:orientation="vertical"
     android:id="@+id/item_genre_card"
-    android:background="@color/background_color_dark"
+    android:layout_margin="@dimen/margin_card_layout"
+    android:background="@drawable/bg_card"
     android:clickable="true"
     android:focusable="true">
 
@@ -24,15 +25,9 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/title_dummy"
-            android:textColor="@color/white"
-            android:textSize="@dimen/title_medium"
+            android:textColor="@color/card_title_text_color"
+            android:textSize="@dimen/text_size_large"
             android:textStyle="bold" />
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/item_divider_color"/>
 
 </RelativeLayout>

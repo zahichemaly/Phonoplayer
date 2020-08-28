@@ -45,10 +45,10 @@ class SongActivity : AppCompatActivity() {
     private val controllerCallback = object : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
             if (state.state == PlaybackStateCompat.STATE_PLAYING) {
-                play_pause_button.background = this@SongActivity.drawable(R.drawable.exo_controls_pause)
+                play_pause_button.background = this@SongActivity.drawable(R.drawable.ic_pause)
             }
             if (state.state == PlaybackStateCompat.STATE_PAUSED) {
-                play_pause_button.background = this@SongActivity.drawable(R.drawable.exo_controls_play)
+                play_pause_button.background = this@SongActivity.drawable(R.drawable.ic_play)
             }
         }
 
@@ -100,12 +100,12 @@ class SongActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
-        if (isShuffleEnabled) shuffle_button.background = drawable(R.drawable.exo_controls_shuffle_on)
-        else shuffle_button.background = drawable(R.drawable.exo_controls_shuffle_off)
+        if (isShuffleEnabled) shuffle_button.background = drawable(R.drawable.ic_shuffle_enabled)
+        else shuffle_button.background = drawable(R.drawable.ic_shuffle_disabled)
         when (repeatMode) {
-            RepeatMode.OFF.value -> repeat_button.background = drawable(R.drawable.exo_controls_repeat_off)
-            RepeatMode.ONE.value -> repeat_button.background = drawable(R.drawable.exo_controls_repeat_one)
-            RepeatMode.ALL.value -> repeat_button.background = drawable(R.drawable.exo_controls_repeat_all)
+            RepeatMode.OFF.value -> repeat_button.background = drawable(R.drawable.ic_repeat_disabled)
+            RepeatMode.ONE.value -> repeat_button.background = drawable(R.drawable.ic_repeat_one)
+            RepeatMode.ALL.value -> repeat_button.background = drawable(R.drawable.ic_repeat_all)
         }
     }
 
@@ -158,9 +158,9 @@ class SongActivity : AppCompatActivity() {
 
     private fun setupController() {
         if (mediaController.playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-            play_pause_button.background = drawable(R.drawable.exo_controls_pause)
+            play_pause_button.background = drawable(R.drawable.ic_pause)
         } else {
-            play_pause_button.background = drawable(R.drawable.exo_controls_play)
+            play_pause_button.background = drawable(R.drawable.ic_play)
         }
         play_pause_button.setOnClickListener {
             when (mediaController.playbackState.state) {
@@ -169,11 +169,11 @@ class SongActivity : AppCompatActivity() {
                 }
                 PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.STATE_STOPPED -> {
                     mediaController.transportControls.play()
-                    play_pause_button.background = drawable(R.drawable.exo_controls_pause)
+                    play_pause_button.background = drawable(R.drawable.ic_pause)
                 }
                 PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING, PlaybackStateCompat.STATE_CONNECTING -> {
                     mediaController.transportControls.pause()
-                    play_pause_button.background = drawable(R.drawable.exo_controls_play)
+                    play_pause_button.background = drawable(R.drawable.ic_play)
                 }
             }
         }
@@ -183,11 +183,11 @@ class SongActivity : AppCompatActivity() {
             isShuffleEnabled = !isShuffleEnabled
             if (isShuffleEnabled) {
                 mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-                shuffle_button.background = drawable(R.drawable.exo_controls_shuffle_on)
+                shuffle_button.background = drawable(R.drawable.ic_shuffle_enabled)
                 showSnackbar(getString(R.string.shuffle_mode_on))
             } else {
                 mediaController.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
-                shuffle_button.background = drawable(R.drawable.exo_controls_shuffle_off)
+                shuffle_button.background = drawable(R.drawable.ic_shuffle_disabled)
                 showSnackbar(getString(R.string.shuffle_mode_off))
             }
         }
@@ -197,17 +197,17 @@ class SongActivity : AppCompatActivity() {
             when (repeatMode) {
                 RepeatMode.OFF.value -> {
                     mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
-                    repeat_button.background = drawable(R.drawable.exo_controls_repeat_off)
+                    repeat_button.background = drawable(R.drawable.ic_repeat_disabled)
                     showSnackbar(getString(R.string.repeat_off))
                 }
                 RepeatMode.ONE.value -> {
                     mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
-                    repeat_button.background = drawable(R.drawable.exo_controls_repeat_one)
+                    repeat_button.background = drawable(R.drawable.ic_repeat_one)
                     showSnackbar(getString(R.string.repeat_one))
                 }
                 RepeatMode.ALL.value -> {
                     mediaController.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
-                    repeat_button.background = drawable(R.drawable.exo_controls_repeat_all)
+                    repeat_button.background = drawable(R.drawable.ic_repeat_all)
                     showSnackbar(getString(R.string.repeat_all))
                 }
             }
@@ -217,7 +217,7 @@ class SongActivity : AppCompatActivity() {
     private fun skip(skipStatus: SkipStatus) {
         if (skipStatus == SkipStatus.SKIPPED_PREVIOUS) mediaController.transportControls.skipToPrevious()
         else if (skipStatus == SkipStatus.SKIPPED_NEXT) mediaController.transportControls.skipToNext()
-        play_pause_button.background = drawable(R.drawable.exo_controls_pause)
+        play_pause_button.background = drawable(R.drawable.ic_pause)
     }
 
     private fun setupListeners() {

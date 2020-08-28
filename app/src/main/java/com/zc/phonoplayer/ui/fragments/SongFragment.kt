@@ -33,7 +33,7 @@ import kotlinx.android.synthetic.main.fragment_song.*
 class SongFragment : Fragment(), SongAdapter.SongCallback {
     private lateinit var songList: ArrayList<Song>
     private lateinit var recyclerView: IndexedRecyclerView
-    private lateinit var recyclerAdapter: SongAdapter
+    private var recyclerAdapter: SongAdapter? = null
     private lateinit var emptyText: TextView
     private lateinit var sortButton: ImageButton
     private lateinit var shuffleButton: ImageButton
@@ -57,7 +57,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        songList = arguments?.getParcelableArrayList(SONG_LIST) ?: ArrayList()
+        songList = arguments?.getParcelableArrayList(SONG_LIST) ?: arrayListOf()
         hideMenu = arguments?.getBoolean(HIDE_MENU, false) ?: false
     }
 
@@ -77,29 +77,30 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
             recyclerAdapter = SongAdapter(songList, this)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
+            shuffleButton.setOnClickListener {
+                mainViewModel.updatePlaylist(songList)
+            }
+            setupObservers()
         }
         if (hideMenu) {
             sortButton.visibility = View.GONE
         } else {
             sortButton.visibility = View.VISIBLE
-            sortButton.setOnClickListener {
-                requireContext().showMenuPopup(sortButton, R.menu.sort_song_menu, PopupMenu.OnMenuItemClickListener {
+        }
+        sortButton.setOnClickListener {
+            requireContext().showMenuPopup(sortButton, R.menu.sort_song_menu, PopupMenu.OnMenuItemClickListener {
+                recyclerAdapter?.run {
                     when (it.itemId) {
-                        R.id.action_sort_title_ascending -> recyclerAdapter.sortBy(SortOrder.ASCENDING)
-                        R.id.action_sort_title_descending -> recyclerAdapter.sortBy(SortOrder.DESCENDING)
-                        R.id.action_sort_by_artist -> recyclerAdapter.sortBy(SortOrder.ARTIST)
-                        R.id.action_sort_by_album -> recyclerAdapter.sortBy(SortOrder.ALBUM)
-                        R.id.action_sort_by_year -> recyclerAdapter.sortBy(SortOrder.YEAR)
+                        R.id.action_sort_title_ascending -> sortBy(SortOrder.ASCENDING)
+                        R.id.action_sort_title_descending -> sortBy(SortOrder.DESCENDING)
+                        R.id.action_sort_by_artist -> sortBy(SortOrder.ARTIST)
+                        R.id.action_sort_by_album -> sortBy(SortOrder.ALBUM)
+                        R.id.action_sort_by_year -> sortBy(SortOrder.YEAR)
                     }
-                    true
-                })
-            }
+                }
+                true
+            })
         }
-
-        shuffleButton.setOnClickListener {
-            mainViewModel.updatePlaylist(songList)
-        }
-        setupObservers()
         return view
     }
 
@@ -156,20 +157,20 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
 
     fun filterData(query: String) {
         recyclerView.setIndexBarVisibility(false)
-        recyclerAdapter.filterData(query)
+        recyclerAdapter?.filterData(query)
     }
 
     fun updateData(song: Song) {
-        recyclerAdapter.updateData(song)
+        recyclerAdapter?.updateData(song)
     }
 
     fun setInitialData() {
         recyclerView.setIndexBarVisibility(true)
-        recyclerAdapter.resetData()
+        recyclerAdapter?.resetData()
         recyclerView.smoothScrollToPosition(0)
     }
 
     fun deleteSong(song: Song) {
-        recyclerAdapter.deleteData(song)
+        recyclerAdapter?.deleteData(song)
     }
 }

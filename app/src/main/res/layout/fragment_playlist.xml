@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/background_color_dark"
+    android:background="?attr/bg_color"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,7 +15,7 @@
         android:layout_marginBottom="@dimen/spacing_medium"
         android:layout_marginEnd="@dimen/spacing_medium"
         android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_size_normal"
         android:background="@color/light_grey"
         android:text="@string/create_playlist"
         android:visibility="gone"
@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/save_album"
+        android:layout_marginTop="@dimen/margin_card_layout"
         android:visibility="gone"
         tools:visibility="visible">
     </androidx.recyclerview.widget.RecyclerView>
@@ -38,7 +39,8 @@
         android:layout_centerInParent="true"
         android:visibility="visible"
         tools:visibility="visible"
-        android:textColor="@color/white"
+        android:textColor="@color/dark_grey"
+        android:textSize="@dimen/text_size_normal"
         android:text="@string/empty_playlists">
     </TextView>
 

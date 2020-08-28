@@ -43,6 +43,7 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
                 logI("Album clicked: $album")
                 callback.onAlbumClicked(a)
             }
+            /*
             holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
                 /* TODO
                 val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
@@ -56,8 +57,8 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
                     callback.onAlbumDelete(a)
                     true
                 }
-
             }
+             */
         }
     }
 

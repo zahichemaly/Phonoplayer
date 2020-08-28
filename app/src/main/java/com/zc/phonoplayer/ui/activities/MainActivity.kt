@@ -1,6 +1,7 @@
 package com.zc.phonoplayer.ui.activities
 
 import android.Manifest
+import android.app.Activity
 import android.content.ComponentName
 import android.content.DialogInterface
 import android.content.Intent
@@ -14,12 +15,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.TabAdapter
@@ -42,22 +45,38 @@ class MainActivity : BaseActivity() {
     private lateinit var storageUtil: StorageUtil
     private lateinit var searchView: SearchView
     private lateinit var tabAdapter: TabAdapter
+    private lateinit var settingsMenuItem: MenuItem
     private lateinit var searchMenuItem: MenuItem
     private lateinit var mainViewModel: MainViewModel
 
     companion object {
         const val REQUEST_READ_PERMISSION = 1000
         const val REQUEST_CODE_SONG = 1002
+        const val REQUEST_CODE_SETTINGS = 1003
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        setSettings()
         storageUtil = StorageUtil(this)
         checkPermissions()
         initializePlayer()
         setupObservers()
+    }
+
+    private fun setSettings() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        when (sharedPref.getString(getString(R.string.pref_key_theme), "system")) {
+            "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            "system" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+        val appName = getString(R.string.app_name)
+        val customAppName = sharedPref.getString(getString(R.string.pref_key_app_name), appName) ?: appName
+        toolbar.title = customAppName
     }
 
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
@@ -144,11 +163,12 @@ class MainActivity : BaseActivity() {
         })
 
         controller_layout_view.visibility = View.GONE
-        controller_layout_view.setOnClickListener {
+        controller_song_art.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
             intent.putExtra(SELECTED_SONG, song)
             intent.putExtra(SONG_LIST, songList)
             startActivityForResult(intent, REQUEST_CODE_SONG)
+            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
         }
     }
 
@@ -187,10 +207,10 @@ class MainActivity : BaseActivity() {
 
     private fun updateControllerState(state: PlaybackStateCompat) {
         if (state.state == PlaybackStateCompat.STATE_PLAYING) {
-            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_pause))
+            controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_pause))
         }
         if (state.state == PlaybackStateCompat.STATE_PAUSED) {
-            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+            controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
         }
     }
 
@@ -199,21 +219,21 @@ class MainActivity : BaseActivity() {
             when (mediaController?.playbackState?.state) {
                 PlaybackStateCompat.STATE_PAUSED, PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.STATE_NONE -> {
                     mediaController?.transportControls?.play()
-                    controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_pause))
+                    controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_pause))
                 }
                 PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.STATE_BUFFERING, PlaybackStateCompat.STATE_CONNECTING -> {
                     mediaController?.transportControls?.pause()
-                    controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+                    controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
                 }
             }
         }
         controller_previous_button.setOnClickListener {
             mediaController?.transportControls?.skipToPrevious()
-            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+            controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
         }
         controller_next_button.setOnClickListener {
             mediaController?.transportControls?.skipToNext()
-            controller_play_button.setImageDrawable(drawable(R.drawable.exo_controls_play))
+            controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
         }
         mediaController?.registerCallback(mControllerCallback)
         val cachedSong = storageUtil.getSavedSong()
@@ -234,6 +254,7 @@ class MainActivity : BaseActivity() {
 
     private fun updateSongController() {
         if (controller_layout_view.visibility == View.GONE) controller_layout_view.visibility = View.VISIBLE
+        controller_song_title.isSelected = true
         controller_song_title.text = song!!.title
         controller_song_artist.text = song!!.artist
         loadUri(song?.albumArtUri, controller_song_art)
@@ -311,7 +332,15 @@ class MainActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.app_bar_menu, menu)
+
         searchMenuItem = menu.findItem(R.id.action_search)
+        settingsMenuItem = menu.findItem(R.id.action_settings)
+
+        settingsMenuItem.setOnMenuItemClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivityForResult(intent, REQUEST_CODE_SETTINGS)
+            true
+        }
 
         searchView = searchMenuItem.actionView as SearchView
 
@@ -374,6 +403,10 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
+        }
+        if (requestCode == REQUEST_CODE_SETTINGS && resultCode == Activity.RESULT_OK) {
+            //TODO handle new settings
+            //recreate()
         } else super.onActivityResult(requestCode, resultCode, data)
     }
 
