@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
+import androidx.palette.graphics.Palette
 import com.zc.phonoplayer.model.Song
 
 
@@ -22,6 +23,8 @@ object SongHelper {
             }
         } ?: return Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
     }
+
+    fun createPaletteSync(bitmap: Bitmap): Palette = Palette.from(bitmap).generate()
 
     fun getSongFromMetadata(metadata: MediaMetadataCompat): Song {
         return Song(

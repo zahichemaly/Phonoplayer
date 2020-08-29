@@ -1,35 +1,40 @@
 package com.zc.phonoplayer.ui.activities
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.media.AudioManager
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.widget.PopupMenu
-import android.widget.SeekBar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.zc.phonoplayer.R
+import com.zc.phonoplayer.helper.ProgressHandler
 import com.zc.phonoplayer.model.Song
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.service.RepeatMode
 import com.zc.phonoplayer.service.SkipStatus
+import com.zc.phonoplayer.ui.components.CircularSeekBar
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_song.*
 
-class SongActivity : AppCompatActivity() {
+
+class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var mediaBrowser: MediaBrowserCompat
-    private lateinit var seekBarThread: Thread
     private lateinit var song: Song
     private var songList: ArrayList<Song>? = null
     private var isAlbumSong = false
     private var isShuffleEnabled = false
     private var repeatMode = RepeatMode.OFF.value
     private lateinit var preferenceUtil: PreferenceUtil
+    private lateinit var progressHandler: ProgressHandler
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
@@ -58,7 +63,7 @@ class SongActivity : AppCompatActivity() {
                 song = songFromMetadata
                 updateSong()
                 seek_bar.progress = 0
-                initializeSeekBar()
+                progressHandler.totalDuration = song.duration
             }
         }
     }
@@ -66,6 +71,9 @@ class SongActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
         preferenceUtil = PreferenceUtil(this)
         isShuffleEnabled = preferenceUtil.getSavedShuffle()
         repeatMode = preferenceUtil.getSavedRepeatMode()
@@ -76,7 +84,6 @@ class SongActivity : AppCompatActivity() {
         isAlbumSong = intent.getBooleanExtra(IS_ALBUM_SONG, false)
         setupControls()
         setupSeekBar()
-        setupListeners()
         updateSong()
     }
 
@@ -87,6 +94,7 @@ class SongActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
+        progressHandler.stop()
         mediaController.unregisterCallback(controllerCallback)
         mediaBrowser.disconnect()
     }
@@ -94,7 +102,6 @@ class SongActivity : AppCompatActivity() {
     private fun playSelectedSong() {
         val extras = Bundle()
         extras.putParcelable(SELECTED_SONG, song)
-        //val albumSongs = SongLoader.getSongsFromAlbum(contentResolver, song.albumId)
         extras.putParcelableArrayList(SONG_LIST, songList!!)
         mediaController.transportControls?.playFromUri(song.getUri(), extras)
     }
@@ -110,20 +117,20 @@ class SongActivity : AppCompatActivity() {
     }
 
     private fun setupSeekBar() {
-        seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        seek_bar.setOnSeekBarChangeListener(object : CircularSeekBar.OnCircularSeekBarChangeListener {
+            override fun onProgressChanged(circularSeekBar: CircularSeekBar, progress: Int, fromUser: Boolean) {
                 song_elapsed_time.text = TimeFormatter.getSongDuration(progress)
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar) {
-                mediaController.transportControls.pause()
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
+            override fun onStopTrackingTouch(seekBar: CircularSeekBar) {
                 val position = seekBar.progress
                 mediaController.transportControls.seekTo(position.toLong())
                 mediaController.transportControls.play()
                 seekBar.progress = position
+            }
+
+            override fun onStartTrackingTouch(seekBar: CircularSeekBar) {
+                mediaController.transportControls.pause()
             }
         })
     }
@@ -134,26 +141,22 @@ class SongActivity : AppCompatActivity() {
         song_duration.text = TimeFormatter.getSongDuration(song.duration.toInt())
         loadUri(song.albumArtUri, song_art)
         seek_bar.max = song.duration.toInt()
+        setColors()
+    }
+
+    @SuppressLint("NewApi")
+    private fun setColors() {
+        val bitmap = SongHelper.getBitmapFromUri(song.getAlbumArtUri(), contentResolver)
+        val mutableBitmap = bitmap.copy(Bitmap.Config.RGBA_F16, true)
+        val palette = SongHelper.createPaletteSync(mutableBitmap)
+        seek_bar.circleColor = palette.getVibrantColor(color(R.color.sky_blue))
+        seek_bar.circleProgressColor = palette.getLightVibrantColor(color(R.color.orange))
     }
 
     private fun initializeSeekBar() {
-        seekBarThread = object : Thread() {
-            override fun run() {
-                val totalDuration = song.duration
-                var currentPosition = mediaController.playbackState.position.toInt()
-                seek_bar.progress = currentPosition
-                while (currentPosition < totalDuration) {
-                    try {
-                        sleep(1000)
-                        currentPosition = mediaController.playbackState.position.toInt()
-                        seek_bar.progress = currentPosition
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-        }
-        seekBarThread.start()
+        progressHandler = ProgressHandler(mediaController, this)
+        progressHandler.totalDuration = song.duration
+        progressHandler.start()
     }
 
     private fun setupController() {
@@ -220,37 +223,44 @@ class SongActivity : AppCompatActivity() {
         play_pause_button.background = drawable(R.drawable.ic_pause)
     }
 
-    private fun setupListeners() {
-        back_button.setOnClickListener {
-            finish()
-        }
-        volume_button.setOnClickListener {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.song_playing_menu, menu)
+        val volumeMenuItem = menu.findItem(R.id.action_volume)
+        val detailsMenuItem = menu.findItem(R.id.action_details)
+        val artistMenuItem = menu.findItem(R.id.action_artist)
+        val albumMenuItem = menu.findItem(R.id.action_album)
+        volumeMenuItem.setOnMenuItemClickListener {
             val audioManager = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
+            true
         }
-        menu_button.setOnClickListener {
-            showMenuPopup(menu_button, R.menu.song_playing_menu,
-                PopupMenu.OnMenuItemClickListener {
-                    when (it.itemId) {
-                        R.id.action_album -> openAlbum()
-                        R.id.action_artist -> openArtist()
-                    }
-                    true
-                })
+        artistMenuItem.setOnMenuItemClickListener {
+            val intent = Intent()
+            intent.putExtra(ARTIST_ID, song.artistId)
+            setResult(RESULT_ARTIST_ID, intent)
+            finish()
+            true
         }
+        albumMenuItem.setOnMenuItemClickListener {
+            val intent = Intent()
+            intent.putExtra(ALBUM_ID, song.albumId)
+            setResult(RESULT_ALBUM_ID, intent)
+            finish()
+            true
+        }
+        return true
     }
 
-    private fun openAlbum() {
-        val intent = Intent()
-        intent.putExtra(ALBUM_ID, song.albumId)
-        setResult(RESULT_ALBUM_ID, intent)
-        finish()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+            }
+        }
+        return true
     }
 
-    private fun openArtist() {
-        val intent = Intent()
-        intent.putExtra(ARTIST_ID, song.artistId)
-        setResult(RESULT_ARTIST_ID, intent)
-        finish()
+    override fun onUpdateProgress(progress: Int) {
+        seek_bar.progress = progress
     }
 }

@@ -82,6 +82,7 @@
     <string name="title_activity_tab_settings">TabSettingsActivity</string>
 
     <!-- Preference Titles -->
+    <string name="playback">Playback</string>
     <string name="customize">Customization</string>
     <string name="information">Information</string>
 
@@ -89,19 +90,30 @@
     <string name="custom_app_name">Custom app name</string>
     <string name="theme">Theme</string>
     <string name="manage_tabs">Manage tabs</string>
+    <string name="clear_settings">Clear settings</string>
 
-    <!-- Preferences Keys -->
+    <!-- Shared Preferences Keys -->
+    <string name="pref_key_settings_play_speed">key_play_speed</string>
     <string name="pref_key_settings_app_name">key_app_name</string>
     <string name="pref_key_settings_theme">key_theme</string>
     <string name="pref_key_settings_about">key_about</string>
     <string name="pref_key_settings_tabs">key_manage_tabs</string>
     <string name="pref_key_tab_settings_tab">key_tabs</string>
-
+    <!-- Preference Keys -->
+    <string name="pref_key_song">key_song</string>
+    <string name="pref_key_song_list">key_song_list</string>
+    <string name="pref_key_shuffle_enabled">key_shuffle</string>
+    <string name="pref_key_repeat_mode">key_repeat_mode</string>
+    <string name="pref_key_position">key_position</string>
 
     <!-- Sync Preferences -->
     <string name="version">Version</string>
     <string name="version_no">1.0.0</string>
     <string name="author">github.com/zahichemaly</string>
     <string name="choose_email_client">Choose email client</string>
+    <string name="play_speed">Play speed</string>
+    <string name="slash">/</string>
+    <string name="volume">Volume</string>
+
 
 </resources>

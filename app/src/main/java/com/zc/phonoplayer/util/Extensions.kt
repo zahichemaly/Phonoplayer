@@ -26,6 +26,7 @@ fun Context.loadUri(drawable: String?, imageView: CircleImageView) {
     Glide.with(this)
         .load(drawable)
         .placeholder(R.drawable.ic_default_music)
+        .error(R.drawable.ic_default_music)
         .into(imageView)
 }
 
@@ -59,7 +60,7 @@ fun Activity.showSnackbar(text: String) {
     val params = snack.view.layoutParams as ViewGroup.MarginLayoutParams
     params.setMargins(12, 12, 12, 12)
     snack.view.layoutParams = params
-    snack.view.background = getDrawable(R.drawable.bg_snackbar)
+    snack.view.background = drawable(R.drawable.bg_snackbar)
     ViewCompat.setElevation(snack.view, 6f)
     snack.show()
 }

@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.service
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -80,6 +81,17 @@ class MusicService : MediaBrowserServiceCompat() {
         override fun onSetRepeatMode(repeatMode: Int) {
             super.onSetRepeatMode(repeatMode)
             musicPlayer.setRepeatMode(repeatMode)
+        }
+
+        @SuppressLint("RestrictedApi")
+        override fun onSetPlaybackSpeed(speed: Float) {
+            super.onSetPlaybackSpeed(speed)
+            val playbackState: Int = if (musicPlayer.isPlaying()) {
+                PlaybackStateCompat.STATE_PLAYING
+            } else {
+                PlaybackStateCompat.STATE_PAUSED
+            }
+            updatePlaybackState(playbackState, musicPlayer.getPosition(), speed)
         }
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
@@ -169,8 +181,8 @@ class MusicService : MediaBrowserServiceCompat() {
         mMediaSession?.release()
     }
 
-    fun updatePlaybackState(state: Int, position: Long) {
-        mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, 1.0f).build())
+    fun updatePlaybackState(state: Int, position: Long, playbackSpeed: Float = 1.0f) {
+        mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, playbackSpeed).build())
     }
 
     private fun handlePendingIntent(intent: Intent?) {

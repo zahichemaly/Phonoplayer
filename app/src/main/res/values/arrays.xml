@@ -27,4 +27,18 @@
         <item>@string/genres</item>
         <item>@string/playlists</item>
     </string-array>
+
+    <string-array name="speed_entries">
+        <item>0.5×</item>
+        <item>1.0×</item>
+        <item>1.5×</item>
+        <item>2.0×</item>
+    </string-array>
+
+    <string-array name="speed_values">
+        <item>0.5</item>
+        <item>1.0</item>
+        <item>1.5</item>
+        <item>2.0</item>
+    </string-array>
 </resources>

@@ -23,4 +23,6 @@ class SharedPreferencesUtil(val context: Context, private val sharedPreferences:
         editor.putString(context.getString(R.string.pref_key_tab_settings_tab), json)
         editor.apply()
     }
+
+    fun getPlaybackSpeed(): Float = sharedPreferences.getString(context.getString(R.string.pref_key_settings_play_speed), "1.0")?.toFloat() ?: 1.0f
 }

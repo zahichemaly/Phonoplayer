@@ -66,7 +66,7 @@ class ManageListPreference @JvmOverloads constructor(context: Context?, attrs: A
 
 
     init {
-        layoutResource = R.layout.tab_preference_layout
+        layoutResource = R.layout.layout_tab_preference
     }
 
     private fun getValues(): List<TabItem> = sharedPreferencesUtil.getTabItems()
@@ -104,9 +104,14 @@ class ManageListPreference @JvmOverloads constructor(context: Context?, attrs: A
             val tabItem = tabItems[position]
             holder.tabText.text = tabItem.text
             if (tabItem.isSelected) {
-                holder.tabText.setTextColor(context.color(R.color.red))
                 holder.tabCheckBox.isChecked = true
-                holder.tabCheckBox.isEnabled = selectedCount > 1
+                if (selectedCount > 1) {
+                    holder.tabText.setTextColor(context.color(R.color.red))
+                    holder.tabCheckBox.isEnabled = true
+                } else {
+                    holder.tabCheckBox.isEnabled = false
+                    holder.tabText.setTextColor(context.color(R.color.dark_grey))
+                }
                 holder.arrangeIcon.setOnTouchListener { _, event ->
                     if (event.actionMasked == MotionEvent.ACTION_DOWN) startDragging(holder)
                     true

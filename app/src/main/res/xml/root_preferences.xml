@@ -1,8 +1,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/customize">
+    <PreferenceCategory app:title="@string/playback">
+        <ListPreference
+            android:entries="@array/speed_entries"
+            android:icon="@drawable/ic_speed"
+            app:defaultValue="1.0"
+            app:entryValues="@array/speed_values"
+            app:key="@string/pref_key_settings_play_speed"
+            app:title="@string/play_speed"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/customize">
         <EditTextPreference
             app:defaultValue="@string/app_name"
             app:icon="@drawable/ic_pencil"
@@ -25,8 +35,7 @@
             android:summary="@string/albums"
             android:title="@string/manage_tabs"
             app:icon="@drawable/ic_tabs"
-            app:key="@string/pref_key_settings_tabs">
-        </Preference>
+            app:key="@string/pref_key_settings_tabs" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/information">
@@ -48,5 +57,4 @@
         </Preference>
 
     </PreferenceCategory>
-
 </PreferenceScreen>

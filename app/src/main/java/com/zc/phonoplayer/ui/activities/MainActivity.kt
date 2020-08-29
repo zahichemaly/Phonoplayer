@@ -1,6 +1,7 @@
 package com.zc.phonoplayer.ui.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.DialogInterface
 import android.content.Intent
@@ -34,7 +35,8 @@ import com.zc.phonoplayer.ui.fragments.*
 import com.zc.phonoplayer.ui.viewModels.MainViewModel
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.controller_layout.*
+import kotlinx.android.synthetic.main.layout_controller.*
+import kotlinx.android.synthetic.main.layout_controller.view.*
 
 class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var mediaBrowser: MediaBrowserCompat
@@ -192,13 +194,20 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         loadMedia()
         setupTabAdapter()
         controller_layout_view.visibility = View.GONE
-        controller_song_art.setOnClickListener {
-            val intent = Intent(this, SongActivity::class.java)
-            intent.putExtra(SELECTED_SONG, song)
-            intent.putExtra(SONG_LIST, songList)
-            startActivityForResult(intent, REQUEST_CODE_SONG)
-            overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
+        controller_layout_view.setOnClickListener {
+            openSongDetails()
         }
+        controller_layout_view.controller_song_layout.setOnClickListener {
+            openSongDetails()
+        }
+    }
+
+    private fun openSongDetails() {
+        val intent = Intent(this, SongActivity::class.java)
+        intent.putExtra(SELECTED_SONG, song)
+        intent.putExtra(SONG_LIST, songList)
+        startActivityForResult(intent, REQUEST_CODE_SONG)
+        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -449,10 +458,15 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if (key == getString(R.string.pref_key_tab_settings_tab)) {
             navigation_bar.menu.clear()
             setupTabAdapter()
+        }
+        if (key == getString(R.string.pref_key_settings_play_speed)) {
+            val playbackSpeed = sharedPreferencesUtil.getPlaybackSpeed()
+            mediaController?.transportControls?.setPlaybackSpeed(playbackSpeed)
         }
     }
 }

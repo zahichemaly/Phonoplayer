@@ -18,9 +18,8 @@
         <item name="android:navigationBarColor">@color/navigation_bar_color</item>
     </style>
 
-    <style name="SongActivityTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/bg_color_dark</item>
-        <item name="android:navigationBarColor">@color/bg_color_dark</item>
+    <style name="SongActivityTheme" parent="AppTheme.Light">
+        <item name="android:statusBarColor">@color/bg_color</item>
     </style>
 
     <style name="AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
@@ -30,7 +29,17 @@
     </style>
 
     <style name="PopupMenuStyle" parent="Theme.AppCompat.DayNight">
-        <item name="android:background">@android:color/white</item>
+        <item name="android:popupTheme">@style/CustomPopupTheme</item>
+    </style>
+
+    <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.DayNight">
+        <item name="android:strokeWidth">1</item>
+        <item name="android:strokeColor">@color/button_color_tint</item>
+        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
+    </style>
+
+    <style name="CheckBoxStyle" parent="ThemeOverlay.AppCompat.DayNight">
+        <item name="android:background">@drawable/ic_checkmark</item>
     </style>
 
     <style name="TextInputEditTextStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">

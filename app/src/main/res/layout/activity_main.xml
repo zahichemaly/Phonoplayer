@@ -4,6 +4,7 @@
     android:id="@+id/root_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/bg_color"
     tools:context=".ui.activities.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -36,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_gravity="bottom"
-                android:background="@color/colorPrimaryDark"
+                android:background="@color/colorPrimary"
                 app:elevation="0dp"
                 app:itemIconTint="@color/white"
                 app:itemRippleColor="@color/card_bg_color_pressed"
@@ -57,7 +58,7 @@
 
     <include
         android:id="@+id/controller_layout_view"
-        layout="@layout/controller_layout"
+        layout="@layout/layout_controller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
