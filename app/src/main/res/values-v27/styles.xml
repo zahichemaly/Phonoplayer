@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme.Light" parent="AppTheme">
+        <item name="bg_color">@color/bg_color</item>
+        <item name="button_color">@color/button_color_tint_dark</item>
+        <item name="card_bg_color">@color/card_bg_color</item>
+        <item name="card_title_text_color">@color/card_title_text_color</item>
+        <item name="card_content_text_color">@color/light_grey</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/navigation_bar_color</item>
+        <item name="android:windowLightNavigationBar">@bool/light_navigation_bar</item>
+    </style>
+</resources>

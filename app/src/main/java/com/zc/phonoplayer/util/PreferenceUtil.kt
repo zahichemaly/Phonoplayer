@@ -6,18 +6,16 @@ import com.google.android.exoplayer2.Player
 import com.google.gson.Gson
 import com.zc.phonoplayer.model.Song
 
-class StorageUtil(context: Context) {
+class PreferenceUtil(val context: Context) {
     private var prefs: SharedPreferences = context.getSharedPreferences(STORAGE_LOCATION, Context.MODE_PRIVATE)
 
     companion object {
         const val STORAGE_LOCATION = "cached_songs"
         const val SAVED_SONG = "saved_song"
         const val SAVED_PLAYLIST = "saved_playlist"
-        const val SAVED_POSITION = "saved_position"
         const val IS_SHUFFLE_ENABLED = "is_shuffle_enabled"
         const val REPEAT_MODE = "repeat_mode"
         const val LAST_POSITION = "last_position"
-        const val LAST_URI = "last_uri"
     }
 
     fun saveSong(song: Song) {

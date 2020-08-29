@@ -2,6 +2,7 @@
 <resources>
     <color name="bg_color">@color/black</color>
     <color name="button_color_tint">@color/white</color>
+    <color name="button_color_tint_dark">@color/dark_grey</color>
     <color name="card_bg_color">#0e0e0e</color>
     <color name="card_title_text_color">@color/white</color>
     <color name="card_content_text_color">@color/light_grey</color>

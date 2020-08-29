@@ -48,7 +48,13 @@
         <activity
             android:name=".ui.activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Light" />
+        <activity
+            android:name=".ui.activities.TabSettingsActivity"
+            android:label="@string/title_activity_tab_settings"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Light" />
     </application>
 
 </manifest>

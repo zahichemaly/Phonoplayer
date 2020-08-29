@@ -32,7 +32,7 @@
 
             <com.google.android.material.bottomnavigation.BottomNavigationView
                 android:id="@+id/navigation_bar"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_gravity="bottom"
@@ -42,7 +42,7 @@
                 app:itemRippleColor="@color/card_bg_color_pressed"
                 app:itemTextColor="@color/white"
                 app:labelVisibilityMode="selected"
-                app:menu="@menu/navigation_menu" />
+                tools:menu="@menu/navigation_menu" />
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/view_pager"

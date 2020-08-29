@@ -79,6 +79,7 @@
     <string name="repeat_one">Repeat 1</string>
     <string name="repeat_all">Repeat all</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_tab_settings">TabSettingsActivity</string>
 
     <!-- Preference Titles -->
     <string name="customize">Customization</string>
@@ -90,9 +91,12 @@
     <string name="manage_tabs">Manage tabs</string>
 
     <!-- Preferences Keys -->
-    <string name="pref_key_app_name">key_app_name</string>
-    <string name="pref_key_theme">key_theme</string>
-    <string name="pref_key_about">key_about</string>
+    <string name="pref_key_settings_app_name">key_app_name</string>
+    <string name="pref_key_settings_theme">key_theme</string>
+    <string name="pref_key_settings_about">key_about</string>
+    <string name="pref_key_settings_tabs">key_manage_tabs</string>
+    <string name="pref_key_tab_settings_tab">key_tabs</string>
+
 
     <!-- Sync Preferences -->
     <string name="version">Version</string>

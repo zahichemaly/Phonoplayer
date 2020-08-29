@@ -29,7 +29,7 @@ class SongActivity : AppCompatActivity() {
     private var isAlbumSong = false
     private var isShuffleEnabled = false
     private var repeatMode = RepeatMode.OFF.value
-    private lateinit var storageUtil: StorageUtil
+    private lateinit var preferenceUtil: PreferenceUtil
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
@@ -66,9 +66,9 @@ class SongActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song)
-        storageUtil = StorageUtil(this)
-        isShuffleEnabled = storageUtil.getSavedShuffle()
-        repeatMode = storageUtil.getSavedRepeatMode()
+        preferenceUtil = PreferenceUtil(this)
+        isShuffleEnabled = preferenceUtil.getSavedShuffle()
+        repeatMode = preferenceUtil.getSavedRepeatMode()
         val componentName = ComponentName(this, MusicService::class.java)
         mediaBrowser = MediaBrowserCompat(this, componentName, connectionCallback, null)
         song = intent.getParcelableExtra(SELECTED_SONG)!!

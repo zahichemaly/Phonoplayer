@@ -6,7 +6,7 @@
         <EditTextPreference
             app:defaultValue="@string/app_name"
             app:icon="@drawable/ic_pencil"
-            app:key="@string/pref_key_app_name"
+            app:key="@string/pref_key_settings_app_name"
             app:title="@string/custom_app_name"
             app:useSimpleSummaryProvider="true" />
 
@@ -15,30 +15,32 @@
             app:entries="@array/theme_entries"
             app:entryValues="@array/theme_values"
             app:icon="@drawable/ic_brush"
-            app:key="@string/pref_key_theme"
+            app:key="@string/pref_key_settings_theme"
             app:title="@string/theme"
             app:useSimpleSummaryProvider="true" />
 
         <Preference
-            app:icon="@drawable/ic_tabs"
-            android:key="@string/version"
+            android:key="@string/albums"
             android:persistent="false"
-            android:summary="@string/manage_tabs"
-            android:title="@string/manage_tabs" />
+            android:summary="@string/albums"
+            android:title="@string/manage_tabs"
+            app:icon="@drawable/ic_tabs"
+            app:key="@string/pref_key_settings_tabs">
+        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/information">
 
         <Preference
-            app:icon="@drawable/ic_info"
             android:key="@string/version"
             android:persistent="false"
             android:summary="@string/version_no"
-            android:title="@string/version" />
+            android:title="@string/version"
+            app:icon="@drawable/ic_info" />
 
         <Preference
             android:icon="@drawable/ic_github"
-            android:key="@string/pref_key_about"
+            android:key="@string/pref_key_settings_about"
             android:persistent="false"
             android:summary="@string/author"
             android:title="@string/about">

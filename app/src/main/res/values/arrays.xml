@@ -11,4 +11,20 @@
         <item>dark</item>
         <item>system</item>
     </string-array>
+
+    <string-array name="tab_entries">
+        <item>@string/tracks</item>
+        <item>@string/albums</item>
+        <item>@string/artists</item>
+        <item>@string/genres</item>
+        <item>@string/playlists</item>
+    </string-array>
+
+    <string-array name="tab_values">
+        <item>@string/tracks</item>
+        <item>@string/albums</item>
+        <item>@string/artists</item>
+        <item>@string/genres</item>
+        <item>@string/playlists</item>
+    </string-array>
 </resources>

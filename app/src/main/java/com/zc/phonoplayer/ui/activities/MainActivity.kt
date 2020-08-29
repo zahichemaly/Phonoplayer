@@ -1,10 +1,10 @@
 package com.zc.phonoplayer.ui.activities
 
 import android.Manifest
-import android.app.Activity
 import android.content.ComponentName
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -36,15 +36,20 @@ import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_layout.*
 
-class MainActivity : BaseActivity() {
-    private var prevMenuItem: MenuItem? = null
+class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var mediaBrowser: MediaBrowserCompat
     private var mediaController: MediaControllerCompat? = null
     private var song: Song? = null
     private lateinit var songList: ArrayList<Song>
-    private lateinit var storageUtil: StorageUtil
+    private lateinit var albumList: ArrayList<Album>
+    private lateinit var artistList: ArrayList<Artist>
+    private lateinit var genreList: ArrayList<Genre>
+    private lateinit var playlistList: ArrayList<Playlist>
+    private lateinit var preferenceUtil: PreferenceUtil
+    private lateinit var sharedPreferencesUtil: SharedPreferencesUtil
     private lateinit var searchView: SearchView
     private lateinit var tabAdapter: TabAdapter
+    private lateinit var prevMenuItem: MenuItem
     private lateinit var settingsMenuItem: MenuItem
     private lateinit var searchMenuItem: MenuItem
     private lateinit var mainViewModel: MainViewModel
@@ -58,9 +63,10 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        preferenceUtil = PreferenceUtil(this)
+        sharedPreferencesUtil = SharedPreferencesUtil(this, PreferenceManager.getDefaultSharedPreferences(applicationContext))
         setSupportActionBar(toolbar)
         setSettings()
-        storageUtil = StorageUtil(this)
         checkPermissions()
         initializePlayer()
         setupObservers()
@@ -68,14 +74,14 @@ class MainActivity : BaseActivity() {
 
     private fun setSettings() {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        when (sharedPref.getString(getString(R.string.pref_key_theme), "system")) {
+        when (sharedPref.getString(getString(R.string.pref_key_settings_theme), "light")) {
             "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             "system" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
         val appName = getString(R.string.app_name)
-        val customAppName = sharedPref.getString(getString(R.string.pref_key_app_name), appName) ?: appName
+        val customAppName = sharedPref.getString(getString(R.string.pref_key_settings_app_name), appName) ?: appName
         toolbar.title = customAppName
     }
 
@@ -123,45 +129,68 @@ class MainActivity : BaseActivity() {
         })
     }
 
-    private fun populateUi() {
+    private fun loadMedia() {
+        //TODO cache
         songList = SongLoader.getSongs(contentResolver)
-        val albums = AlbumLoader.getAlbums(contentResolver)
-        val genres = GenreLoader.getGenreList(contentResolver)
-        val artists = ArtistLoader.getArtistList(contentResolver)
-        val playlists = PlaylistLoader.getPlaylists(contentResolver)
+        albumList = AlbumLoader.getAlbums(contentResolver)
+        genreList = GenreLoader.getGenreList(contentResolver)
+        artistList = ArtistLoader.getArtistList(contentResolver)
+        playlistList = PlaylistLoader.getPlaylists(contentResolver)
+    }
 
+    private fun setupTabAdapter() {
         tabAdapter = TabAdapter(supportFragmentManager)
-        tabAdapter.addFragment(SongFragment.newInstance(songList), getString(R.string.tracks))
-        tabAdapter.addFragment(AlbumFragment.newInstance(albums), getString(R.string.albums))
-        tabAdapter.addFragment(ArtistFragment.newInstance(artists), getString(R.string.artists))
-        tabAdapter.addFragment(GenreFragment.newInstance(genres), getString(R.string.genres))
-        tabAdapter.addFragment(PlaylistFragment.newInstance(playlists), getString(R.string.playlists))
-
-        view_pager.adapter = tabAdapter
-        navigation_bar.setOnNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.item_songs -> view_pager.currentItem = 0
-                R.id.item_albums -> view_pager.currentItem = 1
-                R.id.item_artists -> view_pager.currentItem = 2
-                R.id.item_genres -> view_pager.currentItem = 3
-                R.id.item_playlists -> view_pager.currentItem = 4
+        val tabItems = sharedPreferencesUtil.getTabItems()
+        tabItems.forEachIndexed { index, tabItem ->
+            if (tabItem.isSelected) {
+                when (tabItem.text) {
+                    getString(R.string.tracks) -> {
+                        navigation_bar.menu.add(0, R.id.item_tracks, index, tabItem.text).icon = drawable(R.drawable.ic_tracks)
+                        tabAdapter.addFragment(SongFragment.newInstance(songList), tabItem.text)
+                    }
+                    getString(R.string.albums) -> {
+                        navigation_bar.menu.add(0, R.id.item_albums, index, tabItem.text).icon = drawable(R.drawable.ic_album)
+                        tabAdapter.addFragment(AlbumFragment.newInstance(albumList), tabItem.text)
+                    }
+                    getString(R.string.artists) -> {
+                        navigation_bar.menu.add(0, R.id.item_artists, index, tabItem.text).icon = drawable(R.drawable.ic_artist)
+                        tabAdapter.addFragment(ArtistFragment.newInstance(artistList), tabItem.text)
+                    }
+                    getString(R.string.genres) -> {
+                        navigation_bar.menu.add(0, R.id.item_genres, index, tabItem.text).icon = drawable(R.drawable.ic_genre)
+                        tabAdapter.addFragment(GenreFragment.newInstance(genreList), tabItem.text)
+                    }
+                    getString(R.string.playlists) -> {
+                        navigation_bar.menu.add(0, R.id.item_playlists, index, tabItem.text).icon = drawable(R.drawable.ic_playlist)
+                        tabAdapter.addFragment(PlaylistFragment.newInstance(playlistList), tabItem.text)
+                    }
+                }
             }
+        }
+        view_pager.adapter = tabAdapter
+        // set first selected item
+        navigation_bar.selectedItemId = navigation_bar.menu.getItem(0).itemId
+        prevMenuItem = navigation_bar.menu.getItem(0)
+        prevMenuItem.isChecked = true
+        navigation_bar.setOnNavigationItemSelectedListener { menuItem ->
+            view_pager.currentItem = menuItem.order
             true
         }
-
         view_pager.addOnPageChangeListener(object : OnPageChangeListener {
             override fun onPageScrolled(i: Int, v: Float, i1: Int) {}
             override fun onPageSelected(position: Int) {
-                prevMenuItem?.let {
-                    it.isChecked = false
-                }
+                prevMenuItem.isChecked = false
                 navigation_bar.menu.getItem(position).isChecked = true
                 prevMenuItem = navigation_bar.menu.getItem(position)
             }
 
             override fun onPageScrollStateChanged(i: Int) {}
         })
+    }
 
+    private fun populateUi() {
+        loadMedia()
+        setupTabAdapter()
         controller_layout_view.visibility = View.GONE
         controller_song_art.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
@@ -236,7 +265,7 @@ class MainActivity : BaseActivity() {
             controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
         }
         mediaController?.registerCallback(mControllerCallback)
-        val cachedSong = storageUtil.getSavedSong()
+        val cachedSong = preferenceUtil.getSavedSong()
         if (cachedSong != null) {
             song = cachedSong
             updateSongController()
@@ -270,6 +299,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        PreferenceManager.getDefaultSharedPreferences(applicationContext).registerOnSharedPreferenceChangeListener(this)
         mediaController?.run {
             if (metadata != null) {
                 song = SongHelper.getSongFromMetadata(metadata)
@@ -403,10 +433,6 @@ class MainActivity : BaseActivity() {
                     }
                 }
             }
-        }
-        if (requestCode == REQUEST_CODE_SETTINGS && resultCode == Activity.RESULT_OK) {
-            //TODO handle new settings
-            //recreate()
         } else super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -420,6 +446,13 @@ class MainActivity : BaseActivity() {
         } else {
             searchMenuItem.isVisible = true
             setupActionBar(getString(R.string.app_name), false)
+        }
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key == getString(R.string.pref_key_tab_settings_tab)) {
+            navigation_bar.menu.clear()
+            setupTabAdapter()
         }
     }
 }
