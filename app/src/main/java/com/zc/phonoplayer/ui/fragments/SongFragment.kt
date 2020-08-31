@@ -59,9 +59,6 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
         super.onCreate(savedInstanceState)
         songList = arguments?.getParcelableArrayList(SONG_LIST) ?: arrayListOf()
         hideMenu = arguments?.getBoolean(HIDE_MENU, false) ?: false
-        songViewModel.item().observe(this, Observer { song ->
-            recyclerAdapter?.selectSong(song)
-        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

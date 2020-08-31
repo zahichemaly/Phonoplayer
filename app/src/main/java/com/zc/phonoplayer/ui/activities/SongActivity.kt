@@ -58,7 +58,7 @@ class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat) {
             val songFromMetadata = SongHelper.getSongFromMetadata(metadata)
-            if (songFromMetadata == song) {
+            if (songFromMetadata != song) {
                 song = songFromMetadata
                 updateSong()
                 seek_bar.progress = 0

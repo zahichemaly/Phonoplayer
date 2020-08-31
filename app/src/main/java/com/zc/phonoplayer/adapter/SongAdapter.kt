@@ -79,7 +79,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
             filteredSongList[previousPosition].selected = false
             notifyItemChanged(previousPosition)
         }
-        val position = filteredSongList.indexOf(song)
+        val position = filteredSongList.indexOfFirst { it.data == song.data }
         filteredSongList[position].selected = true
         previousPosition = position
         notifyItemChanged(position)
