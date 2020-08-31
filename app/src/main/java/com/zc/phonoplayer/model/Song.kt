@@ -19,7 +19,8 @@ data class Song(
     var duration: Long = 0L,
     var trackNo: Long = 0L,
     var year: Int,
-    var albumArtUri: String? = null
+    var albumArtUri: String? = null,
+    var selected: Boolean = false
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
@@ -33,7 +34,8 @@ data class Song(
         parcel.readLong(),
         parcel.readLong(),
         parcel.readInt(),
-        parcel.readString()
+        parcel.readString(),
+        parcel.readByte() != 0.toByte()
     )
 
     init {
@@ -56,6 +58,7 @@ data class Song(
         parcel.writeLong(trackNo)
         parcel.writeInt(year)
         parcel.writeString(albumArtUri)
+        parcel.writeByte(if (selected) 1 else 0)
     }
 
     override fun describeContents(): Int {
@@ -86,12 +89,27 @@ data class Song(
 
     fun getTrackNo(): String {
         val trackNoWithDiscNo = trackNo.toString()
-        val trackNo = trackNoWithDiscNo.substring(max(trackNoWithDiscNo.length - 2, 0))
-        return "$trackNo."
+        return trackNoWithDiscNo.substring(max(trackNoWithDiscNo.length - 2, 0))
     }
 
     override fun equals(other: Any?): Boolean {
         return if (other is Song) other.data == this.data
         else false
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (data?.hashCode() ?: 0)
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (album?.hashCode() ?: 0)
+        result = 31 * result + albumId.hashCode()
+        result = 31 * result + (artist?.hashCode() ?: 0)
+        result = 31 * result + artistId.hashCode()
+        result = 31 * result + duration.hashCode()
+        result = 31 * result + trackNo.hashCode()
+        result = 31 * result + year
+        result = 31 * result + (albumArtUri?.hashCode() ?: 0)
+        result = 31 * result + selected.hashCode()
+        return result
     }
 }

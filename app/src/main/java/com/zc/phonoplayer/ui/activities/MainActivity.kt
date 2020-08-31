@@ -3,7 +3,6 @@ package com.zc.phonoplayer.ui.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ComponentName
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -14,13 +13,12 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
@@ -30,9 +28,8 @@ import com.zc.phonoplayer.adapter.TabAdapter
 import com.zc.phonoplayer.loader.*
 import com.zc.phonoplayer.model.*
 import com.zc.phonoplayer.service.MusicService
-import com.zc.phonoplayer.ui.dialogs.EditAlbumDialogFragment
 import com.zc.phonoplayer.ui.fragments.*
-import com.zc.phonoplayer.ui.viewModels.MainViewModel
+import com.zc.phonoplayer.ui.viewModels.*
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_controller.*
@@ -55,6 +52,11 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private lateinit var settingsMenuItem: MenuItem
     private lateinit var searchMenuItem: MenuItem
     private lateinit var mainViewModel: MainViewModel
+    private lateinit var songFragmentViewModel: SongFragmentViewModel
+    private lateinit var albumFragmentViewModel: AlbumFragmentViewModel
+    private lateinit var artistFragmentViewModel: ArtistFragmentViewModel
+    private lateinit var genreFragmentViewModel: GenreFragmentViewModel
+    private lateinit var playlistFragmentViewModel: PlaylistFragmentViewModel
 
     companion object {
         const val REQUEST_READ_PERMISSION = 1000
@@ -75,16 +77,14 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private fun setSettings() {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        when (sharedPref.getString(getString(R.string.pref_key_settings_theme), "light")) {
+        when (sharedPreferencesUtil.getTheme()) {
             "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             "system" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
-        val appName = getString(R.string.app_name)
-        val customAppName = sharedPref.getString(getString(R.string.pref_key_settings_app_name), appName) ?: appName
-        toolbar.title = customAppName
+        val appName = sharedPreferencesUtil.getAppName()
+        toolbar.title = appName
     }
 
     private val connectionCallback: MediaBrowserCompat.ConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
@@ -94,8 +94,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 mediaController = MediaControllerCompat(this@MainActivity, token)
                 MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
             }
-            setupController()
             logD("Controller connected")
+            setupController()
         }
 
         override fun onConnectionFailed() {
@@ -112,14 +112,21 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         override fun onMetadataChanged(metadata: MediaMetadataCompat) {
             song = SongHelper.getSongFromMetadata(metadata)
             updateSongController()
+            songFragmentViewModel.set(song!!)
         }
     }
 
     private fun setupObservers() {
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        songFragmentViewModel = ViewModelProvider(this).get(SongFragmentViewModel::class.java)
+        albumFragmentViewModel = ViewModelProvider(this).get(AlbumFragmentViewModel::class.java)
+        artistFragmentViewModel = ViewModelProvider(this).get(ArtistFragmentViewModel::class.java)
+        genreFragmentViewModel = ViewModelProvider(this).get(GenreFragmentViewModel::class.java)
+        playlistFragmentViewModel = ViewModelProvider(this).get(PlaylistFragmentViewModel::class.java)
         mainViewModel.playlist().observe(this, Observer { playlist ->
             this.songList = playlist.getSongList()
             this.song = playlist.getSelectedSong()
+            this.song?.selected = true
             if (playlist.isShuffled()) {
                 val params = Bundle()
                 params.putParcelableArrayList(SONG_LIST, songList)
@@ -128,6 +135,22 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 updateSongController()
                 playSelectedSong()
             }
+        })
+        albumFragmentViewModel.item().observe(this, Observer {
+            searchMenuItem.isVisible = false
+            addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(it), it.title)
+        })
+        artistFragmentViewModel.item().observe(this, Observer {
+            val artistSongs = SongLoader.getArtistSongs(songList, it.id)
+            addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(it, artistSongs), it.title)
+        })
+        genreFragmentViewModel.item().observe(this, Observer {
+            val genreSongs = SongLoader.getSongsFromGenre(contentResolver, it.id)
+            addFragment(R.id.frame_layout, SongFragment.newInstance(genreSongs), it.name)
+        })
+        playlistFragmentViewModel.item().observe(this, Observer {
+            val playlistSongs = it.songs ?: ArrayList()
+            addFragment(R.id.frame_layout, SongFragment.newInstance(playlistSongs), it.name)
         })
     }
 
@@ -193,8 +216,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     private fun populateUi() {
         loadMedia()
         setupTabAdapter()
-        controller_layout_view.visibility = View.GONE
-        controller_layout_view.setOnClickListener {
+        controller_layout_view.isVisible = false
+        controller_layout_view.controller_song_art.setOnClickListener {
             openSongDetails()
         }
         controller_layout_view.controller_song_layout.setOnClickListener {
@@ -274,11 +297,8 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
         }
         mediaController?.registerCallback(mControllerCallback)
-        val cachedSong = preferenceUtil.getSavedSong()
-        if (cachedSong != null) {
-            song = cachedSong
-            updateSongController()
-        }
+        song = preferenceUtil.getSavedSong()
+        updateSongController()
     }
 
     private fun playSelectedSong() {
@@ -291,13 +311,16 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private fun updateSongController() {
-        if (controller_layout_view.visibility == View.GONE) controller_layout_view.visibility = View.VISIBLE
-        controller_song_title.isSelected = true
-        controller_song_title.text = song!!.title
-        controller_song_artist.text = song!!.artist
-        loadUri(song?.albumArtUri, controller_song_art)
-        mediaController?.playbackState?.let {
-            updateControllerState(it)
+        logD("Updating controller view")
+        controller_layout_view.isVisible = song != null
+        song?.run {
+            controller_song_title.isSelected = true
+            controller_song_title.text = title
+            controller_song_artist.text = artist
+            loadUri(albumArtUri, controller_song_art)
+            mediaController?.playbackState?.let {
+                updateControllerState(it)
+            }
         }
     }
 
@@ -309,64 +332,14 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     override fun onResume() {
         super.onResume()
         PreferenceManager.getDefaultSharedPreferences(applicationContext).registerOnSharedPreferenceChangeListener(this)
-        mediaController?.run {
-            if (metadata != null) {
-                song = SongHelper.getSongFromMetadata(metadata)
-                updateSongController()
-            }
-        }
     }
 
     override fun onDestroy() {
+        PreferenceManager.getDefaultSharedPreferences(applicationContext).unregisterOnSharedPreferenceChangeListener(this)
         mediaController?.sendCommand(COMMAND_DISCONNECT, null, null)
         mediaController?.unregisterCallback(mControllerCallback)
         mediaBrowser.disconnect()
         super.onDestroy()
-    }
-
-    override fun onAttachFragment(fragment: Fragment) {
-        //TODO use view models
-        when (fragment) {
-            is ArtistFragment -> fragment.setArtistCallback(this)
-            is AlbumFragment -> fragment.setAlbumCallback(this)
-            is ArtistDetailsFragment -> fragment.setCallback(this)
-            is GenreFragment -> fragment.setGenreCallback(this)
-            is PlaylistFragment -> fragment.setPlaylistCallback(this)
-        }
-    }
-
-    override fun onAlbumClicked(album: Album) {
-        searchMenuItem.isVisible = false
-        addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(album), album.title)
-    }
-
-    override fun onAlbumDelete(album: Album) {
-        showConfirmDialog(
-            title = getString(R.string.delete_album),
-            message = getString(R.string.confirm_delete_album, album.getNbOfTracks()),
-            listener = DialogInterface.OnClickListener { dialog, which ->
-                //TODO
-            })
-    }
-
-    override fun onAlbumEdit(album: Album) {
-        val dialog = EditAlbumDialogFragment.newInstance(album)
-        dialog.show(supportFragmentManager, "edit dialog")
-    }
-
-    override fun onArtistClicked(artist: Artist) {
-        val artistSongs = SongLoader.getArtistSongs(songList, artist.id)
-        addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(artist, artistSongs), artist.title)
-    }
-
-    override fun onGenreClicked(genre: Genre) {
-        val genreSongs = SongLoader.getSongsFromGenre(contentResolver, genre.id)
-        addFragment(R.id.frame_layout, SongFragment.newInstance(genreSongs), genre.name)
-    }
-
-    override fun onPlaylistClicked(playlist: Playlist) {
-        val playlistSongs = playlist.songs ?: ArrayList()
-        addFragment(R.id.frame_layout, SongFragment.newInstance(playlistSongs), playlist.name)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

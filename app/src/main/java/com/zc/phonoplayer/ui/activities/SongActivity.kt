@@ -1,6 +1,5 @@
 package com.zc.phonoplayer.ui.activities
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -59,11 +58,10 @@ class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat) {
             val songFromMetadata = SongHelper.getSongFromMetadata(metadata)
-            if (songFromMetadata != song) {
+            if (songFromMetadata == song) {
                 song = songFromMetadata
                 updateSong()
                 seek_bar.progress = 0
-                progressHandler.totalDuration = song.duration
             }
         }
     }
@@ -144,18 +142,16 @@ class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
         setColors()
     }
 
-    @SuppressLint("NewApi")
     private fun setColors() {
         val bitmap = SongHelper.getBitmapFromUri(song.getAlbumArtUri(), contentResolver)
-        val mutableBitmap = bitmap.copy(Bitmap.Config.RGBA_F16, true)
+        val mutableBitmap = bitmap.copy(Bitmap.Config.RGB_565, true)
         val palette = SongHelper.createPaletteSync(mutableBitmap)
         seek_bar.circleColor = palette.getVibrantColor(color(R.color.sky_blue))
         seek_bar.circleProgressColor = palette.getLightVibrantColor(color(R.color.orange))
     }
 
     private fun initializeSeekBar() {
-        progressHandler = ProgressHandler(mediaController, this)
-        progressHandler.totalDuration = song.duration
+        progressHandler = ProgressHandler(mediaController, song.duration, this)
         progressHandler.start()
     }
 

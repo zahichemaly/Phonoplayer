@@ -6,18 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.PlaylistAdapter
 import com.zc.phonoplayer.model.Playlist
+import com.zc.phonoplayer.ui.viewModels.PlaylistFragmentViewModel
 import com.zc.phonoplayer.util.PLAYLIST
 
-class PlaylistFragment : Fragment() {
-    private lateinit var callback: PlaylistAdapter.PlaylistCallback
+class PlaylistFragment : Fragment(), PlaylistAdapter.PlaylistCallback {
     private lateinit var recyclerView: RecyclerView
     private lateinit var recyclerAdapter: PlaylistAdapter
     private lateinit var playlists: ArrayList<Playlist>
+    private val playlistFragmentViewModel: PlaylistFragmentViewModel by activityViewModels()
 
     companion object {
         fun newInstance(playlists: ArrayList<Playlist>): PlaylistFragment {
@@ -45,14 +47,14 @@ class PlaylistFragment : Fragment() {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
             recyclerView.isNestedScrollingEnabled = true
-            recyclerAdapter = PlaylistAdapter(playlists, callback)
+            recyclerAdapter = PlaylistAdapter(playlists, this)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
         return view
     }
 
-    fun setPlaylistCallback(callback: PlaylistAdapter.PlaylistCallback) {
-        this.callback = callback
+    override fun onPlaylistClicked(playlist: Playlist) {
+        playlistFragmentViewModel.set(playlist)
     }
 }

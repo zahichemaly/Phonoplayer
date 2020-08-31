@@ -8,21 +8,23 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.ArtistAdapter
 import com.zc.phonoplayer.adapter.SortOrder
 import com.zc.phonoplayer.model.Artist
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
+import com.zc.phonoplayer.ui.viewModels.ArtistFragmentViewModel
 import com.zc.phonoplayer.util.ARTIST_LIST
 import com.zc.phonoplayer.util.showMenuPopup
 
-class ArtistFragment : Fragment() {
-    private lateinit var callback: ArtistAdapter.ArtistCallback
+class ArtistFragment : Fragment(), ArtistAdapter.ArtistCallback {
     private lateinit var recyclerView: IndexedRecyclerView
     private var recyclerAdapter: ArtistAdapter? = null
     private lateinit var artistList: List<Artist>
     private lateinit var sortButton: ImageButton
+    private val artistFragmentViewModel: ArtistFragmentViewModel by activityViewModels()
 
     companion object {
         fun newInstance(artistList: ArrayList<Artist>): ArtistFragment {
@@ -50,7 +52,7 @@ class ArtistFragment : Fragment() {
         } else {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
-            recyclerAdapter = ArtistAdapter(artistList, callback)
+            recyclerAdapter = ArtistAdapter(artistList, this)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
@@ -82,7 +84,7 @@ class ArtistFragment : Fragment() {
         recyclerView.smoothScrollToPosition(0)
     }
 
-    fun setArtistCallback(callback: ArtistAdapter.ArtistCallback) {
-        this.callback = callback
+    override fun onArtistClicked(artist: Artist) {
+        artistFragmentViewModel.set(artist)
     }
 }

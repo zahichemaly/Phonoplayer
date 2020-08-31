@@ -6,7 +6,6 @@ import android.content.ContentUris
 import android.content.IntentSender
 import android.os.Build
 import android.provider.MediaStore
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -15,19 +14,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SongFragmentViewModel(application: Application) : AndroidViewModel(application) {
+class SongFragmentViewModel(application: Application) : FragmentViewModel<Song>(application) {
     private val _permissionToDelete = MutableLiveData<IntentSender>()
     private val _nbOfDeletedSongs = MutableLiveData<Int>()
     var deletedSong: Song? = null
     private var pendingDeleteSong: Song? = null
 
-    fun permissionToDelete(): LiveData<IntentSender> {
-        return _permissionToDelete
-    }
-
-    fun nbOfDeletedSongs(): LiveData<Int> {
-        return _nbOfDeletedSongs
-    }
+    fun permissionToDelete(): LiveData<IntentSender> = _permissionToDelete
+    fun nbOfDeletedSongs(): LiveData<Int> = _nbOfDeletedSongs
 
     fun deleteSong(song: Song) {
         viewModelScope.launch {

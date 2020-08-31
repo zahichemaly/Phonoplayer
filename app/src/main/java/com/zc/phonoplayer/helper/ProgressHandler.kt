@@ -2,17 +2,24 @@ package com.zc.phonoplayer.helper
 
 import android.os.Handler
 import android.os.Message
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import kotlin.math.max
 
 class ProgressHandler(
     private val mediaController: MediaControllerCompat,
+    private var totalDuration: Long = 0,
     private val callback: Callback,
     private var intervalPlaying: Int = UPDATE_INTERVAL_PLAYING,
     private var intervalPaused: Int = UPDATE_INTERVAL_PAUSED
 ) : Handler() {
-    var totalDuration: Long = 0
+
+    private val mediaControllerCallback = object : MediaControllerCompat.Callback() {
+        override fun onMetadataChanged(metadata: MediaMetadataCompat) {
+            totalDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+        }
+    }
 
     companion object {
         private const val PROGRESS_UPDATE = 1
@@ -23,10 +30,12 @@ class ProgressHandler(
 
     fun start() {
         queueNextRefresh(1)
+        mediaController.registerCallback(mediaControllerCallback)
     }
 
     fun stop() {
         removeMessages(PROGRESS_UPDATE)
+        mediaController.unregisterCallback(mediaControllerCallback)
     }
 
     override fun handleMessage(msg: Message) {

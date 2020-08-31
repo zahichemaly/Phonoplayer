@@ -6,18 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.adapter.GenreAdapter
 import com.zc.phonoplayer.model.Genre
+import com.zc.phonoplayer.ui.viewModels.GenreFragmentViewModel
 import com.zc.phonoplayer.util.GENRE_LIST
 
-class GenreFragment : Fragment() {
+class GenreFragment : Fragment(), GenreAdapter.GenreCallback {
     private lateinit var genreList: ArrayList<Genre>
-    private lateinit var callback: GenreAdapter.GenreCallback
     private lateinit var recyclerAdapter: GenreAdapter
     private lateinit var recyclerView: RecyclerView
+    private val genreFragmentViewModel: GenreFragmentViewModel by activityViewModels()
 
     companion object {
         fun newInstance(genreList: ArrayList<Genre>): GenreFragment {
@@ -45,14 +47,14 @@ class GenreFragment : Fragment() {
             recyclerView.visibility = View.VISIBLE
             emptyText.visibility = View.GONE
             recyclerView.isNestedScrollingEnabled = true
-            recyclerAdapter = GenreAdapter(genreList, callback)
+            recyclerAdapter = GenreAdapter(genreList, this)
             recyclerView.layoutManager = LinearLayoutManager(activity)
             recyclerView.adapter = recyclerAdapter
         }
         return view
     }
 
-    fun setGenreCallback(callback: GenreAdapter.GenreCallback) {
-        this.callback = callback
+    override fun onGenreClicked(genre: Genre) {
+        genreFragmentViewModel.set(genre)
     }
 }

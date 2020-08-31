@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.util.loadUri
@@ -35,31 +34,7 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val album = filteredAlbumList.getOrNull(position)
-        album?.let { a ->
-            holder.albumTitleText.text = a.title
-            holder.albumArtistText.text = a.artist
-            context.loadUri(album.getAlbumArtUri().toString(), holder.albumArt)
-            holder.rootLayout.setOnClickListener {
-                logI("Album clicked: $album")
-                callback.onAlbumClicked(a)
-            }
-            /*
-            holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
-                /* TODO
-                val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
-                editMenu.setOnMenuItemClickListener {
-                    callback.onAlbumEdit(a)
-                    true
-                }
-                 */
-                val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
-                deleteMenu.setOnMenuItemClickListener {
-                    callback.onAlbumDelete(a)
-                    true
-                }
-            }
-             */
-        }
+        holder.populate(album)
     }
 
     fun filterData(query: String) {
@@ -96,11 +71,23 @@ class AlbumAdapter(private var albumList: ArrayList<Album>, private var callback
         notifyItemRemoved(position)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : ItemHolder<Album>(itemView) {
         var rootLayout: RelativeLayout = itemView.findViewById(R.id.item_album_card)
         var albumTitleText: TextView = itemView.findViewById(R.id.item_album_title)
         var albumArtistText: TextView = itemView.findViewById(R.id.item_album_artist)
         var albumArt: CircleImageView = itemView.findViewById(R.id.item_album_art)
+
+        override fun populate(item: Album?) {
+            item?.let { album ->
+                albumTitleText.text = album.title
+                albumArtistText.text = album.artist
+                context.loadUri(item.getAlbumArtUri().toString(), albumArt)
+                rootLayout.setOnClickListener {
+                    logI("Album clicked: $album")
+                    callback.onAlbumClicked(album)
+                }
+            }
+        }
     }
 
     interface AlbumCallback {

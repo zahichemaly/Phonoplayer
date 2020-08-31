@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Artist
 import com.zc.phonoplayer.util.logI
@@ -26,7 +25,7 @@ class ArtistAdapter(private var artistList: List<Artist>, private var callback: 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val artist = filteredArtistList.getOrNull(position)
-        holder.populateViewHolder(artist)
+        holder.populate(artist)
     }
 
     fun filterData(query: String) {
@@ -52,20 +51,20 @@ class ArtistAdapter(private var artistList: List<Artist>, private var callback: 
         notifyDataSetChanged()
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : ItemHolder<Artist>(itemView) {
         private val rootLayout: RelativeLayout = itemView.findViewById(R.id.item_artist_card)
         private val titleTv: TextView = itemView.findViewById(R.id.item_artist_name)
         private val nbOfTracksTv: TextView = itemView.findViewById(R.id.item_nb_of_tracks)
         private val nbOfAlbumsTv: TextView = itemView.findViewById(R.id.item_nb_of_albums)
 
-        fun populateViewHolder(artist: Artist?) {
-            artist?.run {
-                titleTv.text = title
-                nbOfTracksTv.text = getNbOfTracks()
-                nbOfAlbumsTv.text = getNbOfAlbums()
+        override fun populate(item: Artist?) {
+            item?.let { artist ->
+                titleTv.text = artist.title
+                nbOfTracksTv.text = artist.getNbOfTracks()
+                nbOfAlbumsTv.text = artist.getNbOfAlbums()
                 rootLayout.setOnClickListener {
                     logI("Artist clicked: $artist")
-                    callback.onArtistClicked(this)
+                    callback.onArtistClicked(artist)
                 }
             }
         }

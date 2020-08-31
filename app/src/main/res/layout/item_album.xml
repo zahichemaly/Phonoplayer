@@ -14,7 +14,7 @@
         android:id="@+id/item_album_art"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        app:civ_border_color="@color/item_circle_border_inactive"
+        app:civ_border_color="@color/item_circle_border_color"
         app:civ_border_width="1dp"
         android:layout_margin="@dimen/spacing_small"
         android:padding="@dimen/spacing_small"

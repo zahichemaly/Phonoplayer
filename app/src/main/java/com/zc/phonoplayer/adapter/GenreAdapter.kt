@@ -24,16 +24,22 @@ class GenreAdapter(private var genreList: List<Genre>, private var callback: Gen
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val genre = genreList[position]
-        holder.titleTv.text = genre.name
-        holder.rootLayout.setOnClickListener {
-            logI("Genre clicked: $genre")
-            callback.onGenreClicked(genre)
-        }
+        holder.populate(genre)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val rootLayout: RelativeLayout = itemView.findViewById(R.id.item_genre_card)
-        val titleTv: TextView = itemView.findViewById(R.id.item_genre_name)
+    inner class ViewHolder(itemView: View) : ItemHolder<Genre>(itemView) {
+        private val rootLayout: RelativeLayout = itemView.findViewById(R.id.item_genre_card)
+        private val titleTv: TextView = itemView.findViewById(R.id.item_genre_name)
+
+        override fun populate(item: Genre?) {
+            item?.let { genre ->
+                titleTv.text = genre.name
+                rootLayout.setOnClickListener {
+                    logI("Genre clicked: $genre")
+                    callback.onGenreClicked(genre)
+                }
+            }
+        }
     }
 
     interface GenreCallback {

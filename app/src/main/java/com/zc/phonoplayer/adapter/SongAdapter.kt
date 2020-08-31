@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.util.color
 import com.zc.phonoplayer.util.loadUri
 import com.zc.phonoplayer.util.logI
 import de.hdodenhof.circleimageview.CircleImageView
@@ -18,6 +18,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
     IndexAdapter<SongAdapter.ViewHolder>(songList.mapNotNull { it.title }) {
     private lateinit var view: View
     private lateinit var context: Context
+    private var previousPosition: Int = -1
     private var filteredSongList = songList.toMutableList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -32,34 +33,7 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val song = filteredSongList.getOrNull(position)
-        song?.let { s ->
-            holder.songText.text = s.title
-            holder.albumText.text = s.album
-            holder.artistText.text = s.artist
-            context.loadUri(s.getAlbumArtUri().toString(), holder.albumArt)
-            holder.rootLayout.setOnClickListener {
-                logI("Song clicked: $song")
-                callback.onSongClicked(song)
-            }
-            /*
-            holder.rootLayout.setOnCreateContextMenuListener { menu, v, _ ->
-                /* TODO
-                val editMenu = menu.add(0, v.id, 0, context.getString(R.string.edit))
-                editMenu.setOnMenuItemClickListener {
-                    logI("Edit Menu clicked: ${s.title}")
-                    callback.onSongEdit(s)
-                    true
-                }
-                 */
-                val deleteMenu = menu.add(0, v.id, 0, context.getString(R.string.delete))
-                deleteMenu.setOnMenuItemClickListener {
-                    logI("Delete Menu clicked: ${s.title}")
-                    callback.onSongDeleted(song)
-                    true
-                }
-            }
-             */
-        }
+        holder.populate(song)
     }
 
     fun filterData(query: String) {
@@ -100,13 +74,47 @@ class SongAdapter(private var songList: List<Song>, private var callback: SongCa
         notifyItemRemoved(position)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var rootLayout: RelativeLayout = itemView.findViewById(R.id.item_song_card)
-        val songText: TextView = itemView.findViewById(R.id.item_track_text)
-        val albumText: TextView = itemView.findViewById(R.id.item_album_text)
-        val artistText: TextView = itemView.findViewById(R.id.item_artist_text)
-        val albumArt: CircleImageView = itemView.findViewById(R.id.item_album_art)
-        val rowIndex: Int = -1
+    fun selectSong(song: Song) {
+        if (previousPosition >= 0) {
+            filteredSongList[previousPosition].selected = false
+            notifyItemChanged(previousPosition)
+        }
+        val position = filteredSongList.indexOf(song)
+        filteredSongList[position].selected = true
+        previousPosition = position
+        notifyItemChanged(position)
+    }
+
+    inner class ViewHolder(itemView: View) : ItemHolder<Song>(itemView) {
+        private var rootLayout: RelativeLayout = itemView.findViewById(R.id.item_song_card)
+        private val songText: TextView = itemView.findViewById(R.id.item_track_text)
+        private val albumText: TextView = itemView.findViewById(R.id.item_album_text)
+        private val artistText: TextView = itemView.findViewById(R.id.item_artist_text)
+        private val albumArt: CircleImageView = itemView.findViewById(R.id.item_album_art)
+
+        override fun populate(item: Song?) {
+            item?.let { song ->
+                songText.text = song.title
+                albumText.text = song.album
+                artistText.text = song.artist
+                context.loadUri(song.getAlbumArtUri().toString(), albumArt)
+                rootLayout.setOnClickListener {
+                    logI("Song clicked: $song")
+                    callback.onSongClicked(song)
+                }
+                if (song.selected) {
+                    songText.setTextColor(context.color(R.color.card_title_text_color_selected))
+                    albumText.setTextColor(context.color(R.color.card_content_text_color_selected))
+                    artistText.setTextColor(context.color(R.color.card_content_text_color_selected))
+                    albumArt.borderColor = context.color(R.color.item_circle_border_color_selected)
+                } else {
+                    songText.setTextColor(context.color(R.color.card_title_text_color))
+                    albumText.setTextColor(context.color(R.color.card_content_text_color))
+                    artistText.setTextColor(context.color(R.color.card_content_text_color))
+                    albumArt.borderColor = context.color(R.color.item_circle_border_color)
+                }
+            }
+        }
     }
 
     interface SongCallback {

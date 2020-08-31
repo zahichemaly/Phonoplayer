@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.tabs.TabLayout
 import com.zc.phonoplayer.R
-import com.zc.phonoplayer.adapter.AlbumAdapter
 import com.zc.phonoplayer.adapter.TabAdapter
 import com.zc.phonoplayer.loader.AlbumLoader
 import com.zc.phonoplayer.model.Album
@@ -18,7 +17,6 @@ import com.zc.phonoplayer.util.ARTIST_SONG_LIST
 import com.zc.phonoplayer.util.SELECTED_ARTIST
 
 class ArtistDetailsFragment : Fragment() {
-    private lateinit var albumCallback: AlbumAdapter.AlbumCallback
     private var artist: Artist? = null
     private var artistAlbums: ArrayList<Album> = ArrayList()
     private lateinit var artistSongs: ArrayList<Song>
@@ -62,13 +60,5 @@ class ArtistDetailsFragment : Fragment() {
         tabAdapter.addFragment(SongFragment.newInstance(artistSongs, true), requireContext().getString(R.string.tracks_, artist!!.nbOfTracks))
         tabAdapter.addFragment(AlbumFragment.newInstance(artistAlbums, true), requireContext().getString(R.string.albums_, artist!!.nbOfAlbums))
         viewPager.adapter = tabAdapter
-    }
-
-    override fun onAttachFragment(childFragment: Fragment) {
-        if (childFragment is AlbumFragment) childFragment.setAlbumCallback(albumCallback)
-    }
-
-    fun setCallback(albumCallback: AlbumAdapter.AlbumCallback) {
-        this.albumCallback = albumCallback
     }
 }

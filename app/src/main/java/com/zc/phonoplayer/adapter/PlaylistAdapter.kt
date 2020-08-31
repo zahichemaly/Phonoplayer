@@ -29,25 +29,25 @@ class PlaylistAdapter(private var playlists: List<Playlist>, private var callbac
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val playlist = playlists[position]
-        holder.populateViewHolder(playlist)
+        holder.populate(playlist)
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : ItemHolder<Playlist>(itemView) {
         private val rootLayout: RelativeLayout = itemView.findViewById(R.id.item_playlist_card)
         private val titleTv: TextView = itemView.findViewById(R.id.item_playlist_name)
         private val nbOfTracksTv: TextView = itemView.findViewById(R.id.item_playlist_nb_of_tracks)
         private val songArt1: CircleImageView = itemView.findViewById(R.id.item_playlist_art)
 
-        fun populateViewHolder(playlist: Playlist) {
-            titleTv.text = playlist.name
-            nbOfTracksTv.text = playlist.getDisplayedNbOfTracks()
-            if (playlist.songs?.isNotEmpty() == true) {
-                val song = playlist.songs!![0]
+        override fun populate(item: Playlist?) {
+            titleTv.text = item!!.name
+            nbOfTracksTv.text = item.getDisplayedNbOfTracks()
+            if (item.songs?.isNotEmpty() == true) {
+                val song = item.songs!![0]
                 context.loadUri(song.getAlbumArtUri().toString(), songArt1)
             }
             rootLayout.setOnClickListener {
-                logI("Playlist clicked: $playlist")
-                callback.onPlaylistClicked(playlist)
+                logI("Playlist clicked: $item")
+                callback.onPlaylistClicked(item)
             }
         }
     }

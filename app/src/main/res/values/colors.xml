@@ -24,15 +24,16 @@
     <color name="card_bg_color">#f6f6f6</color>
     <color name="card_bg_color_dark">#0e0e0e</color>
     <color name="card_title_text_color">@color/black</color>
+    <color name="card_title_text_color_selected">@color/sky_blue</color>
     <color name="card_content_text_color">@color/light_grey</color>
+    <color name="card_content_text_color_selected">@color/light_blue</color>
     <color name="card_bg_color_pressed">#52DCDCDC</color>
     <color name="navigation_bar_color">@color/white</color>
 
     <!-- recycler view item colors -->
-    <color name="item_background_color">@color/black</color>
     <color name="item_divider_color">@color/dark_grey</color>
-    <color name="item_circle_border_inactive">@color/white</color>
-    <color name="item_circle_border_active">@color/orange</color>
+    <color name="item_circle_border_color">@color/white</color>
+    <color name="item_circle_border_color_selected">@color/sky_blue</color>
 
     <!-- song item layout -->
     <color name="song_idle">@color/black</color>

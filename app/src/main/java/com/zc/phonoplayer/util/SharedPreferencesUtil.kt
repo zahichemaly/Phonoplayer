@@ -7,6 +7,12 @@ import com.zc.phonoplayer.R
 import com.zc.phonoplayer.ui.components.ManageListPreference
 
 class SharedPreferencesUtil(val context: Context, private val sharedPreferences: SharedPreferences) {
+    fun getTheme(): String = sharedPreferences.getString(context.getString(R.string.pref_key_settings_theme), "light") ?: "light"
+    fun getAppName(): String {
+        return sharedPreferences.getString(context.getString(R.string.pref_key_settings_app_name), context.getString(R.string.app_name))
+            ?: context.getString(R.string.app_name)
+    }
+
     fun getTabItems(): List<ManageListPreference.TabItem> {
         val json = sharedPreferences.getString(context.getString(R.string.pref_key_tab_settings_tab), null)
         return if (json != null) {

@@ -1,5 +1,6 @@
 package com.zc.phonoplayer.ui.fragments
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.zc.phonoplayer.R
@@ -15,12 +17,13 @@ import com.zc.phonoplayer.adapter.AlbumAdapter
 import com.zc.phonoplayer.adapter.SortOrder
 import com.zc.phonoplayer.model.Album
 import com.zc.phonoplayer.ui.components.IndexedRecyclerView
+import com.zc.phonoplayer.ui.viewModels.AlbumFragmentViewModel
 import com.zc.phonoplayer.util.ALBUM_LIST
 import com.zc.phonoplayer.util.HIDE_MENU
+import com.zc.phonoplayer.util.showConfirmDialog
 import com.zc.phonoplayer.util.showMenuPopup
 
-class AlbumFragment : Fragment() {
-    private lateinit var callback: AlbumAdapter.AlbumCallback
+class AlbumFragment : Fragment(), AlbumAdapter.AlbumCallback {
     private lateinit var albumList: ArrayList<Album>
     private lateinit var recyclerView: IndexedRecyclerView
     private lateinit var recyclerAdapter: AlbumAdapter
@@ -28,6 +31,7 @@ class AlbumFragment : Fragment() {
     private lateinit var sortButton: ImageButton
     private lateinit var gridButton: ImageButton
     private var hideMenu: Boolean = false
+    private val albumFragmentViewModel: AlbumFragmentViewModel by activityViewModels()
 
     companion object {
         fun newInstance(albumList: ArrayList<Album>, hideMenu: Boolean = false): AlbumFragment {
@@ -92,17 +96,17 @@ class AlbumFragment : Fragment() {
     private fun setupAdapter(layoutType: LayoutType) {
         when (layoutType) {
             LayoutType.LIST -> {
-                recyclerAdapter = AlbumAdapter(albumList, callback)
+                recyclerAdapter = AlbumAdapter(albumList, this)
                 recyclerView.layoutManager = LinearLayoutManager(activity)
                 recyclerView.adapter = recyclerAdapter
             }
             LayoutType.GRID_2_BY_2 -> {
-                recyclerAdapter = AlbumAdapter(albumList, callback, true)
+                recyclerAdapter = AlbumAdapter(albumList, this, true)
                 recyclerView.layoutManager = GridLayoutManager(activity, 2)
                 recyclerView.adapter = recyclerAdapter
             }
             LayoutType.GRID_3_BY_3 -> {
-                recyclerAdapter = AlbumAdapter(albumList, callback, true)
+                recyclerAdapter = AlbumAdapter(albumList, this, true)
                 recyclerView.layoutManager = GridLayoutManager(activity, 3)
                 recyclerView.adapter = recyclerAdapter
             }
@@ -120,8 +124,21 @@ class AlbumFragment : Fragment() {
         recyclerView.smoothScrollToPosition(0)
     }
 
-    fun setAlbumCallback(callback: AlbumAdapter.AlbumCallback) {
-        this.callback = callback
+    override fun onAlbumClicked(album: Album) {
+        albumFragmentViewModel.set(album)
+    }
+
+    override fun onAlbumDelete(album: Album) {
+        requireActivity().showConfirmDialog(
+            title = getString(R.string.delete_album),
+            message = getString(R.string.confirm_delete_album, album.getNbOfTracks()),
+            listener = DialogInterface.OnClickListener { dialog, which ->
+                //TODO
+            })
+    }
+
+    override fun onAlbumEdit(album: Album) {
+        //TODO
     }
 
     enum class LayoutType {
