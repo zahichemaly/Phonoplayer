@@ -26,6 +26,7 @@
     <string name="action_play_pause">Play/Pause</string>
     <string name="now_playing">Now Playing</string>
     <string name="empty_songs">No songs in your library… yet!</string>
+    <string name="empty_queue">Queue is empty!</string>
     <string name="empty_playlists">No playlists in your library… yet!</string>
     <string name="header">header</string>
 
@@ -105,6 +106,10 @@
     <string name="pref_key_shuffle_enabled">key_shuffle</string>
     <string name="pref_key_repeat_mode">key_repeat_mode</string>
     <string name="pref_key_position">key_position</string>
+    <string name="pref_key_tracks_sort">key_tracks_sort</string>
+    <string name="pref_key_albums_sort">key_albums_sort</string>
+    <string name="pref_key_artists_sort">key_artists_sort</string>
+    <string name="pref_key_genres_sort">key_genres_sort</string>
 
     <!-- Sync Preferences -->
     <string name="version">Version</string>
@@ -114,6 +119,7 @@
     <string name="play_speed">Play speed</string>
     <string name="slash">/</string>
     <string name="volume">Volume</string>
+    <string name="lyrics">LYRICS</string>
 
 
 </resources>

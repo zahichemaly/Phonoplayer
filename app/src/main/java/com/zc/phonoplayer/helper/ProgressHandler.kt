@@ -11,13 +11,18 @@ class ProgressHandler(
     private val mediaController: MediaControllerCompat,
     private var totalDuration: Long = 0,
     private val callback: Callback,
-    private var intervalPlaying: Int = UPDATE_INTERVAL_PLAYING,
-    private var intervalPaused: Int = UPDATE_INTERVAL_PAUSED
+    private var speed: Float = mediaController.playbackState.playbackSpeed,
+    private var intervalPlaying: Int = (UPDATE_INTERVAL_PLAYING / speed).toInt(),
+    private var intervalPaused: Int = (UPDATE_INTERVAL_PAUSED / speed).toInt(),
 ) : Handler() {
 
     private val mediaControllerCallback = object : MediaControllerCompat.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadataCompat) {
             totalDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+        }
+
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            speed = state.playbackSpeed
         }
     }
 

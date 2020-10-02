@@ -2,34 +2,42 @@ package com.zc.phonoplayer.service.player
 
 import android.net.Uri
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.preference.PreferenceManager
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.room.repository.SongRepository
 import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.util.PreferenceUtil
+import com.zc.phonoplayer.util.SharedPreferencesUtil
 import com.zc.phonoplayer.util.logD
+
 
 class MusicPlayer(val service: MusicService, var callback: Player.EventListener) {
     private var mExoPlayer: SimpleExoPlayer =
         ExoPlayerFactory.newSimpleInstance(service, DefaultRenderersFactory(service.baseContext), DefaultTrackSelector(), DefaultLoadControl())
     private var mAttrs: AudioAttributes
-    private var preferenceUtil: PreferenceUtil = PreferenceUtil(service)
+    private var preferenceUtil = PreferenceUtil(service)
+    private var sharedPreferencesUtil = SharedPreferencesUtil(service, PreferenceManager.getDefaultSharedPreferences(service.applicationContext))
     private var dynamicMediaSource: DynamicMediaSource
+    private var songRepository: SongRepository
 
     init {
         logD("Initializing music player")
         mExoPlayer.shuffleModeEnabled = true
         mExoPlayer.repeatMode = preferenceUtil.getSavedRepeatMode()
+        setPlaybackSpeed(sharedPreferencesUtil.getPlaybackSpeed())
         mExoPlayer.addListener(callback)
         mAttrs = AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.CONTENT_TYPE_MUSIC).build()
         mExoPlayer.setAudioAttributes(mAttrs, true)
         dynamicMediaSource = DynamicMediaSource(service)
+        songRepository = SongRepository(service.applicationContext)
     }
 
     fun restoreState() {
         val song = preferenceUtil.getSavedSong()
-        val songList = preferenceUtil.getSavedSongList()
+        val songList = songRepository.loadSongs()
         val position = preferenceUtil.getSavedPosition()
         val shuffleMode = preferenceUtil.getSavedShuffle()
         var currentIndex = 0
@@ -86,7 +94,8 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
         val song = getCurrentSong()
         if (song != null) preferenceUtil.saveSong(song)
         preferenceUtil.savePosition(mExoPlayer.currentPosition)
-        preferenceUtil.saveSongList(dynamicMediaSource.getSongList())
+        //preferenceUtil.saveSongList(dynamicMediaSource.getSongList())
+        songRepository.insertSongsAsync(dynamicMediaSource.getSongList())
         mExoPlayer.playWhenReady = false
         mExoPlayer.release()
     }
@@ -114,5 +123,11 @@ class MusicPlayer(val service: MusicService, var callback: Player.EventListener)
             else -> mExoPlayer.repeatMode = Player.REPEAT_MODE_OFF
         }
         preferenceUtil.saveRepeatMode(repeatMode)
+    }
+
+    fun getPlaybackSpeed(): Float = mExoPlayer.playbackParameters.speed
+
+    fun setPlaybackSpeed(speed: Float) {
+        mExoPlayer.playbackParameters = PlaybackParameters(speed)
     }
 }

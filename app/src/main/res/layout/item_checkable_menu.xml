@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
+    android:id="@+id/item_menu_layout"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/spacing_large"
     android:clickable="true"
     android:focusable="true"
+    android:background="@color/bg_color"
     xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
-        android:id="@+id/menu_item_text"
+        android:id="@+id/item_menu_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
         android:ellipsize="end"
         android:maxLines="1"
-        android:layout_toEndOf="@id/menu_item_checkmark"
+        android:layout_toEndOf="@id/item_menu_checkmark"
         android:textColor="@color/card_title_text_color"
-        android:textStyle="bold"
         android:textSize="@dimen/text_size_large"
-        android:text="@string/title_dummy"
-        tools:text="@string/title_dummy">
+        android:text="@string/ascending">
     </TextView>
 
     <ImageView
-        android:id="@+id/menu_item_checkmark"
+        android:id="@+id/item_menu_checkmark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         tools:visibility="visible"
-        android:visibility="gone"
+        android:visibility="visible"
         android:src="@drawable/ic_checkmark">
     </ImageView>
 

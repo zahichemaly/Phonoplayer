@@ -35,7 +35,7 @@ class SongFragmentViewModel(application: Application) : FragmentViewModel<Song>(
         }
     }
 
-    private suspend fun performDeleteSong(song: Song, songIds: Array<Long> = arrayOf(song.id)) {
+    private suspend fun performDeleteSong(song: Song, songIds: Array<Long> = arrayOf(song.songId)) {
         withContext(Dispatchers.IO) {
             try {
                 /**
@@ -50,7 +50,7 @@ class SongFragmentViewModel(application: Application) : FragmentViewModel<Song>(
                  */
                 val selection = "${MediaStore.Audio.Media._ID} = ?"
                 val selectionArgs: Array<String> = songIds.map { it.toString() }.toTypedArray()
-                val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.id)
+                val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.songId)
                 _nbOfDeletedSongs.postValue(getApplication<Application>().contentResolver.delete(uri, selection, selectionArgs))
                 deletedSong = song
             } catch (securityException: SecurityException) {

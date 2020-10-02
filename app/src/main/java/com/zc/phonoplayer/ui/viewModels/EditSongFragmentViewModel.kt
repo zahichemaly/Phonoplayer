@@ -46,8 +46,8 @@ class EditSongFragmentViewModel(application: Application) : AndroidViewModel(app
         withContext(Dispatchers.IO) {
             try {
                 val selection = "${MediaStore.Audio.Media._ID} = ?"
-                val selectionArgs = arrayOf(song.id.toString())
-                val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.id)
+                val selectionArgs = arrayOf(song.songId.toString())
+                val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.songId)
 
                 val values = ContentValues().apply {
                     put(MediaStore.Audio.Media.TITLE, song.title)

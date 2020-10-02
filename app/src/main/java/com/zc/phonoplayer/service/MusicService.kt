@@ -91,7 +91,8 @@ class MusicService : MediaBrowserServiceCompat() {
             } else {
                 PlaybackStateCompat.STATE_PAUSED
             }
-            updatePlaybackState(playbackState, musicPlayer.getPosition(), speed)
+            musicPlayer.setPlaybackSpeed(speed)
+            updatePlaybackState(playbackState, musicPlayer.getPosition())
         }
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
@@ -181,8 +182,8 @@ class MusicService : MediaBrowserServiceCompat() {
         mMediaSession?.release()
     }
 
-    fun updatePlaybackState(state: Int, position: Long, playbackSpeed: Float = 1.0f) {
-        mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, playbackSpeed).build())
+    fun updatePlaybackState(state: Int, position: Long) {
+        mMediaSession?.setPlaybackState(PlaybackStateCompat.Builder().setState(state, position, musicPlayer.getPlaybackSpeed()).build())
     }
 
     private fun handlePendingIntent(intent: Intent?) {

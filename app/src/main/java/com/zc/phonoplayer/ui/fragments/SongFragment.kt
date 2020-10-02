@@ -105,12 +105,12 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
     }
 
     private fun setupObservers() {
-        songViewModel.permissionToDelete().observe(viewLifecycleOwner, Observer { intentSender ->
+        songViewModel.permissionToDelete().observe(viewLifecycleOwner, { intentSender ->
             intentSender?.let {
                 startIntentSenderForResult(intentSender, REQUEST_SONG_DELETE_PERMISSION, null, 0, 0, 0, null)
             }
         })
-        songViewModel.nbOfDeletedSongs().observe(viewLifecycleOwner, Observer { nbOfDeletedSongs ->
+        songViewModel.nbOfDeletedSongs().observe(viewLifecycleOwner, { nbOfDeletedSongs ->
             if (nbOfDeletedSongs > 0) {
                 Snackbar.make(recycler_view, getString(R.string.nb_of_deleted_tracks, nbOfDeletedSongs), Snackbar.LENGTH_LONG)
                     .show()
@@ -119,7 +119,7 @@ class SongFragment : Fragment(), SongAdapter.SongCallback {
                 }
             }
         })
-        editSongViewModel.nbOfUpdatedSongs().observe(viewLifecycleOwner, Observer { nbOfUpdatedSongs ->
+        editSongViewModel.nbOfUpdatedSongs().observe(viewLifecycleOwner, { nbOfUpdatedSongs ->
             if (nbOfUpdatedSongs > 0) {
                 Snackbar.make(recycler_view, getString(R.string.nb_of_updated_tracks, nbOfUpdatedSongs), Snackbar.LENGTH_LONG)
                     .show()

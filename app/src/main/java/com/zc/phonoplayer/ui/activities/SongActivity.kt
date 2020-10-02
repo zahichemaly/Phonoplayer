@@ -13,6 +13,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentTransaction
 import com.zc.phonoplayer.R
 import com.zc.phonoplayer.helper.ProgressHandler
 import com.zc.phonoplayer.model.Song
@@ -20,8 +21,10 @@ import com.zc.phonoplayer.service.MusicService
 import com.zc.phonoplayer.service.RepeatMode
 import com.zc.phonoplayer.service.SkipStatus
 import com.zc.phonoplayer.ui.components.CircularSeekBar
+import com.zc.phonoplayer.ui.fragments.SongQueueFragment
 import com.zc.phonoplayer.util.*
 import kotlinx.android.synthetic.main.activity_song.*
+import kotlinx.android.synthetic.main.layout_now_playing.*
 
 
 class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
@@ -137,7 +140,7 @@ class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
         song_title.text = song.title
         song_artist.text = song.artist
         song_duration.text = TimeFormatter.getSongDuration(song.duration.toInt())
-        loadUri(song.albumArtUri, song_art)
+        loadUri(song.getAlbumArtUri().toString(), song_art)
         seek_bar.max = song.duration.toInt()
         setColors()
     }
@@ -210,6 +213,19 @@ class SongActivity : AppCompatActivity(), ProgressHandler.Callback {
                     showSnackbar(getString(R.string.repeat_all))
                 }
             }
+        }
+        queue_button.setOnClickListener {
+            val ft = supportFragmentManager.beginTransaction()
+            var frag = supportFragmentManager.findFragmentByTag("queue_song_frag") as SongQueueFragment?
+            if (frag == null) {
+                frag = SongQueueFragment.newInstance()
+                ft.add(R.id.frame_layout, frag, "queue_song_frag")
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            } else {
+                ft.remove(frag)
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
+            }
+            ft.commit()
         }
     }
 

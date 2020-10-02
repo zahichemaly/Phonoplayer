@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container_songs"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_card">
+
+    <TextView
+        android:id="@+id/empty_songs_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/empty_queue"
+        android:textColor="@color/dark_grey"
+        android:textSize="@dimen/text_size_normal"
+        android:visibility="visible"
+        tools:visibility="visible" />
+
+
+</RelativeLayout>

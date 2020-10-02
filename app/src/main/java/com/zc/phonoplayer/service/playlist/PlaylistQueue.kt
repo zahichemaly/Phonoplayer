@@ -2,7 +2,7 @@ package com.zc.phonoplayer.service.playlist
 
 import com.zc.phonoplayer.model.Song
 
-class DefaultPlaylist {
+class PlaylistQueue {
     private var songList: ArrayList<Song> = ArrayList()
     private var selectedIndex: Int = 0
         set(value) {
@@ -11,23 +11,23 @@ class DefaultPlaylist {
         }
     private var isShuffled: Boolean = false
 
-    fun set(songList: ArrayList<Song>): DefaultPlaylist {
+    fun set(songList: ArrayList<Song>): PlaylistQueue {
         this.songList = songList
         this.selectedIndex = 0
         return this
     }
 
-    fun select(song: Song): DefaultPlaylist {
+    fun select(song: Song): PlaylistQueue {
         this.selectedIndex = songList.indexOf(song)
         return this
     }
 
-    fun select(index: Int): DefaultPlaylist {
+    fun select(index: Int): PlaylistQueue {
         this.selectedIndex = index
         return this
     }
 
-    fun shuffle(shuffle: Boolean): DefaultPlaylist {
+    fun shuffle(shuffle: Boolean): PlaylistQueue {
         this.isShuffled = shuffle
         if (shuffle) {
             selectedIndex = (0 until songList.size).random()

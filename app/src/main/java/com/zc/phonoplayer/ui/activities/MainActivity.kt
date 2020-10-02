@@ -19,7 +19,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -68,12 +67,13 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         preferenceUtil = PreferenceUtil(this)
+        song = preferenceUtil.getSavedSong()
         sharedPreferencesUtil = SharedPreferencesUtil(this, PreferenceManager.getDefaultSharedPreferences(applicationContext))
         setSupportActionBar(toolbar)
         setSettings()
+        setupObservers()
         checkPermissions()
         initializePlayer()
-        setupObservers()
     }
 
     private fun setSettings() {
@@ -123,10 +123,9 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         artistFragmentViewModel = ViewModelProvider(this).get(ArtistFragmentViewModel::class.java)
         genreFragmentViewModel = ViewModelProvider(this).get(GenreFragmentViewModel::class.java)
         playlistFragmentViewModel = ViewModelProvider(this).get(PlaylistFragmentViewModel::class.java)
-        mainViewModel.playlist().observe(this, Observer { playlist ->
+        mainViewModel.playlist().observe(this, { playlist ->
             this.songList = playlist.getSongList()
             this.song = playlist.getSelectedSong()
-            this.song?.selected = true
             if (playlist.isShuffled()) {
                 val params = Bundle()
                 params.putParcelableArrayList(SONG_LIST, songList)
@@ -136,19 +135,19 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
                 playSelectedSong()
             }
         })
-        albumFragmentViewModel.item().observe(this, Observer {
+        albumFragmentViewModel.item().observe(this, {
             searchMenuItem.isVisible = false
             addFragment(R.id.frame_layout, AlbumDetailsFragment.newInstance(it), it.title)
         })
-        artistFragmentViewModel.item().observe(this, Observer {
+        artistFragmentViewModel.item().observe(this, {
             val artistSongs = SongLoader.getArtistSongs(songList, it.id)
             addFragment(R.id.frame_layout, ArtistDetailsFragment.newInstance(it, artistSongs), it.title)
         })
-        genreFragmentViewModel.item().observe(this, Observer {
+        genreFragmentViewModel.item().observe(this, {
             val genreSongs = SongLoader.getSongsFromGenre(contentResolver, it.id)
             addFragment(R.id.frame_layout, SongFragment.newInstance(genreSongs), it.name)
         })
-        playlistFragmentViewModel.item().observe(this, Observer {
+        playlistFragmentViewModel.item().observe(this, {
             val playlistSongs = it.songs ?: ArrayList()
             addFragment(R.id.frame_layout, SongFragment.newInstance(playlistSongs), it.name)
         })
@@ -156,11 +155,12 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
 
     private fun loadMedia() {
         //TODO cache
-        songList = SongLoader.getSongs(contentResolver)
+        songList = SongLoader.getSongs(applicationContext)
         albumList = AlbumLoader.getAlbums(contentResolver)
-        genreList = GenreLoader.getGenreList(contentResolver)
         artistList = ArtistLoader.getArtistList(contentResolver)
+        genreList = GenreLoader.getGenreList(contentResolver)
         playlistList = PlaylistLoader.getPlaylists(contentResolver)
+        populateUi()
     }
 
     private fun setupTabAdapter() {
@@ -214,9 +214,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private fun populateUi() {
-        loadMedia()
         setupTabAdapter()
-        controller_layout_view.isVisible = false
         controller_layout_view.controller_song_art.setOnClickListener {
             openSongDetails()
         }
@@ -237,7 +235,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
         when (requestCode) {
             REQUEST_READ_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    populateUi()
+                    loadMedia()
                 } else {
                     //TODO permission denied
                 }
@@ -257,7 +255,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             )
         } else {
             logI("Permissions granted!")
-            populateUi()
+            loadMedia()
         }
     }
 
@@ -297,16 +295,15 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             controller_play_button.setImageDrawable(drawable(R.drawable.ic_controller_play))
         }
         mediaController?.registerCallback(mControllerCallback)
-        song = preferenceUtil.getSavedSong()
         updateSongController()
     }
 
     private fun playSelectedSong() {
-        song?.run {
+        song?.let {
             val extras = Bundle()
-            extras.putParcelable(SELECTED_SONG, song)
+            extras.putParcelable(SELECTED_SONG, it)
             extras.putParcelableArrayList(SONG_LIST, songList)
-            mediaController?.transportControls?.playFromUri(getUri(), extras)
+            mediaController?.transportControls?.playFromUri(it.getUri(), extras)
         }
     }
 
@@ -317,7 +314,7 @@ class MainActivity : BaseActivity(), SharedPreferences.OnSharedPreferenceChangeL
             controller_song_title.isSelected = true
             controller_song_title.text = title
             controller_song_artist.text = artist
-            loadUri(albumArtUri, controller_song_art)
+            loadUri(getAlbumArtUri().toString(), controller_song_art)
             mediaController?.playbackState?.let {
                 updateControllerState(it)
             }

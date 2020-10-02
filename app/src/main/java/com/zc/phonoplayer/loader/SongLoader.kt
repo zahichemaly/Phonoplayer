@@ -2,9 +2,12 @@ package com.zc.phonoplayer.loader
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
+import com.zc.phonoplayer.adapter.TrackSortOrder
 import com.zc.phonoplayer.model.Song
+import com.zc.phonoplayer.util.SortPreferenceUtil
 
 object SongLoader {
     private val URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -39,10 +42,9 @@ object SongLoader {
         return Song(id, data, title, album, albumId, artist, artistId, duration, track, year)
     }
 
-    fun getSongs(contentResolver: ContentResolver): ArrayList<Song> {
+    fun getSongs(context: Context): ArrayList<Song> {
         val songList = arrayListOf<Song>()
-        val sortOrder = MediaStore.Audio.Media.TITLE + " ASC"
-        val cursor = contentResolver.query(URI, PROJECTION, SELECTION, null, sortOrder)
+        val cursor = context.contentResolver.query(URI, PROJECTION, SELECTION, null, getSortOrder(context))
         if (cursor != null && cursor.count > 0) {
             while (cursor.moveToNext()) {
                 songList.add(getSongFromCursor(cursor))
@@ -98,5 +100,16 @@ object SongLoader {
             cursor.close()
         }
         return songList
+    }
+
+    private fun getSortOrder(context: Context): String {
+        return when (SortPreferenceUtil(context).getTracksSortOrder()) {
+            TrackSortOrder.ASCENDING.value -> MediaStore.Audio.Media.TITLE + " ASC"
+            TrackSortOrder.DESCENDING.value -> MediaStore.Audio.Media.TITLE + " DESC"
+            TrackSortOrder.ARTIST.value -> MediaStore.Audio.Media.ARTIST + " ASC"
+            TrackSortOrder.ALBUM.value -> MediaStore.Audio.Media.ALBUM + " ASC"
+            TrackSortOrder.YEAR.value -> MediaStore.Audio.Media.YEAR + " DESC"
+            else -> MediaStore.Audio.Media.TITLE + " ASC"
+        }
     }
 }

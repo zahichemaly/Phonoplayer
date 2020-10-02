@@ -28,7 +28,7 @@ object SongHelper {
 
     fun getSongFromMetadata(metadata: MediaMetadataCompat): Song {
         return Song(
-            id = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong(),
+            songId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong(),
             data = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI),
             title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE),
             album = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM),
@@ -41,14 +41,14 @@ object SongHelper {
 
     fun getMetadataFromSong(song: Song): MediaMetadataCompat {
         return MediaMetadataCompat.Builder()
-            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.id.toString())
+            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.songId.toString())
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, song.data)
             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, song.album)
             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.getAlbumArtUri().toString())
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, song.duration)
-            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.trackNo)
+            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, song.trackno)
             .putLong(MediaMetadataCompat.METADATA_KEY_YEAR, song.year.toLong())
             .build()
     }

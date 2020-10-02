@@ -10,7 +10,7 @@ import com.zc.phonoplayer.R
 import com.zc.phonoplayer.model.Genre
 import com.zc.phonoplayer.util.logI
 
-class GenreAdapter(private var genreList: List<Genre>, private var callback: GenreAdapter.GenreCallback) :
+class GenreAdapter(private var genreList: List<Genre>, private var callback: GenreCallback) :
     RecyclerView.Adapter<GenreAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
